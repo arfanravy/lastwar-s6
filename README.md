@@ -47,6 +47,8 @@ Data yang belum pasti selalu ditandai sebagai *perkiraan* / *belum terkonfirmasi
 
 ## Deploy
 
+Live: **https://lastwar-s6.vercel.app** (Vercel, auto-deploy setiap push ke `main`).
+
 - **Publik:** Vercel atau Cloudflare Pages. Hubungkan repo GitHub, build command `npm run build`, output `dist`. Lalu ganti `site` di `astro.config.mjs` dengan domain final.
 - **Tailscale (preview/privat):** `npm run build && npx astro preview --host`, lalu `tailscale serve 4321` (hanya tailnet) atau `tailscale funnel 4321` (publik, mesin harus menyala).
 

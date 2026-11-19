@@ -2,8 +2,8 @@
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  // TODO: ganti dengan domain final (Vercel/Cloudflare Pages) saat deploy
-  site: 'https://rimba-s6.example.com',
+  // Ganti jika nanti memakai custom domain
+  site: 'https://lastwar-s6.vercel.app',
   i18n: {
     defaultLocale: 'id',
     locales: ['id', 'en'],
