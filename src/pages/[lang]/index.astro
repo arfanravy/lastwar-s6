@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import RainforestMap from '../../components/RainforestMap.astro';
 import season from '../../data/season.json';
 import reveal from '../../data/faction-reveal.json';
 import { SITE, type Lang } from '../../config';
@@ -46,6 +47,7 @@ const copy = {
 
 <Base lang={lang} route="">
   <section class="hero card">
+    <div class="hero-copy">
     <span class="eyebrow">{copy.eyebrow}</span>
     <h1>{season.name}</h1>
     <p class="lead">{copy.lead}</p>
@@ -76,6 +78,10 @@ const copy = {
           <span class="mono" data-clock="local">--:--:--</span>
         </div>
       </div>
+    </div>
+    </div>
+    <div class="hero-3d">
+      <RainforestMap lang={lang} mode="ambient" />
     </div>
   </section>
 
@@ -136,7 +142,9 @@ const copy = {
 
 <style>
   .hero {
-    padding: clamp(20px, 4vw, 36px);
+    padding: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
     background:
       radial-gradient(500px 260px at 100% 0%, rgb(225 29 42 / 0.18), transparent 70%),
       linear-gradient(135deg, var(--forest-800), var(--forest-900));
@@ -153,6 +161,32 @@ const copy = {
     border-radius: 50%;
     background: radial-gradient(circle, rgb(63 191 106 / 0.18), transparent 70%);
     pointer-events: none;
+  }
+  .hero-copy {
+    padding: clamp(20px, 4vw, 36px);
+    position: relative;
+    z-index: 1;
+  }
+  .hero-3d {
+    position: relative;
+    min-height: 360px;
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 18%);
+    mask-image: linear-gradient(to right, transparent 0, #000 18%);
+  }
+  .hero-3d :global(.m3d),
+  .hero-3d :global(.m3d-stage) {
+    position: absolute;
+    inset: 0;
+  }
+  @media (max-width: 860px) {
+    .hero {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .hero-3d {
+      min-height: 300px;
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14%);
+      mask-image: linear-gradient(to bottom, transparent 0, #000 14%);
+    }
   }
   .hero h1 {
     font-size: clamp(2.2rem, 7vw, 3.6rem);

@@ -1,0 +1,29 @@
+---
+import Base from '../../layouts/Base.astro';
+import RainforestMap from '../../components/RainforestMap.astro';
+import type { Lang } from '../../config';
+import { langPaths } from '../../i18n/ui';
+
+export const getStaticPaths = langPaths;
+
+const lang = Astro.params.lang as Lang;
+const copy = {
+  id: {
+    title: 'Peta 3D Shadow Rainforest',
+    lead: '8 warzone mengelilingi Ancestral Temple di Central Area. Warna batas dan bendera menunjukkan faksi tiap server; bendera merah putih menandai server kamu.',
+  },
+  en: {
+    title: 'Shadow Rainforest 3D Map',
+    lead: '8 warzones surround the Ancestral Temple in the Central Area. Border colours and banners show each server’s faction; the red-and-white flag marks your server.',
+  },
+}[lang];
+---
+
+<Base lang={lang} route="map/" title={copy.title} description={copy.lead}>
+  <header class="page-head">
+    <span class="eyebrow">Season 6 · Mega Map</span>
+    <h1>{copy.title}</h1>
+    <p>{copy.lead}</p>
+  </header>
+  <RainforestMap lang={lang} mode="full" />
+</Base>

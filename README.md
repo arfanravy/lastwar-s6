@@ -27,9 +27,11 @@ src/
   i18n/ui.ts                teks UI bersama (ID & EN)
   lib/faction.ts            aturan ganjil/genap Faction Reveal
   lib/timers.ts             countdown & jam server
+  lib/map3d/scene.ts        scene three.js procedural (hutan, temple, spora, bendera)
+  components/RainforestMap.astro  wrapper peta 3D (mode full & ambient), lazy-load
   components/FactionTracker.astro
   layouts/Base.astro
-  pages/[lang]/             halaman: beranda, faction-reveal, season
+  pages/[lang]/             halaman: beranda, faction-reveal, map, season
 ```
 
 ## Memperbarui data
@@ -55,5 +57,6 @@ Live: **https://lastwar-s6.vercel.app** (Vercel, auto-deploy setiap push ke `mai
 ## Roadmap
 
 - [x] Fase 1: beranda + countdown, Faction Reveal Tracker + simulator, panduan season, ID/EN
-- [ ] Fase 2: peta interaktif, kalkulator Spore/totem & War Merit, panduan hero
+- [x] Peta 3D interaktif (three.js), hero 3D di beranda, koin 3D di tracker
+- [ ] Fase 2: kalkulator Spore/totem & War Merit, panduan hero
 - [ ] Fase 3: halaman khusus server/aliansi/faksi

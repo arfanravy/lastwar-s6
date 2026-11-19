@@ -1,0 +1,707 @@
+---
+import reveal from '../data/faction-reveal.json';
+import { SITE, type Lang } from '../config';
+import { localePath, useTranslations } from '../i18n/ui';
+import type { GroupKey } from '../lib/faction';
+
+interface Props {
+  lang: Lang;
+  mode?: 'full' | 'ambient';
+}
+const { lang, mode = 'full' } = Astro.props;
+const t = useTranslations(lang);
+
+const groups = reveal.groups as Record<GroupKey, (typeof reveal.groups)['A']>;
+const tiles: { id: number; group: GroupKey; rank: number; row: number; col: number }[] = [];
+reveal.grid.forEach((row, r) =>
+  row.forEach((id, c) => {
+    if (id === null) return;
+    for (const g of ['A', 'B'] as const) {
+      const s = groups[g].servers.find((x) => x.id === id);
+      if (s) tiles.push({ id, group: g, rank: s.rank, row: r, col: c });
+    }
+  }),
+);
+
+const copy = {
+  id: {
+    loading: 'Memuat peta 3D…',
+    noWebgl: 'Browser ini tidak mendukung WebGL, jadi peta 3D tidak bisa ditampilkan.',
+    noWebglLink: 'Buka versi 2D (Faction Reveal Tracker)',
+    hint: 'Seret untuk memutar · scroll / cubit untuk zoom · klik warzone untuk detail',
+    reset: 'Reset kamera',
+    labels: 'Label',
+    quality: 'Efek cahaya',
+    on: 'Nyala',
+    off: 'Mati',
+    result: 'Hasil faksi',
+    real: 'Data game',
+    flipped: 'Simulasi dibalik',
+    detail: 'Detail warzone',
+    empty: 'Klik salah satu warzone di peta (atau labelnya) untuk melihat grup, peringkat, faksi, dan tetangganya.',
+    group: 'Grup',
+    neighbors: 'Berbatasan dengan',
+    ally: 'kawan',
+    enemy: 'lawan',
+    you: 'Server kamu',
+    myServer: 'Server kamu',
+    myServerHint: 'mis. 1196',
+    centerTitle: 'Central Area',
+    centerBody:
+      'Lokasi Ancestral Temple — target paling bergengsi Season 6. Faksi yang merebutnya mendapat Influence Points dalam jumlah besar. Berbatasan dengan semua warzone.',
+    explore: 'Jelajahi peta 3D',
+    disclaimer: 'Ilustrasi 3D buatan sendiri berdasarkan layout Faction Reveal Stage, bukan peta in-game.',
+  },
+  en: {
+    loading: 'Loading 3D map…',
+    noWebgl: 'This browser does not support WebGL, so the 3D map cannot be shown.',
+    noWebglLink: 'Open the 2D version (Faction Reveal Tracker)',
+    hint: 'Drag to rotate · scroll / pinch to zoom · click a warzone for details',
+    reset: 'Reset camera',
+    labels: 'Labels',
+    quality: 'Glow effects',
+    on: 'On',
+    off: 'Off',
+    result: 'Faction result',
+    real: 'Game data',
+    flipped: 'Flipped (simulated)',
+    detail: 'Warzone details',
+    empty: 'Click a warzone on the map (or its label) to see its group, rank, faction, and neighbours.',
+    group: 'Group',
+    neighbors: 'Borders',
+    ally: 'ally',
+    enemy: 'enemy',
+    you: 'Your server',
+    myServer: 'Your server',
+    myServerHint: 'e.g. 1196',
+    centerTitle: 'Central Area',
+    centerBody:
+      'Home of the Ancestral Temple — the most prestigious target of Season 6. The faction that captures it earns a large amount of Influence Points. Borders every warzone.',
+    explore: 'Explore the 3D map',
+    disclaimer: 'Original 3D illustration based on the Faction Reveal Stage layout, not the in-game map.',
+  },
+}[lang];
+
+const config = {
+  mode,
+  tiles,
+  grid: reveal.grid,
+  picks: { A: groups.A.pick, B: groups.B.pick },
+  home: SITE.homeServer,
+  labels: {
+    deepwood: t('faction.deepwood'),
+    wetland: t('faction.wetland'),
+    center: copy.centerTitle,
+    temple: 'Ancestral Temple',
+  },
+  copy: {
+    group: copy.group,
+    neighbors: copy.neighbors,
+    ally: copy.ally,
+    enemy: copy.enemy,
+    you: copy.you,
+    centerTitle: copy.centerTitle,
+    centerBody: copy.centerBody,
+    empty: copy.empty,
+    on: copy.on,
+    off: copy.off,
+    real: copy.real,
+    flipped: copy.flipped,
+  },
+};
+---
+
+<div class={`m3d m3d--${mode}`} data-m3d data-config={JSON.stringify(config)}>
+  <div class="m3d-stage" data-stage>
+    <div class="m3d-canvas" data-canvas></div>
+    <div class="m3d-labels" data-labels aria-hidden={mode === 'ambient' ? 'true' : undefined}></div>
+    <div class="m3d-loading" data-loading>
+      <span class="spinner" aria-hidden="true"></span>
+      {copy.loading}
+    </div>
+    <div class="m3d-fallback" data-fallback hidden>
+      <p>{copy.noWebgl}</p>
+      <a class="btn" href={localePath(lang, 'faction-reveal/')}>{copy.noWebglLink}</a>
+    </div>
+    {
+      mode === 'full' ? (
+        <p class="m3d-hint">{copy.hint}</p>
+      ) : (
+        <a class="m3d-cta" href={localePath(lang, 'map/')}>
+          {copy.explore} →
+        </a>
+      )
+    }
+  </div>
+
+  {
+    mode === 'full' && (
+      <aside class="m3d-panel">
+        <section class="card m3d-detail" aria-live="polite">
+          <h2>{copy.detail}</h2>
+          <div data-detail>
+            <p class="muted">{copy.empty}</p>
+          </div>
+        </section>
+
+        <section class="card m3d-tools">
+          <div class="tool">
+            <span>{copy.result}</span>
+            <button type="button" class="toggle" data-flip aria-pressed="false">
+              {copy.real}
+            </button>
+          </div>
+          <div class="tool">
+            <span>{copy.labels}</span>
+            <button type="button" class="toggle" data-labels-toggle aria-pressed="true">
+              {copy.on}
+            </button>
+          </div>
+          <div class="tool">
+            <span>{copy.quality}</span>
+            <button type="button" class="toggle" data-quality aria-pressed="false">
+              …
+            </button>
+          </div>
+          <label class="tool">
+            <span>{copy.myServer}</span>
+            <input type="text" inputmode="numeric" data-mine placeholder={copy.myServerHint} value={SITE.homeServer} />
+          </label>
+          <button type="button" class="btn ghost" data-reset>
+            ⟲ {copy.reset}
+          </button>
+        </section>
+        <p class="muted small">{copy.disclaimer}</p>
+      </aside>
+    )
+  }
+</div>
+
+<style>
+  .m3d--full {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 20px;
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .m3d--full {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .m3d--full .m3d-stage {
+      height: 64vh;
+      min-height: 380px;
+    }
+    .m3d-labels :global(.m3d-label .rk) {
+      display: none;
+    }
+    .m3d-labels :global(.m3d-label) {
+      font-size: 0.7rem;
+      padding: 2px 7px 2px 4px;
+    }
+  }
+
+  .m3d-stage {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background:
+      radial-gradient(circle at 50% 40%, rgb(63 191 106 / 0.18), transparent 60%),
+      var(--forest-950);
+    isolation: isolate;
+  }
+  .m3d--full .m3d-stage {
+    height: min(74vh, 720px);
+    min-height: 420px;
+  }
+  .m3d--ambient .m3d-stage {
+    height: 100%;
+    min-height: 300px;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+  .m3d-canvas {
+    position: absolute;
+    inset: 0;
+    touch-action: none;
+  }
+  .m3d--ambient .m3d-canvas {
+    touch-action: pan-y;
+  }
+  .m3d-labels {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .m3d--ambient .m3d-labels {
+    pointer-events: none;
+  }
+
+  .m3d-loading,
+  .m3d-fallback {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 12px;
+    text-align: center;
+    padding: 16px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .m3d-loading[hidden],
+  .m3d-fallback[hidden] {
+    display: none;
+  }
+  .spinner {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 3px solid var(--forest-700);
+    border-top-color: var(--merah);
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .m3d-hint {
+    position: absolute;
+    left: 50%;
+    bottom: 12px;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: rgb(7 23 15 / 0.75);
+    border: 1px solid var(--border);
+    font-size: 0.78rem;
+    color: var(--forest-200);
+    white-space: nowrap;
+    max-width: calc(100% - 24px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;
+  }
+  .m3d-cta {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: var(--merah);
+    color: var(--putih);
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-decoration: none;
+    box-shadow: var(--shadow);
+  }
+  .m3d-cta:hover {
+    background: var(--merah-hover);
+    color: var(--putih);
+  }
+
+  .m3d-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .m3d-panel h2 {
+    font-size: 1.05rem;
+    margin: 0 0 10px;
+  }
+  .m3d-tools {
+    display: grid;
+    gap: 10px;
+  }
+  .tool {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+  }
+  .tool input {
+    width: 110px;
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--forest-600);
+    background: var(--forest-950);
+    color: var(--text);
+    font: inherit;
+    font-family: var(--mono);
+  }
+  .toggle {
+    min-width: 110px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--forest-600);
+    background: var(--surface-2);
+    color: var(--text);
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .toggle[aria-pressed='true'] {
+    background: var(--putih);
+    color: var(--forest-900);
+    border-color: var(--putih);
+  }
+  .toggle[data-flip][aria-pressed='true'] {
+    background: rgb(250 204 21 / 0.15);
+    color: #fde68a;
+    border-color: rgb(250 204 21 / 0.5);
+  }
+  .m3d-tools .btn {
+    justify-content: center;
+  }
+  .small {
+    font-size: 0.78rem;
+    margin: 0;
+  }
+
+  /* Detail panel content (rendered by script) */
+  .m3d-detail :global(.d-id) {
+    font-family: var(--mono);
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .m3d-detail :global(.d-meta) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 10px 0 14px;
+  }
+  .m3d-detail :global(.d-sub) {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0 0 6px;
+  }
+  .m3d-detail :global(.d-neigh) {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 6px;
+  }
+  .m3d-detail :global(.d-neigh li) {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: var(--surface-2);
+    border-radius: var(--radius-sm);
+    font-size: 0.88rem;
+  }
+  .m3d-detail :global(.d-neigh button) {
+    all: unset;
+    cursor: pointer;
+    font-family: var(--mono);
+    font-weight: 700;
+  }
+  .m3d-detail :global(.d-neigh button:hover) {
+    color: var(--merah-text);
+  }
+  .m3d-detail :global(.tag-enemy) {
+    color: #ffb4b8;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  .m3d-detail :global(.tag-ally) {
+    color: #b7f5cd;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  /* 3D labels (created by the scene) */
+  .m3d-labels :global(.m3d-label) {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px 3px 5px;
+    border-radius: 999px;
+    border: 1.5px solid rgb(255 255 255 / 0.25);
+    background: rgb(7 23 15 / 0.82);
+    color: var(--putih);
+    font: 700 0.78rem/1.2 var(--font);
+    white-space: nowrap;
+    pointer-events: auto;
+    cursor: pointer;
+    will-change: transform;
+    transition:
+      background 0.2s,
+      border-color 0.2s,
+      box-shadow 0.2s;
+  }
+  .m3d--ambient .m3d-labels :global(.m3d-label) {
+    pointer-events: none;
+    font-size: 0.7rem;
+  }
+  @media (max-width: 600px) {
+    .m3d--ambient .m3d-labels :global(.m3d-label:not(.is-mine)) {
+      display: none;
+    }
+  }
+  .m3d-labels :global(.m3d-label[data-faction='deepwood']) {
+    border-color: rgb(63 191 106 / 0.8);
+  }
+  .m3d-labels :global(.m3d-label[data-faction='wetland']) {
+    border-color: rgb(47 159 224 / 0.8);
+  }
+  .m3d-labels :global(.m3d-label.is-center) {
+    border-color: #d9b45a;
+    color: #ffe3a3;
+  }
+  .m3d-labels :global(.m3d-label .em) {
+    font-size: 1rem;
+  }
+  .m3d-labels :global(.m3d-label .txt) {
+    font-family: var(--mono);
+  }
+  .m3d-labels :global(.m3d-label .rk) {
+    font-size: 0.68rem;
+    color: var(--muted);
+  }
+  .m3d-labels :global(.m3d-label.is-mine) {
+    background: var(--putih);
+    color: var(--forest-950);
+    border: 2px solid var(--merah);
+  }
+  .m3d-labels :global(.m3d-label.is-mine)::before {
+    content: '';
+    width: 14px;
+    height: 10px;
+    border-radius: 2px;
+    background: linear-gradient(to bottom, var(--merah) 50%, #fff 50%);
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.25);
+  }
+  .m3d-labels :global(.m3d-label.is-mine .rk) {
+    color: var(--forest-900);
+  }
+  .m3d-labels :global(.m3d-label.is-hover),
+  .m3d-labels :global(.m3d-label:hover),
+  .m3d-labels :global(.m3d-label.is-selected) {
+    box-shadow:
+      0 0 0 2px var(--putih),
+      0 6px 18px rgb(0 0 0 / 0.5);
+  }
+  .m3d-labels :global(.m3d-label:focus-visible) {
+    outline: 2px solid var(--merah);
+    outline-offset: 2px;
+  }
+</style>
+
+<script>
+  import type { MapHandle, MapTile } from '../lib/map3d/scene';
+  import { FACTION_ICON, predictFactions, type Faction } from '../lib/faction';
+
+  type Config = {
+    mode: 'full' | 'ambient';
+    tiles: MapTile[];
+    grid: (number | null)[][];
+    picks: { A: number; B: number };
+    home: number;
+    labels: { deepwood: string; wetland: string; center: string; temple: string };
+    copy: Record<string, string>;
+  };
+
+  const STORAGE_KEY = 'rimba.myServer';
+
+  function webglOk() {
+    try {
+      const c = document.createElement('canvas');
+      return !!(c.getContext('webgl2') || c.getContext('webgl'));
+    } catch {
+      return false;
+    }
+  }
+
+  const esc = (s: string) => s.replace(/[&<>"']/g, (ch) => `&#${ch.charCodeAt(0)};`);
+
+  function neighborsOf(grid: (number | null)[][], id: number) {
+    let r0 = -1;
+    let c0 = -1;
+    grid.forEach((row, r) => row.forEach((v, c) => v === id && ((r0 = r), (c0 = c))));
+    const out: (number | 'center')[] = [];
+    for (const [dr, dc] of [
+      [-1, 0],
+      [1, 0],
+      [0, -1],
+      [0, 1],
+    ]) {
+      const v = grid[r0 + dr]?.[c0 + dc];
+      if (v === undefined) continue;
+      out.push(v === null ? 'center' : v);
+    }
+    return out;
+  }
+
+  async function init(root: HTMLElement) {
+    const cfg: Config = JSON.parse(root.dataset.config!);
+    const q = <T extends Element>(s: string) => root.querySelector<T>(s);
+    const loading = q<HTMLElement>('[data-loading]')!;
+    if (!webglOk()) {
+      loading.hidden = true;
+      q<HTMLElement>('[data-fallback]')!.hidden = false;
+      return;
+    }
+
+    let mine = String(cfg.home);
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved !== null) mine = saved;
+    } catch {}
+    const mineInput = q<HTMLInputElement>('[data-mine]');
+    if (mineInput) mineInput.value = mine;
+
+    let flipped = false;
+    const picks = () => ({ A: cfg.picks.A + (flipped ? 1 : 0), B: cfg.picks.B });
+    let factions = predictFactions(cfg.picks.A, cfg.picks.B);
+    const tileById = new Map(cfg.tiles.map((t) => [t.id, t]));
+    const detail = q<HTMLElement>('[data-detail]');
+    let current: number | 'center' | null = null;
+    let map: MapHandle | null = null;
+
+    const chip = (f: Faction) => `<span class="faction-chip ${f}">${FACTION_ICON[f]} ${esc(cfg.labels[f])}</span>`;
+
+    const renderDetail = () => {
+      if (!detail) return;
+      if (current === null) {
+        detail.innerHTML = `<p class="muted">${esc(cfg.copy.empty)}</p>`;
+        return;
+      }
+      if (current === 'center') {
+        detail.innerHTML = `<div class="d-id">🏛️ ${esc(cfg.copy.centerTitle)}</div><p class="muted">${esc(cfg.copy.centerBody)}</p>`;
+        return;
+      }
+      const t = tileById.get(current)!;
+      const f = factions[t.group];
+      const isMine = String(t.id) === mine;
+      const neigh = neighborsOf(cfg.grid, t.id)
+        .map((n) => {
+          if (n === 'center') return `<li><button type="button" data-goto="center">🏛️ ${esc(cfg.copy.centerTitle)}</button></li>`;
+          const nt = tileById.get(n)!;
+          const nf = factions[nt.group];
+          const rel = nf === f ? `<span class="tag-ally">${esc(cfg.copy.ally)}</span>` : `<span class="tag-enemy">${esc(cfg.copy.enemy)}</span>`;
+          return `<li><button type="button" data-goto="${n}">${FACTION_ICON[nf]} #${n}</button>${rel}</li>`;
+        })
+        .join('');
+      detail.innerHTML =
+        `<div class="d-id">#${t.id}${isMine ? ' <span title="' + esc(cfg.copy.you) + '">📍</span>' : ''}</div>` +
+        `<div class="d-meta"><span class="badge">${esc(cfg.copy.group)} ${t.group} · No.${t.rank}</span>${chip(f)}` +
+        (isMine ? `<span class="badge red">${esc(cfg.copy.you)}</span>` : '') +
+        `</div><p class="d-sub">${esc(cfg.copy.neighbors)}</p><ul class="d-neigh">${neigh}</ul>`;
+      detail.querySelectorAll<HTMLButtonElement>('[data-goto]').forEach((b) =>
+        b.addEventListener('click', () => {
+          const g = b.dataset.goto!;
+          map?.select(g === 'center' ? 'center' : Number(g));
+        }),
+      );
+    };
+
+    const { createRainforestMap } = await import('../lib/map3d/scene');
+    map = createRainforestMap(q<HTMLElement>('[data-canvas]')!, {
+      mode: cfg.mode,
+      tiles: cfg.tiles,
+      picks: cfg.picks,
+      myServer: mine,
+      labels: cfg.labels,
+      labelRoot: q<HTMLElement>('[data-labels]') ?? undefined,
+      onSelect: (id) => {
+        current = id;
+        renderDetail();
+      },
+    });
+    loading.hidden = true;
+
+    if (cfg.mode === 'ambient') {
+      const cta = q<HTMLAnchorElement>('.m3d-cta');
+      q<HTMLElement>('[data-stage]')!.addEventListener('click', (e) => {
+        if (cta && !(e.target as HTMLElement).closest('a')) location.href = cta.href;
+      });
+      return;
+    }
+
+    // Toolbar
+    const flipBtn = q<HTMLButtonElement>('[data-flip]')!;
+    flipBtn.addEventListener('click', () => {
+      flipped = !flipped;
+      const p = picks();
+      factions = predictFactions(p.A, p.B);
+      map!.setPicks(p.A, p.B);
+      flipBtn.setAttribute('aria-pressed', String(flipped));
+      flipBtn.textContent = flipped ? cfg.copy.flipped : cfg.copy.real;
+      renderDetail();
+    });
+
+    const labelsBtn = q<HTMLButtonElement>('[data-labels-toggle]')!;
+    labelsBtn.addEventListener('click', () => {
+      const on = labelsBtn.getAttribute('aria-pressed') !== 'true';
+      labelsBtn.setAttribute('aria-pressed', String(on));
+      labelsBtn.textContent = on ? cfg.copy.on : cfg.copy.off;
+      map!.setLabelsVisible(on);
+    });
+
+    const qualityBtn = q<HTMLButtonElement>('[data-quality]')!;
+    const syncQuality = () => {
+      qualityBtn.setAttribute('aria-pressed', String(map!.highQuality));
+      qualityBtn.textContent = map!.highQuality ? cfg.copy.on : cfg.copy.off;
+    };
+    syncQuality();
+    qualityBtn.addEventListener('click', () => {
+      map!.setHighQuality(!map!.highQuality);
+      syncQuality();
+    });
+
+    q('[data-reset]')!.addEventListener('click', () => map!.resetView());
+
+    mineInput?.addEventListener('input', () => {
+      mine = mineInput.value.replace(/\D/g, '');
+      try {
+        localStorage.setItem(STORAGE_KEY, mine);
+      } catch {}
+      map!.setMyServer(mine);
+      renderDetail();
+    });
+
+    // Deep link: /map/#1196
+    const hash = location.hash.replace('#', '');
+    if (hash === 'center') map.select('center');
+    else if (tileById.has(Number(hash))) map.select(Number(hash));
+  }
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-m3d]')) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          io.disconnect();
+          init(root).catch((err) => {
+            console.error(err);
+            root.querySelector<HTMLElement>('[data-loading]')!.hidden = true;
+            root.querySelector<HTMLElement>('[data-fallback]')!.hidden = false;
+          });
+        }
+      },
+      { rootMargin: '200px' },
+    );
+    io.observe(root);
+  }
+</script>

@@ -3,7 +3,7 @@ import Base from '../../layouts/Base.astro';
 import FactionTracker from '../../components/FactionTracker.astro';
 import reveal from '../../data/faction-reveal.json';
 import type { Lang } from '../../config';
-import { formatDate, langPaths, useTranslations } from '../../i18n/ui';
+import { formatDate, langPaths, localePath, useTranslations } from '../../i18n/ui';
 
 export const getStaticPaths = langPaths;
 
@@ -16,6 +16,7 @@ const copy = {
     lead: 'Pembagian 8 server Season 6 ke faksi Deepwood (rusa) dan Wetland (buaya) ditentukan dari angka yang dipasang server No.1 di tiap grup.',
     stageEnds: 'Tahap reveal berakhir dalam',
     source: 'Sumber: screenshot in-game',
+    map3d: 'Lihat di peta 3D',
     howTitle: 'Cara kerjanya',
     how: [
       '8 warzone dibagi menjadi dua grup berisi 4 server. Di dalam grup, tiap server diberi peringkat No.1 sampai No.4.',
@@ -38,6 +39,7 @@ const copy = {
     lead: 'How the 8 Season 6 servers split into the Deepwood (deer) and Wetland (crocodile) factions is decided by numbers set by each group’s No.1 server.',
     stageEnds: 'Reveal stage ends in',
     source: 'Source: in-game screenshot',
+    map3d: 'View on the 3D map',
     howTitle: 'How it works',
     how: [
       'The 8 warzones are split into two groups of 4 servers. Within each group, servers are ranked No.1 to No.4.',
@@ -83,6 +85,7 @@ const copy = {
     <div class="muted small src">
       <div>{t('common.updated')}: {formatDate(reveal.updatedAt, lang)}</div>
       <div>{copy.source}</div>
+      <a class="btn ghost map-link" href={localePath(lang, 'map/')}>🌴 {copy.map3d} →</a>
     </div>
   </div>
 
@@ -130,6 +133,11 @@ const copy = {
     .src {
       text-align: left;
     }
+  }
+  .map-link {
+    margin-top: 10px;
+    padding: 6px 14px;
+    font-size: 0.85rem;
   }
   .steps,
   .unknown {

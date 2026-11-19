@@ -141,10 +141,35 @@ const clientConfig = {
         ))
       }
 
-      <div class="fr-sum card">
-        <span>{copy.sum}</span>
-        <strong class="mono" data-out="sum">{pred.sum}</strong>
-        <span class="badge" data-out="parity">{pred.even ? copy.even : copy.odd}</span>
+      <div class="fr-coins card" data-coins>
+        {
+          (['A', 'B'] as const).map((g, i) => (
+            <>
+              {i === 1 && (
+                <span class="op" aria-hidden="true">
+                  +
+                </span>
+              )}
+              <div class="coin-wrap" data-coin-wrap={g} data-faction={pred[g]}>
+                <div class="coin">
+                  <div class="coin-inner" data-coin={g}>
+                    <span class="face front" data-coin-val={g}>
+                      {groups[g].pick}
+                    </span>
+                    <span class="face back">{g}</span>
+                  </div>
+                </div>
+                <small class="mono muted">#{groups[g].leader}</small>
+              </div>
+            </>
+          ))
+        }
+        <span class="op" aria-hidden="true">=</span>
+        <div class="sum-col">
+          <span class="muted sum-label">{copy.sum}</span>
+          <strong class="mono sum-num" data-out="sum">{pred.sum}</strong>
+          <span class="badge" data-out="parity">{pred.even ? copy.even : copy.odd}</span>
+        </div>
       </div>
 
       <p class="muted fr-hint">{copy.simHint}</p>
@@ -331,13 +356,143 @@ const clientConfig = {
   .stepper input::-webkit-inner-spin-button {
     -webkit-appearance: none;
   }
-  .fr-sum {
+  /* ---------- 3D coins ---------- */
+  .fr-coins {
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: center;
+    gap: clamp(8px, 3vw, 18px);
+    perspective: 700px;
+    --rx: 0deg;
+    --ry: 0deg;
+    background:
+      radial-gradient(240px 120px at 50% 0%, rgb(255 194 77 / 0.12), transparent 70%),
+      var(--surface);
   }
-  .fr-sum strong {
+  .coin-wrap {
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+  }
+  .coin-wrap small {
+    font-size: 0.72rem;
+  }
+  .coin {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    transform-style: preserve-3d;
+    transform: rotateX(var(--rx)) rotateY(var(--ry));
+    transition:
+      transform 0.25s ease-out,
+      filter 0.3s;
+  }
+  .coin-wrap[data-faction='deepwood'] .coin {
+    filter: drop-shadow(0 0 10px rgb(63 191 106 / 0.55));
+  }
+  .coin-wrap[data-faction='wetland'] .coin {
+    filter: drop-shadow(0 0 10px rgb(47 159 224 / 0.6));
+  }
+  .coin-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+  }
+  .coin-inner::before,
+  .coin-inner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: #8a5a06;
+  }
+  .coin-inner::before {
+    transform: translateZ(1.5px);
+  }
+  .coin-inner::after {
+    transform: translateZ(-1.5px);
+  }
+  .face {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    background: radial-gradient(circle at 35% 28%, #fff6d0 0%, #f7cc52 30%, #d9961a 65%, #94600a 100%);
+    box-shadow:
+      inset 0 0 0 4px #b67d12,
+      inset 0 0 0 7px #ffdc78,
+      inset 0 -6px 12px rgb(120 70 0 / 0.5);
+    font-family: var(--mono);
+    font-weight: 900;
+    font-size: 1.9rem;
+    color: #7a4700;
+    text-shadow:
+      0 1px 0 #ffefb8,
+      0 -1px 0 #5e3600;
+  }
+  .face.front {
+    transform: translateZ(3px);
+  }
+  .face.back {
+    transform: rotateY(180deg) translateZ(3px);
+    font-family: var(--font);
+    font-size: 1.5rem;
+  }
+  .coin-inner.flip {
+    animation: coin-flip 0.75s cubic-bezier(0.3, 0.7, 0.3, 1);
+  }
+  @keyframes coin-flip {
+    0% {
+      transform: translateY(0) rotateY(0);
+    }
+    45% {
+      transform: translateY(-18px) rotateY(200deg);
+    }
+    100% {
+      transform: translateY(0) rotateY(360deg);
+    }
+  }
+  .op {
     font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+  .sum-col {
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+  }
+  .sum-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .sum-num {
+    font-size: 2.1rem;
+    line-height: 1;
+  }
+  .sum-num.pop {
+    animation: pop 0.45s ease-out;
+  }
+  @keyframes pop {
+    40% {
+      transform: scale(1.35);
+      color: var(--merah-text);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .coin-inner.flip,
+    .sum-num.pop {
+      animation: none;
+    }
+    .coin {
+      transition: none;
+    }
   }
   .fr-hint {
     margin: 0;
@@ -402,11 +557,47 @@ const clientConfig = {
       return n;
     };
 
+    // 3D coins: flip on change, tilt with pointer
+    const shown: Record<GroupKey, number> = { A: cfg.pickA, B: cfg.pickB };
+    const flipCoin = (g: GroupKey, value: number) => {
+      if (shown[g] === value) return;
+      shown[g] = value;
+      const inner = $<HTMLElement>(`[data-coin="${g}"]`)!;
+      inner.classList.remove('flip');
+      void inner.offsetWidth;
+      inner.classList.add('flip');
+      setTimeout(() => ($(`[data-coin-val="${g}"]`)!.textContent = String(value)), 330);
+    };
+    const coins = $<HTMLElement>('[data-coins]')!;
+    coins.addEventListener('pointermove', (e) => {
+      const r = coins.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      coins.style.setProperty('--ry', `${x * 50}deg`);
+      coins.style.setProperty('--rx', `${-y * 40}deg`);
+    });
+    coins.addEventListener('pointerleave', () => {
+      coins.style.setProperty('--ry', '0deg');
+      coins.style.setProperty('--rx', '0deg');
+    });
+    let lastSum = cfg.pickA + cfg.pickB;
+
     const render = () => {
       const a = read('A');
       const b = read('B');
       const p = predictFactions(a, b);
       const simulated = a !== cfg.pickA || b !== cfg.pickB;
+
+      flipCoin('A', a);
+      flipCoin('B', b);
+      for (const g of ['A', 'B'] as const) $<HTMLElement>(`[data-coin-wrap="${g}"]`)!.dataset.faction = p[g];
+      const sumEl = $<HTMLElement>('[data-out="sum"]')!;
+      if (p.sum !== lastSum) {
+        lastSum = p.sum;
+        sumEl.classList.remove('pop');
+        void sumEl.offsetWidth;
+        sumEl.classList.add('pop');
+      }
 
       $<HTMLElement>('[data-sim-flag]')!.hidden = !simulated;
       $('[data-out="sum"]')!.textContent = String(p.sum);
