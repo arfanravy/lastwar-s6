@@ -1,0 +1,241 @@
+---
+import Base from '../../layouts/Base.astro';
+import season from '../../data/season.json';
+import reveal from '../../data/faction-reveal.json';
+import { SITE, type Lang } from '../../config';
+import { formatDate, langPaths, localePath, useTranslations } from '../../i18n/ui';
+import { FACTION_ICON, predictFactions } from '../../lib/faction';
+
+export const getStaticPaths = langPaths;
+
+const lang = Astro.params.lang as Lang;
+const t = useTranslations(lang);
+const pred = predictFactions(reveal.groups.A.pick, reveal.groups.B.pick);
+
+const copy = {
+  id: {
+    eyebrow: 'Season 6 · Pra-musim',
+    lead: 'Perang antar-faksi di hutan hujan: Deepwood (rusa) melawan Wetland (buaya) di satu peta raksasa berisi 8 warzone dan Central Area.',
+    countdownLabel: 'Pra-musim berakhir dalam',
+    factionTitle: 'Prediksi faksi saat ini',
+    factionNote: 'Belum final — angka masih bisa berubah sampai tahap reveal berakhir.',
+    open: 'Buka Faction Reveal Tracker',
+    group: 'Grup',
+    eventsTitle: 'Event pra-musim',
+    more: 'Lihat',
+    guideTitle: 'Panduan Season 6',
+    guideDesc: 'Faksi, peta Shadow Rainforest, resource baru (Spore, Mushroom, War Merit), profession, dan hero.',
+    guideCta: 'Baca panduan',
+  },
+  en: {
+    eyebrow: 'Season 6 · Pre-season',
+    lead: 'Faction war in the rainforest: Deepwood (deer) versus Wetland (crocodile) on one giant map of 8 warzones and a Central Area.',
+    countdownLabel: 'Pre-season ends in',
+    factionTitle: 'Current faction prediction',
+    factionNote: 'Not final — the numbers can still change until the reveal stage ends.',
+    open: 'Open Faction Reveal Tracker',
+    group: 'Group',
+    eventsTitle: 'Pre-season events',
+    more: 'View',
+    guideTitle: 'Season 6 Guide',
+    guideDesc: 'Factions, the Shadow Rainforest map, new resources (Spore, Mushroom, War Merit), professions, and heroes.',
+    guideCta: 'Read the guide',
+  },
+}[lang];
+---
+
+<Base lang={lang} route="">
+  <section class="hero card">
+    <span class="eyebrow">{copy.eyebrow}</span>
+    <h1>{season.name}</h1>
+    <p class="lead">{copy.lead}</p>
+
+    <div class="hero-timer">
+      <div>
+        <span class="muted label">
+          {copy.countdownLabel}
+          {season.preseason.endsAtEstimated && <span class="badge">{t('common.estimated')}</span>}
+        </span>
+        <div
+          class="countdown"
+          data-countdown={season.preseason.endsAt}
+          data-day-unit={t('time.dayUnit')}
+          data-ended={t('time.ended')}
+        >
+          --
+        </div>
+        <span class="muted small">{formatDate(season.preseason.endsAt, lang)}</span>
+      </div>
+      <div class="clock-row">
+        <div>
+          <span>{t('time.server')}</span>
+          <span class="mono" data-clock="server" data-offset={SITE.serverUtcOffset}>--:--:--</span>
+        </div>
+        <div>
+          <span>{t('time.local')}</span>
+          <span class="mono" data-clock="local">--:--:--</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="grid-2 section">
+    <section class="card">
+      <h2>{copy.factionTitle}</h2>
+      <ul class="pred">
+        {
+          (['A', 'B'] as const).map((g) => (
+            <li>
+              <div>
+                <strong>
+                  {copy.group} {g}
+                </strong>
+                <div class="mono muted small">
+                  {reveal.groups[g].servers.map((s) => (
+                    <span class={s.id === SITE.homeServer ? 'home' : undefined}>#{s.id} </span>
+                  ))}
+                </div>
+              </div>
+              <span class={`faction-chip ${pred[g]}`}>
+                {FACTION_ICON[pred[g]]} {t(`faction.${pred[g]}` as const)}
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="muted small"><span class="badge warn">!</span> {copy.factionNote}</p>
+      <a class="btn" href={localePath(lang, 'faction-reveal/')}>{copy.open} →</a>
+    </section>
+
+    <section class="card">
+      <h2>{copy.eventsTitle}</h2>
+      <ul class="events">
+        {
+          season.preseasonEvents.map((e) => (
+            <li>
+              <strong>{e.name}</strong>
+              <span class="muted">{e.desc[lang]}</span>
+              {e.link && <a href={localePath(lang, e.link)}>{copy.more} →</a>}
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </div>
+
+  <section class="card section guide-cta">
+    <div>
+      <h2>{copy.guideTitle}</h2>
+      <p class="muted">{copy.guideDesc}</p>
+    </div>
+    <a class="btn ghost" href={localePath(lang, 'season/')}>{copy.guideCta} →</a>
+  </section>
+
+  <p class="muted small updated">{t('common.updated')}: {season.lastVerified}</p>
+</Base>
+
+<style>
+  .hero {
+    padding: clamp(20px, 4vw, 36px);
+    background:
+      radial-gradient(500px 260px at 100% 0%, rgb(225 29 42 / 0.18), transparent 70%),
+      linear-gradient(135deg, var(--forest-800), var(--forest-900));
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    right: -40px;
+    bottom: -40px;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgb(63 191 106 / 0.18), transparent 70%);
+    pointer-events: none;
+  }
+  .hero h1 {
+    font-size: clamp(2.2rem, 7vw, 3.6rem);
+    margin: 10px 0 8px;
+    font-weight: 800;
+  }
+  .lead {
+    max-width: 60ch;
+    color: var(--forest-200);
+    margin: 0 0 24px;
+  }
+  .hero-timer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px 48px;
+    align-items: flex-end;
+  }
+  .label {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 0.85rem;
+  }
+  .small {
+    font-size: 0.82rem;
+  }
+  .pred {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 12px;
+    display: grid;
+    gap: 10px;
+  }
+  .pred li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: var(--surface-2);
+    border-radius: var(--radius-sm);
+  }
+  .home {
+    color: var(--putih);
+    font-weight: 800;
+    text-decoration: underline;
+    text-decoration-color: var(--merah);
+    text-decoration-thickness: 2px;
+  }
+  .events {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 12px;
+  }
+  .events li {
+    display: grid;
+    gap: 2px;
+    padding-left: 12px;
+    border-left: 3px solid var(--merah);
+  }
+  .events .muted {
+    font-size: 0.9rem;
+  }
+  .events a {
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .guide-cta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .guide-cta h2 {
+    margin-bottom: 4px;
+  }
+  .guide-cta p {
+    margin: 0;
+  }
+  .updated {
+    margin-top: 24px;
+  }
+</style>

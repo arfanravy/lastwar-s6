@@ -1,0 +1,75 @@
+---
+import { getEntry, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import type { Lang } from '../../config';
+import { langPaths, useTranslations } from '../../i18n/ui';
+
+export const getStaticPaths = langPaths;
+
+const lang = Astro.params.lang as Lang;
+const t = useTranslations(lang);
+const entry = await getEntry('guides', `${lang}/season-overview`);
+if (!entry) throw new Error(`Missing guide: ${lang}/season-overview`);
+const { Content, headings } = await render(entry);
+const toc = headings.filter((h) => h.depth === 2);
+const updated = entry.data.updated.toISOString().slice(0, 10);
+---
+
+<Base lang={lang} route="season/" title={entry.data.title} description={entry.data.description}>
+  <header class="page-head">
+    <span class="eyebrow">Season 6 · Lost Rainforest</span>
+    <h1>{entry.data.title}</h1>
+    <p>{entry.data.description}</p>
+  </header>
+
+  <div class="guide">
+    <aside class="toc card">
+      <strong>{lang === 'id' ? 'Isi' : 'Contents'}</strong>
+      <ol>
+        {toc.map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}
+      </ol>
+      <p class="muted small">{t('common.updated')}: {updated}</p>
+    </aside>
+    <article class="prose">
+      <Content />
+    </article>
+  </div>
+</Base>
+
+<style>
+  .guide {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 32px;
+    align-items: start;
+  }
+  .toc {
+    position: sticky;
+    top: 84px;
+    padding: 16px;
+  }
+  .toc ol {
+    padding-left: 1.2em;
+    margin: 8px 0;
+    font-size: 0.9rem;
+  }
+  .toc a {
+    text-decoration: none;
+    color: var(--forest-200);
+  }
+  .toc a:hover {
+    color: var(--putih);
+  }
+  .small {
+    font-size: 0.78rem;
+    margin: 0;
+  }
+  @media (max-width: 820px) {
+    .guide {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .toc {
+      position: static;
+    }
+  }
+</style>

@@ -1,0 +1,86 @@
+---
+import '../styles/global.css';
+import { LANGS, ROUTES, SITE, type Lang } from '../config';
+import { localePath, useTranslations } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  title?: string;
+  description?: string;
+  /** Path tanpa prefix bahasa, mis. '' atau 'faction-reveal/' */
+  route: string;
+}
+
+const { lang, title, description, route } = Astro.props;
+const t = useTranslations(lang);
+const fullTitle = title ? `${title} · ${SITE.name}` : `${SITE.name} — ${t('site.tagline')}`;
+const desc = description ?? t('site.tagline');
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={desc} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={desc} />
+    <meta name="theme-color" content="#07170f" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    {LANGS.map((l) => <link rel="alternate" hreflang={l} href={new URL(localePath(l, route), Astro.site)} />)}
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="flag-stripe" aria-hidden="true"></div>
+    <header class="site-header">
+      <div class="container">
+        <a class="brand" href={localePath(lang)}>
+          <span class="brand-mark" aria-hidden="true"><span></span><span></span></span>
+          <span>{SITE.name}<small>{t('site.tagline')}</small></span>
+        </a>
+        <nav class="main-nav" aria-label="Main">
+          {
+            ROUTES.map((r) => (
+              <a href={localePath(lang, r.path)} aria-current={r.path === route ? 'page' : undefined}>
+                {t(r.key)}
+              </a>
+            ))
+          }
+        </nav>
+        <div class="lang-switch" role="group" aria-label={t('lang.label')}>
+          {
+            LANGS.map((l) => (
+              <a href={localePath(l, route)} hreflang={l} aria-current={l === lang ? 'true' : undefined}>
+                {l.toUpperCase()}
+              </a>
+            ))
+          }
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="container">
+        <slot />
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>{t('footer.disclaimer')}</p>
+        <p>{t('footer.contribute')}</p>
+      </div>
+    </footer>
+
+    <script>
+      import { startTimers } from '../lib/timers';
+      startTimers();
+    </script>
+  </body>
+</html>

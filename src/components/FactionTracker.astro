@@ -1,0 +1,467 @@
+---
+import data from '../data/faction-reveal.json';
+import { SITE, type Lang } from '../config';
+import { useTranslations } from '../i18n/ui';
+import { FACTION_ICON, predictFactions, type GroupKey } from '../lib/faction';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const groups = data.groups as Record<GroupKey, (typeof data.groups)['A']>;
+const serverInfo = new Map<number, { group: GroupKey; rank: number }>();
+for (const key of ['A', 'B'] as const) {
+  for (const s of groups[key].servers) serverInfo.set(s.id, { group: key, rank: s.rank });
+}
+const pred = predictFactions(groups.A.pick, groups.B.pick);
+
+const copy = {
+  id: {
+    board: 'Peta pembagian 8 warzone',
+    center: 'Central Area',
+    temple: 'Ancestral Temple',
+    group: 'Grup',
+    pickOf: 'Angka server No.1',
+    sum: 'Jumlah',
+    even: 'genap',
+    odd: 'ganjil',
+    goesTo: 'masuk',
+    highlight: 'Sorot server kamu',
+    highlightHint: 'Ketik nomor server, mis. 1196',
+    yourServer: 'Server kamu',
+    notInGroup: 'tidak ada di grup ini',
+    reset: 'Kembalikan ke data in-game',
+    simTitle: 'Coba sendiri',
+    simHint: 'Ubah angkanya. Yang menentukan hanya ganjil/genapnya jumlah.',
+    simActive: 'Mode simulasi — bukan data asli',
+    dec: 'Kurangi',
+    inc: 'Tambah',
+  },
+  en: {
+    board: 'Map of the 8 warzones',
+    center: 'Central Area',
+    temple: 'Ancestral Temple',
+    group: 'Group',
+    pickOf: 'No.1 server number',
+    sum: 'Sum',
+    even: 'even',
+    odd: 'odd',
+    goesTo: 'joins',
+    highlight: 'Highlight your server',
+    highlightHint: 'Type a server number, e.g. 1196',
+    yourServer: 'Your server',
+    notInGroup: 'is not in this group',
+    reset: 'Reset to in-game data',
+    simTitle: 'Try it yourself',
+    simHint: 'Change the numbers. Only whether the sum is odd or even matters.',
+    simActive: 'Simulation mode — not real data',
+    dec: 'Decrease',
+    inc: 'Increase',
+  },
+}[lang];
+
+const clientConfig = {
+  pickA: groups.A.pick,
+  pickB: groups.B.pick,
+  home: SITE.homeServer,
+  servers: Object.fromEntries(serverInfo),
+  labels: {
+    deepwood: t('faction.deepwood'),
+    wetland: t('faction.wetland'),
+    even: copy.even,
+    odd: copy.odd,
+    notInGroup: copy.notInGroup,
+    group: copy.group,
+  },
+};
+---
+
+<div class="fr" data-fr data-config={JSON.stringify(clientConfig)}>
+  <div class="fr-layout">
+    <figure class="fr-board-wrap">
+      <div class="fr-board" role="grid" aria-label={copy.board}>
+        {
+          data.grid.flat().map((id) => {
+            if (id === null) {
+              return (
+                <div class="fr-cell center" role="gridcell">
+                  <span class="temple" aria-hidden="true">🏛️</span>
+                  <span class="center-name">{copy.center}</span>
+                  <span class="center-sub">{copy.temple}</span>
+                </div>
+              );
+            }
+            const info = serverInfo.get(id)!;
+            const faction = pred[info.group];
+            return (
+              <div class="fr-cell" role="gridcell" data-server={id} data-group={info.group} data-faction={faction}>
+                <span class="grp">{info.group}</span>
+                <span class="pin" aria-hidden="true">📍</span>
+                <span class="icon" aria-hidden="true">{FACTION_ICON[faction]}</span>
+                <span class="rank">No.{info.rank}</span>
+                <span class="sid mono">#{id}</span>
+              </div>
+            );
+          })
+        }
+      </div>
+      <figcaption class="muted">
+        <span class="faction-chip deepwood">🦌 {t('faction.deepwood')}</span>
+        <span class="faction-chip wetland">🐊 {t('faction.wetland')}</span>
+      </figcaption>
+    </figure>
+
+    <div class="fr-panel">
+      <div class="fr-sim-flag badge warn" hidden data-sim-flag>{copy.simActive}</div>
+
+      {
+        (['A', 'B'] as const).map((g) => (
+          <div class="fr-group card">
+            <div class="fr-group-head">
+              <strong>
+                {copy.group} {g} <span class="muted mono">(#{groups[g].leader})</span>
+              </strong>
+              <span class={`faction-chip ${pred[g]}`} data-out={`chip-${g}`}>
+                <span data-out={`icon-${g}`}>{FACTION_ICON[pred[g]]}</span>
+                <span data-out={`name-${g}`}>{t(`faction.${pred[g]}` as const)}</span>
+              </span>
+            </div>
+            <div class="fr-servers mono muted">{groups[g].servers.map((s) => `#${s.id}`).join(' · ')}</div>
+            <label class="fr-pick">
+              <span>{copy.pickOf}</span>
+              <span class="stepper">
+                <button type="button" data-step={g} data-dir="-1" aria-label={copy.dec}>−</button>
+                <input type="number" inputmode="numeric" min="0" max="999" value={groups[g].pick} data-pick={g} />
+                <button type="button" data-step={g} data-dir="1" aria-label={copy.inc}>+</button>
+              </span>
+            </label>
+          </div>
+        ))
+      }
+
+      <div class="fr-sum card">
+        <span>{copy.sum}</span>
+        <strong class="mono" data-out="sum">{pred.sum}</strong>
+        <span class="badge" data-out="parity">{pred.even ? copy.even : copy.odd}</span>
+      </div>
+
+      <p class="muted fr-hint">{copy.simHint}</p>
+      <button type="button" class="btn ghost" data-reset>{copy.reset}</button>
+
+      <label class="fr-mine card">
+        <span>{copy.highlight}</span>
+        <input type="text" inputmode="numeric" placeholder={copy.highlightHint} data-mine value={SITE.homeServer} />
+        <output data-out="mine" class="fr-mine-out"></output>
+      </label>
+    </div>
+  </div>
+</div>
+
+<style>
+  .fr-layout {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+  @media (max-width: 820px) {
+    .fr-layout {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .fr-board-wrap {
+    margin: 0;
+  }
+  .fr-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 10px;
+    background: var(--forest-900);
+    border: 3px solid #b08a3e;
+    border-radius: var(--radius);
+    max-width: 480px;
+    margin-inline: auto;
+  }
+  .fr-cell {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: var(--radius-sm);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    text-align: center;
+    transition:
+      background 0.3s,
+      border-color 0.3s;
+    border: 2px solid transparent;
+  }
+  .fr-cell[data-faction='deepwood'] {
+    background: linear-gradient(160deg, #2f7d4c, var(--deepwood-bg));
+    border-color: rgb(63 191 106 / 0.5);
+  }
+  .fr-cell[data-faction='wetland'] {
+    background: linear-gradient(160deg, #1f6c9c, var(--wetland-bg));
+    border-color: rgb(47 159 224 / 0.5);
+  }
+  .fr-cell.center {
+    background: radial-gradient(circle, var(--forest-800), var(--forest-950));
+    border-color: var(--border);
+  }
+  .fr-cell.is-mine {
+    border-color: var(--merah);
+    box-shadow:
+      0 0 0 2px var(--putih),
+      0 0 18px rgb(225 29 42 / 0.6);
+  }
+  .icon {
+    font-size: clamp(1.4rem, 5vw, 2rem);
+    line-height: 1;
+  }
+  .rank {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: rgb(255 255 255 / 0.85);
+  }
+  .sid {
+    font-weight: 800;
+    font-size: clamp(0.85rem, 3vw, 1.05rem);
+    background: rgb(0 0 0 / 0.35);
+    padding: 0 6px;
+    border-radius: 6px;
+  }
+  .grp {
+    position: absolute;
+    top: 4px;
+    left: 6px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    opacity: 0.7;
+  }
+  .pin {
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    font-size: 1rem;
+    display: none;
+  }
+  .fr-cell.is-mine .pin {
+    display: block;
+  }
+  .temple {
+    font-size: 1.6rem;
+  }
+  .center-name {
+    font-weight: 800;
+    font-size: 0.78rem;
+  }
+  .center-sub {
+    font-size: 0.66rem;
+    color: var(--muted);
+  }
+  figcaption {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+
+  .fr-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .fr-panel .card {
+    padding: 14px 16px;
+  }
+  .fr-group-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .fr-servers {
+    font-size: 0.82rem;
+    margin: 4px 0 10px;
+  }
+  .fr-pick {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    flex-wrap: wrap;
+  }
+  .stepper {
+    display: inline-flex;
+    border: 1px solid var(--forest-600);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .stepper button {
+    width: 36px;
+    border: 0;
+    background: var(--surface-2);
+    color: var(--text);
+    font-size: 1.1rem;
+    cursor: pointer;
+  }
+  .stepper button:hover {
+    background: var(--merah);
+  }
+  .stepper input {
+    width: 56px;
+    text-align: center;
+    border: 0;
+    background: var(--forest-950);
+    color: var(--text);
+    font: inherit;
+    font-weight: 800;
+    font-family: var(--mono);
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  .stepper input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+  .fr-sum {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .fr-sum strong {
+    font-size: 1.6rem;
+  }
+  .fr-hint {
+    margin: 0;
+    font-size: 0.88rem;
+  }
+  .fr-panel .btn {
+    align-self: flex-start;
+  }
+  .fr-mine {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .fr-mine input {
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--forest-600);
+    background: var(--forest-950);
+    color: var(--text);
+    font: inherit;
+    font-family: var(--mono);
+  }
+  .fr-mine-out {
+    font-weight: 500;
+  }
+  .fr-mine-out:empty {
+    display: none;
+  }
+</style>
+
+<script>
+  import { FACTION_ICON, predictFactions, type GroupKey } from '../lib/faction';
+
+  type Config = {
+    pickA: number;
+    pickB: number;
+    home: number;
+    servers: Record<string, { group: GroupKey; rank: number }>;
+    labels: Record<string, string>;
+  };
+
+  const STORAGE_KEY = 'rimba.myServer';
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-fr]')) {
+    const cfg: Config = JSON.parse(root.dataset.config!);
+    const $ = <T extends Element>(sel: string) => root.querySelector<T>(sel);
+    const inputs = {
+      A: $<HTMLInputElement>('[data-pick="A"]')!,
+      B: $<HTMLInputElement>('[data-pick="B"]')!,
+    };
+    const mineInput = $<HTMLInputElement>('[data-mine]')!;
+
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved !== null) mineInput.value = saved;
+    } catch {}
+
+    const read = (g: GroupKey) => {
+      const n = Math.max(0, Math.floor(Number(inputs[g].value) || 0));
+      return n;
+    };
+
+    const render = () => {
+      const a = read('A');
+      const b = read('B');
+      const p = predictFactions(a, b);
+      const simulated = a !== cfg.pickA || b !== cfg.pickB;
+
+      $<HTMLElement>('[data-sim-flag]')!.hidden = !simulated;
+      $('[data-out="sum"]')!.textContent = String(p.sum);
+      $('[data-out="parity"]')!.textContent = p.even ? cfg.labels.even : cfg.labels.odd;
+
+      for (const g of ['A', 'B'] as const) {
+        const f = p[g];
+        const chip = $<HTMLElement>(`[data-out="chip-${g}"]`)!;
+        chip.className = `faction-chip ${f}`;
+        $(`[data-out="icon-${g}"]`)!.textContent = FACTION_ICON[f];
+        $(`[data-out="name-${g}"]`)!.textContent = cfg.labels[f];
+      }
+
+      const mine = mineInput.value.replace(/\D/g, '');
+      root.querySelectorAll<HTMLElement>('.fr-cell[data-server]').forEach((cell) => {
+        const f = p[cell.dataset.group as GroupKey];
+        cell.dataset.faction = f;
+        cell.querySelector('.icon')!.textContent = FACTION_ICON[f];
+        cell.classList.toggle('is-mine', cell.dataset.server === mine);
+      });
+
+      const out = $<HTMLOutputElement>('[data-out="mine"]')!;
+      const info = cfg.servers[mine];
+      if (!mine) out.textContent = '';
+      else if (!info) out.textContent = `#${mine} ${cfg.labels.notInGroup}`;
+      else {
+        const f = p[info.group];
+        out.innerHTML = '';
+        const chip = document.createElement('span');
+        chip.className = `faction-chip ${f}`;
+        chip.textContent = `${FACTION_ICON[f]} ${cfg.labels[f]}`;
+        out.append(`#${mine} · ${cfg.labels.group} ${info.group} · No.${info.rank} → `, chip);
+      }
+    };
+
+    for (const g of ['A', 'B'] as const) inputs[g].addEventListener('input', render);
+    root.querySelectorAll<HTMLButtonElement>('[data-step]').forEach((btn) =>
+      btn.addEventListener('click', () => {
+        const g = btn.dataset.step as GroupKey;
+        inputs[g].value = String(Math.max(0, read(g) + Number(btn.dataset.dir)));
+        render();
+      }),
+    );
+    $('[data-reset]')!.addEventListener('click', () => {
+      inputs.A.value = String(cfg.pickA);
+      inputs.B.value = String(cfg.pickB);
+      render();
+    });
+    mineInput.addEventListener('input', () => {
+      try {
+        localStorage.setItem(STORAGE_KEY, mineInput.value.replace(/\D/g, ''));
+      } catch {}
+      render();
+    });
+
+    render();
+  }
+</script>

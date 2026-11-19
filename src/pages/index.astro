@@ -1,0 +1,27 @@
+---
+// Halaman root: arahkan ke bahasa yang cocok (default Indonesia).
+---
+
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rimba S6</title>
+    <meta http-equiv="refresh" content="0; url=/id/" />
+    <link rel="canonical" href="/id/" />
+    <script is:inline>
+      try {
+        var lang = (navigator.language || 'id').toLowerCase();
+        location.replace(lang.startsWith('id') || lang.startsWith('ms') ? '/id/' : '/en/');
+      } catch (e) {}
+    </script>
+    <style>
+      body { background: #07170f; color: #fff; font-family: system-ui, sans-serif; display: grid; place-items: center; min-height: 100vh; margin: 0; }
+      a { color: #fff; }
+    </style>
+  </head>
+  <body>
+    <p><a href="/id/">Bahasa Indonesia</a> · <a href="/en/">English</a></p>
+  </body>
+</html>

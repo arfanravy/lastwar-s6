@@ -1,0 +1,150 @@
+---
+import Base from '../../layouts/Base.astro';
+import FactionTracker from '../../components/FactionTracker.astro';
+import reveal from '../../data/faction-reveal.json';
+import type { Lang } from '../../config';
+import { formatDate, langPaths, useTranslations } from '../../i18n/ui';
+
+export const getStaticPaths = langPaths;
+
+const lang = Astro.params.lang as Lang;
+const t = useTranslations(lang);
+
+const copy = {
+  id: {
+    title: 'Faction Reveal Tracker',
+    lead: 'Pembagian 8 server Season 6 ke faksi Deepwood (rusa) dan Wetland (buaya) ditentukan dari angka yang dipasang server No.1 di tiap grup.',
+    stageEnds: 'Tahap reveal berakhir dalam',
+    source: 'Sumber: screenshot in-game',
+    howTitle: 'Cara kerjanya',
+    how: [
+      '8 warzone dibagi menjadi dua grup berisi 4 server. Di dalam grup, tiap server diberi peringkat No.1 sampai No.4.',
+      'Server No.1 dari masing-masing grup memasang sebuah angka.',
+      'Jika jumlah kedua angka <strong>genap</strong>, Grup A (hijau di game, dipimpin #1271) masuk <strong>Deepwood</strong> dan Grup B masuk <strong>Wetland</strong>. Jika <strong>ganjil</strong>, sebaliknya.',
+      'Grid 3×3 kemungkinan besar menggambarkan posisi warzone di Mega Map, dengan Central Area (Ancestral Temple) di tengah.',
+    ],
+    whyTitle: 'Kenapa sistemnya begini?',
+    why: 'Ini mirip suit ganjil-genap: tidak ada satu pihak pun yang bisa menentukan hasilnya sendirian, karena hasil akhirnya bergantung pada angka kedua pihak.',
+    unknownTitle: 'Yang belum pasti',
+    unknown: [
+      'Apakah angka bisa diganti berkali-kali sampai timer habis (tombol "Change History" mengisyaratkan bisa).',
+      'Rentang angka yang boleh dipilih.',
+      'Dasar peringkat No.1–No.4 di tiap grup (power server, tanggal buka server, atau lainnya).',
+      'Apakah posisi di grid sama persis dengan posisi warzone di peta season.',
+    ],
+  },
+  en: {
+    title: 'Faction Reveal Tracker',
+    lead: 'How the 8 Season 6 servers split into the Deepwood (deer) and Wetland (crocodile) factions is decided by numbers set by each group’s No.1 server.',
+    stageEnds: 'Reveal stage ends in',
+    source: 'Source: in-game screenshot',
+    howTitle: 'How it works',
+    how: [
+      'The 8 warzones are split into two groups of 4 servers. Within each group, servers are ranked No.1 to No.4.',
+      'The No.1 server of each group sets a number.',
+      'If the sum of both numbers is <strong>even</strong>, Group A (green in game, led by #1271) joins <strong>Deepwood</strong> and Group B joins <strong>Wetland</strong>. If it is <strong>odd</strong>, it is the other way around.',
+      'The 3×3 grid most likely mirrors where each warzone sits on the Mega Map, with the Central Area (Ancestral Temple) in the middle.',
+    ],
+    whyTitle: 'Why this system?',
+    why: 'It works like an odds-and-evens game: neither side can decide the outcome alone, because the result depends on both numbers.',
+    unknownTitle: 'Still unconfirmed',
+    unknown: [
+      'Whether the number can be changed repeatedly until the timer runs out (the "Change History" button suggests it can).',
+      'Which range of numbers is allowed.',
+      'What the No.1–No.4 ranking within each group is based on (server power, server age, or something else).',
+      'Whether the grid positions exactly match the warzone positions on the season map.',
+    ],
+  },
+}[lang];
+---
+
+<Base lang={lang} route="faction-reveal/" title={copy.title} description={copy.lead}>
+  <header class="page-head">
+    <span class="eyebrow">Season 6 · Faction Awards</span>
+    <h1>{copy.title}</h1>
+    <p>{copy.lead}</p>
+  </header>
+
+  <div class="status card">
+    <div>
+      <span class="muted small">
+        {copy.stageEnds}
+        {reveal.stageEndsAtEstimated && <span class="badge">{t('common.estimated')}</span>}
+      </span>
+      <div
+        class="countdown"
+        data-countdown={reveal.stageEndsAt}
+        data-day-unit={t('time.dayUnit')}
+        data-ended={t('time.ended')}
+      >
+        --
+      </div>
+    </div>
+    <div class="muted small src">
+      <div>{t('common.updated')}: {formatDate(reveal.updatedAt, lang)}</div>
+      <div>{copy.source}</div>
+    </div>
+  </div>
+
+  <section class="section">
+    <FactionTracker lang={lang} />
+  </section>
+
+  <div class="grid-2 section">
+    <section class="card">
+      <h2>{copy.howTitle}</h2>
+      <ol class="steps">
+        {copy.how.map((s) => <li set:html={s} />)}
+      </ol>
+      <h3>{copy.whyTitle}</h3>
+      <p class="muted">{copy.why}</p>
+    </section>
+    <section class="card">
+      <h2>{copy.unknownTitle} <span class="badge warn">{t('common.unverified')}</span></h2>
+      <ul class="unknown">
+        {copy.unknown.map((s) => <li>{s}</li>)}
+      </ul>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .status {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .small {
+    font-size: 0.85rem;
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .src {
+    display: block;
+    text-align: right;
+  }
+  @media (max-width: 640px) {
+    .src {
+      text-align: left;
+    }
+  }
+  .steps,
+  .unknown {
+    padding-left: 1.3em;
+    margin: 0;
+  }
+  .steps li + li,
+  .unknown li + li {
+    margin-top: 8px;
+  }
+  h3 {
+    margin: 20px 0 4px;
+    font-size: 1rem;
+  }
+  .unknown {
+    color: var(--forest-200);
+  }
+</style>
