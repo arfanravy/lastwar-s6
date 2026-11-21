@@ -167,7 +167,8 @@
               "id": "Kumpulkan shard dari sekarang. Braz dapat upgrade UR di Season 6.",
               "en": "Collect shards now. Braz gets a UR upgrade in Season 6."
             },
-            "emoji": "🦸"
+            "icon": "braz",
+            "type": "Missile"
           }
         ]
       },
@@ -249,7 +250,7 @@
               "id": "Skin base jamur (permanen) di Event Market. Siapkan resource kalau tertarik, dan pantau event season.",
               "en": "The mushroom base skin (permanent) in the Event Market. Save up if you want it, and keep an eye on seasonal events."
             },
-            "emoji": "🍄"
+            "icon": "mushroom-skin"
           }
         ]
       }
