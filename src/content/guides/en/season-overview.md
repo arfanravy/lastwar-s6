@@ -32,7 +32,7 @@ From the MAAX alliance preparation guide:
    | --- | --- |
    | Diamonds | 500K+ |
    | Universal Speed-ups | 300 days+ |
-   | Teleports (TP) | 100+ |
+   | Advanced Teleporters (TP) | 100+ |
    | Training Speed-ups | as many as possible |
    | Healing Speed-ups | as many as possible |
 

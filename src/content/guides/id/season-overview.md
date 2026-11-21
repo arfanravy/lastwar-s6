@@ -32,7 +32,7 @@ Dari panduan persiapan aliansi MAAX:
    | --- | --- |
    | Diamond | 500K+ |
    | Universal Speed-up | 300 hari+ |
-   | Teleport (TP) | 100+ |
+   | Advanced Teleporter (TP) | 100+ |
    | Training Speed-up | sebanyak mungkin |
    | Healing Speed-up | sebanyak mungkin |
 

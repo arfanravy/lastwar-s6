@@ -202,10 +202,10 @@
           {
             "id": "teleports",
             "title": {
-              "id": "Teleport (TP) 100+",
-              "en": "Teleports (TP) 100+"
+              "id": "Advanced Teleporter (TP) 100+",
+              "en": "Advanced Teleporter (TP) 100+"
             },
-            "emoji": "🌀"
+            "icon": "teleport"
           },
           {
             "id": "troop-speedups",
