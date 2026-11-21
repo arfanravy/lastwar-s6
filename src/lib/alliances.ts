@@ -4,7 +4,8 @@
 // To add/update a roster, edit the JSON file. Per player:
 //   name  (required)  in-game name
 //   rank  (optional)  R1–R5, used by the Planner (squad/tier)
-//   power (optional)  number, same unit the Badai Manager uses
+//   power (optional)  number, same unit the Badai Manager uses (MAAX: Power SQ1 in millions)
+//   type  (optional)  main squad type: Tank / Aircraft / Rudal (kept for future tools)
 import maax from '../data/alliances/maax.json';
 
 export type Rank = 'R1' | 'R2' | 'R3' | 'R4' | 'R5';
@@ -13,6 +14,7 @@ export interface AlliancePlayer {
   name: string;
   rank?: Rank;
   power?: number;
+  type?: string;
 }
 
 export interface AlliancePreset {
@@ -33,10 +35,12 @@ function clean(raw: { tag: string; server: number; updatedAt: string; players: u
     seen.add(normName(name));
     const rank = String(p.rank ?? '').toUpperCase().trim();
     const power = Number(p.power);
+    const type = String(p.type ?? '').trim();
     players.push({
       name,
       rank: RANKS.includes(rank) ? (rank as Rank) : undefined,
       power: Number.isFinite(power) && power > 0 ? power : undefined,
+      type: type || undefined,
     });
   }
   return { tag: raw.tag, server: raw.server, updatedAt: raw.updatedAt, players };

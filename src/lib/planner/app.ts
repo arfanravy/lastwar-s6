@@ -98,6 +98,18 @@ const LS = {
   },
 };
 
+/** Players a first-time visitor sees, so the tool is not empty. */
+const DEMO_PLAYERS: { name: string; squad: Squad }[] = [
+  { name: 'ZEROKINGZ', squad: 'R5' },
+  { name: 'IRON-WOLF', squad: 'R4' },
+  { name: 'PHANTOM', squad: 'R4' },
+  { name: 'ARJUNA', squad: 'R3' },
+  { name: 'KING-RAJA', squad: 'R3' },
+  { name: 'SILVERBACK', squad: 'R2' },
+  { name: 'NIGHTHAWK', squad: 'R2' },
+  { name: 'SHOGUN', squad: 'R1' },
+];
+
 export function initPlanner(root: HTMLElement, T: PlannerStrings): void {
   const $ = <E extends HTMLElement = HTMLElement>(id: string) => root.querySelector<E>('#pl-' + id)!;
   const $$ = <E extends HTMLElement = HTMLElement>(sel: string) => Array.from(root.querySelectorAll<E>(sel));
@@ -1105,6 +1117,17 @@ export function initPlanner(root: HTMLElement, T: PlannerStrings): void {
   // Merge by name: existing players keep their id and placement, only the squad
   // is refreshed; new names are appended. Safe to run again after an update.
   function importPreset(preset: AlliancePreset) {
+    // A fresh visitor still has only the demo players: drop them rather than mixing them in.
+    const demo = new Set(DEMO_PLAYERS.map((d) => d.name));
+    if (state.players.length > 0 && state.players.every((p) => demo.has(p.name))) {
+      const ids = new Set(state.players.map((p) => p.id));
+      for (const k of Object.keys(state.placements)) {
+        const pl = state.placements[k];
+        if (pl.type === 'player' && ids.has(pl.id)) delete state.placements[k];
+      }
+      if (state.selected?.type === 'player') state.selected = null;
+      state.players = [];
+    }
     const byName = new Map(state.players.map((p) => [normName(p.name), p]));
     let added = 0;
     let updated = 0;
@@ -1135,17 +1158,7 @@ export function initPlanner(root: HTMLElement, T: PlannerStrings): void {
     state.objects.push({ id: nextOid++, name: 'SANDWORM', color: '#a484c8', symbol: '⌬', size: 5 });
     state.objects.push({ id: nextOid++, name: 'DRILLER', color: '#d68458', symbol: '⚒', size: 1 });
     state.objects.push({ id: nextOid++, name: 'RESOURCE', color: '#7fc498', symbol: '◈', size: 1 });
-    const seed: { name: string; squad: Squad }[] = [
-      { name: 'ZEROKINGZ', squad: 'R5' },
-      { name: 'IRON-WOLF', squad: 'R4' },
-      { name: 'PHANTOM', squad: 'R4' },
-      { name: 'ARJUNA', squad: 'R3' },
-      { name: 'KING-RAJA', squad: 'R3' },
-      { name: 'SILVERBACK', squad: 'R2' },
-      { name: 'NIGHTHAWK', squad: 'R2' },
-      { name: 'SHOGUN', squad: 'R1' },
-    ];
-    seed.forEach((s) => state.players.push({ id: nextPid++, ...s }));
+    DEMO_PLAYERS.forEach((s) => state.players.push({ id: nextPid++, ...s }));
     // Put the demo object's centre exactly on the map centre (⊙).
     const half = Math.floor(BASE_SIZE / 2);
     const cx = centerGridX() - half;
