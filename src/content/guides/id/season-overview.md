@@ -18,6 +18,15 @@ Season 6 mengubah format perang dari **aliansi lawan aliansi** menjadi **faksi l
 
 Pra-musim dibuka dari ikon event Season 6 di bawah tombol Duel VS. Tiap server punya hitung mundurnya sendiri, dan event mulai 10 sampai 30 menit setelah timer habis.
 
+## Persiapan sebelum season
+
+Dari panduan persiapan aliansi MAAX:
+
+1. **Alert Tower level 27.** Wajib untuk ikut **Global Expedition**. Prioritaskan bangunan ini sebelum season dimulai supaya tidak ketinggalan konten season.
+2. **Siapkan hero Awakening** sesuai jadwal: **Kimberly** minggu 1, **DVA** minggu 3, **Tesla** minggu 5. Tiap hero harus **bintang 5** dengan **Exclusive Weapon minimal level 20**. Siapkan dari sekarang supaya Awakening bisa langsung dibuka begitu jadwalnya tiba.
+
+Centang progresmu di [checklist persiapan di beranda](../#persiapan).
+
 ## Tiga klan
 
 | Klan | Lambang | Warna | Peran |

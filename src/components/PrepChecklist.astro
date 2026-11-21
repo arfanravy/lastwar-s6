@@ -1,0 +1,220 @@
+---
+import season from '../data/season.json';
+import type { Lang } from '../config';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const prep = season.prep;
+
+const copy = {
+  id: {
+    title: 'Checklist persiapan Season 6',
+    progress: 'selesai',
+    note: 'Centangan tersimpan di browser kamu saja.',
+  },
+  en: {
+    title: 'Season 6 preparation checklist',
+    progress: 'done',
+    note: 'Your ticks are saved in this browser only.',
+  },
+}[lang];
+---
+
+<section class="card prep" id="persiapan" data-prep data-total={prep.items.length}>
+  <div class="prep-head">
+    <div>
+      <h2>🌿 {copy.title}</h2>
+      <p class="muted small">{prep.source[lang]}</p>
+    </div>
+    <div class="prep-progress" aria-live="polite">
+      <span><strong data-prep-count>0</strong>/{prep.items.length} {copy.progress}</span>
+      <span class="bar" aria-hidden="true"><span data-prep-bar></span></span>
+    </div>
+  </div>
+
+  <ul class="prep-list">
+    {
+      prep.items.map((item) => (
+        <li>
+          <label>
+            <input type="checkbox" data-prep-item={item.id} />
+            <span class="box" aria-hidden="true" />
+            <span class="txt">
+              <span class="ttl">
+                <span class="t">{item.title[lang]}</span>
+                {item.when && <span class="badge red">{item.when[lang]}</span>}
+                {item.type && <span class="badge">{item.type}</span>}
+              </span>
+              <span class="muted desc">{item.desc[lang]}</span>
+            </span>
+          </label>
+        </li>
+      ))
+    }
+  </ul>
+  <p class="muted small note">{copy.note}</p>
+</section>
+
+<style>
+  .prep {
+    scroll-margin-top: 124px; /* keep the title clear of the sticky header on #persiapan */
+  }
+  .prep h2 {
+    margin: 0 0 2px;
+    font-size: 1.3rem;
+  }
+  .small {
+    font-size: 0.82rem;
+    margin: 0;
+  }
+  .prep-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px 24px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .prep-progress {
+    display: grid;
+    grid-template-columns: auto;
+    justify-items: end;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .prep-progress strong {
+    color: var(--putih);
+    font-size: 1.1rem;
+  }
+  .bar {
+    display: block;
+    width: 160px;
+    height: 6px;
+    border-radius: 6px;
+    background: var(--surface-2);
+    overflow: hidden;
+  }
+  .bar span {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--merah), #ff8a8f);
+    transition: width 0.3s ease;
+  }
+  .prep-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  }
+  .prep-list label {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    height: 100%;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition:
+      border-color 0.15s,
+      background 0.15s;
+  }
+  .prep-list label:hover {
+    border-color: var(--forest-600);
+  }
+  .prep-list input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .box {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    margin-top: 1px;
+    border-radius: 6px;
+    border: 2px solid var(--forest-400);
+    display: grid;
+    place-items: center;
+    transition:
+      background 0.15s,
+      border-color 0.15s;
+  }
+  .prep-list input:checked + .box {
+    background: var(--merah);
+    border-color: var(--merah);
+  }
+  .prep-list input:checked + .box::after {
+    content: '✓';
+    color: var(--putih);
+    font-weight: 900;
+    font-size: 0.85rem;
+    line-height: 1;
+  }
+  .prep-list input:focus-visible + .box {
+    outline: 2px solid var(--putih);
+    outline-offset: 2px;
+  }
+  .txt {
+    display: grid;
+    gap: 2px;
+  }
+  .ttl {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+  }
+  .desc {
+    font-size: 0.86rem;
+  }
+  .prep-list input:checked ~ .txt .t {
+    text-decoration: line-through;
+    text-decoration-color: var(--merah);
+    color: var(--muted);
+  }
+  .prep-list input:checked ~ .txt .badge {
+    opacity: 0.6;
+  }
+  .note {
+    margin-top: 10px;
+  }
+</style>
+
+<script>
+  const KEY = 'rimba.prep.s6';
+  for (const root of document.querySelectorAll<HTMLElement>('[data-prep]')) {
+    const boxes = [...root.querySelectorAll<HTMLInputElement>('[data-prep-item]')];
+    const count = root.querySelector<HTMLElement>('[data-prep-count]')!;
+    const bar = root.querySelector<HTMLElement>('[data-prep-bar]')!;
+    let done = new Set<string>();
+    try {
+      done = new Set(JSON.parse(localStorage.getItem(KEY) || '[]'));
+    } catch {}
+    const sync = () => {
+      const n = boxes.filter((b) => b.checked).length;
+      count.textContent = String(n);
+      bar.style.width = (n / boxes.length) * 100 + '%';
+    };
+    boxes.forEach((b) => {
+      b.checked = done.has(b.dataset.prepItem!);
+      b.addEventListener('change', () => {
+        if (b.checked) done.add(b.dataset.prepItem!);
+        else done.delete(b.dataset.prepItem!);
+        try {
+          localStorage.setItem(KEY, JSON.stringify([...done]));
+        } catch {}
+        sync();
+      });
+    });
+    sync();
+  }
+</script>

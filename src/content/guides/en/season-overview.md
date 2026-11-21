@@ -18,6 +18,15 @@ Season 6 changes the war format from **alliance versus alliance** to **faction v
 
 The pre-season is opened from the Season 6 event icon below the Duel VS button. Each server has its own countdown, and events start 10 to 30 minutes after it hits zero.
 
+## Preparing before the season
+
+From the MAAX alliance preparation guide:
+
+1. **Alert Tower level 27.** Required for **Global Expedition**. Prioritise this building before the season starts so you don't miss seasonal content.
+2. **Get your Awakening heroes ready** for their schedule: **Kimberly** in week 1, **DVA** in week 3, **Tesla** in week 5. Each hero needs **5 stars** and an **Exclusive Weapon at level 20 or higher**. Prepare them now so you can awaken them as soon as their week arrives.
+
+Track your progress in the [preparation checklist on the home page](../#persiapan).
+
 ## The three clans
 
 | Clan | Emblem | Color | Role |

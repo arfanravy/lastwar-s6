@@ -51,5 +51,72 @@
         "en": "Pre-season week 2, day 5 at 12:00 server time. Any alliance can join without adjacent land; the winner holds President through the off-season."
       }
     }
-  ]
+  ],
+  "prep": {
+    "source": {
+      "id": "Panduan persiapan aliansi MAAX",
+      "en": "MAAX alliance preparation guide"
+    },
+    "items": [
+      {
+        "id": "alert-tower",
+        "title": {
+          "id": "Alert Tower level 27",
+          "en": "Alert Tower level 27"
+        },
+        "desc": {
+          "id": "Wajib untuk ikut Global Expedition. Prioritaskan sebelum season dimulai.",
+          "en": "Required for Global Expedition. Prioritise it before the season starts."
+        }
+      },
+      {
+        "id": "kimberly",
+        "title": {
+          "id": "Kimberly siap Awakening",
+          "en": "Kimberly ready to awaken"
+        },
+        "when": {
+          "id": "Minggu 1",
+          "en": "Week 1"
+        },
+        "type": "Tank",
+        "desc": {
+          "id": "Bintang 5 + Exclusive Weapon minimal level 20",
+          "en": "5 stars + Exclusive Weapon level 20 or higher"
+        }
+      },
+      {
+        "id": "dva",
+        "title": {
+          "id": "DVA siap Awakening",
+          "en": "DVA ready to awaken"
+        },
+        "when": {
+          "id": "Minggu 3",
+          "en": "Week 3"
+        },
+        "type": "Aircraft",
+        "desc": {
+          "id": "Bintang 5 + Exclusive Weapon minimal level 20",
+          "en": "5 stars + Exclusive Weapon level 20 or higher"
+        }
+      },
+      {
+        "id": "tesla",
+        "title": {
+          "id": "Tesla siap Awakening",
+          "en": "Tesla ready to awaken"
+        },
+        "when": {
+          "id": "Minggu 5",
+          "en": "Week 5"
+        },
+        "type": "Missile",
+        "desc": {
+          "id": "Bintang 5 + Exclusive Weapon minimal level 20",
+          "en": "5 stars + Exclusive Weapon level 20 or higher"
+        }
+      }
+    ]
+  }
 }
