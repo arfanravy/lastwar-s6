@@ -1,7 +1,31 @@
 {
   "updatedAt": "2026-11-21",
-  "source": "In-game Total Hero Power ranking (screen recording)",
+  "source": "In-game Total Hero Power ranking (screen recordings)",
   "servers": {
+    "1196": [
+      { "tag": "UFO", "name": "MeMeTxx", "thp": 299888009 },
+      { "tag": "UFO", "name": "亗 x丅 亗", "thp": 243861358 },
+      { "tag": "UFO", "name": "babigaro KIX", "thp": 235192659 },
+      { "tag": "UFO", "name": "A J B X", "thp": 234977384 },
+      { "tag": "UFO", "name": "KRATOS5", "thp": 230637524 },
+      { "tag": "UFO", "name": "rantaukerasjo", "thp": 230554703 },
+      { "tag": "UFO", "name": "5ynopsis", "thp": 225663680 },
+      { "tag": "MAAX", "name": "pupuPAPA", "thp": 219276006 },
+      { "tag": "offj", "name": "EDOMEN", "thp": 215362453 },
+      { "tag": "offj", "name": "Kait018", "thp": 213542833 }
+    ],
+    "1200": [
+      { "tag": "kiSs", "name": "RoiMG", "thp": 227322124 },
+      { "tag": "NoHu", "name": "DerStone", "thp": 226864863 },
+      { "tag": "kiSs", "name": "VTwin rocks", "thp": 224977631 },
+      { "tag": "UnFA", "name": "Manuel2222", "thp": 215233165 },
+      { "tag": "kiSs", "name": "Abuelito Fulmynito", "thp": 200710240 },
+      { "tag": "kiSs", "name": "Buenheart", "thp": 197051183 },
+      { "tag": "UnFA", "name": "JuelZ", "thp": 192245501 },
+      { "tag": "kiSs", "name": "grandrazic", "thp": 191949334 },
+      { "tag": "kiSs", "name": "gio66", "thp": 190373835 },
+      { "tag": "UnFA", "name": "Каліновец", "thp": 182816895 }
+    ],
     "1212": [
       { "tag": "BOSz", "name": "SYAILENDRA 3 3 3", "thp": 482730974 },
       { "tag": "SHIB", "name": "鶏飯 Tori Gohan", "thp": 301386236 },
@@ -13,6 +37,30 @@
       { "tag": "WB96", "name": "酸辣RAMEN", "thp": 249204797 },
       { "tag": "BOSz", "name": "sumkk", "thp": 246687752 },
       { "tag": "BOSz", "name": "Minha The Ripper", "thp": 239050718 }
+    ],
+    "1271": [
+      { "tag": "NAY", "name": "N A Y L Y N N", "thp": 429959138 },
+      { "tag": "NAY", "name": "skyyau", "thp": 376570315 },
+      { "tag": "NAY", "name": "クロ天魔王", "thp": 254034454 },
+      { "tag": "NAY", "name": "CallMeHugo", "thp": 253822960 },
+      { "tag": "NAY", "name": "Akuryu", "thp": 251311919 },
+      { "tag": "NAY", "name": "ᴋᴜᴍᴀᴄ", "thp": 243664644 },
+      { "tag": "NAY", "name": "JJみかんマグロ", "thp": 238613306 },
+      { "tag": "NAY", "name": "Hải Anh H8", "thp": 236721767 },
+      { "tag": "RTW", "name": "ドラぱん2", "thp": 231082998 },
+      { "tag": "NAY", "name": "KOTApenny1813", "thp": 229087940 }
+    ],
+    "1276": [
+      { "tag": "y0mi", "name": "Hyperion Yomi", "thp": 239173024 },
+      { "tag": "y0mi", "name": "one Kill", "thp": 195211681 },
+      { "tag": "IKAT", "name": "Deck Chair", "thp": 193477539 },
+      { "tag": "y0mi", "name": "CeleritykeN", "thp": 179739796 },
+      { "tag": "y0mi", "name": "Bomulㅎㅎ", "thp": 178405120 },
+      { "tag": "y0mi", "name": "도 지 DOJI", "thp": 175863567 },
+      { "tag": "y0mi", "name": "졸리네요 zolida", "thp": 175354006 },
+      { "tag": "y0mi", "name": "hendryebed", "thp": 175204819 },
+      { "tag": "RxTR", "name": "Sea Song쏭", "thp": 173222097 },
+      { "tag": "IKAT", "name": "반지린 jilin", "thp": 171133703 }
     ],
     "1281": [
       { "tag": "CBEL", "name": "돌려까는곰ting", "thp": 221687983 },
