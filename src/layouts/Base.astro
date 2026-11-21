@@ -43,7 +43,7 @@ const backdropCopy = {
   </head>
   <body>
     {/* Peta 3D sudah berat; di sana latarnya cukup satu frame diam */}
-    <SiteBackdrop still={route === 'map/'} />
+    <SiteBackdrop still={route === 'map/' || route === 'faction-reveal/'} />
     <header class="site-header">
       <div class="container">
         <a class="brand" href={localePath(lang)}>
