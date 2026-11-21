@@ -136,6 +136,8 @@
 }
 .bm .bm-btn:hover:not(:disabled) { background: var(--forest-700); }
 .bm .bm-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.bm .bm-btn-preset { border-color: var(--merah, #e11d2a); }
+.bm .bm-btn-preset:not(:disabled):hover { background: var(--merah, #e11d2a); color: #fff; }
 .bm .bm-btn-xs { padding: 6px 12px; font-size: 0.74rem; gap: 6px; }
 .bm .bm-btn-primary { background: var(--merah); border-color: var(--merah); color: var(--putih); }
 .bm .bm-btn-primary:hover:not(:disabled) { background: var(--merah-hover); }

@@ -6,6 +6,7 @@
 import { fmt, SQUAD_COLORS, SQUADS, type PlannerStrings, type Squad } from './i18n';
 // Type-only: the 3D modules (and `three`) are loaded with a dynamic import() on first use.
 import type { Planner3DHandle, Planner3DModel } from './scene3d';
+import { ALLIANCE_PRESETS, normName, type AlliancePreset } from '../alliances';
 
 type Player = { id: number; name: string; squad: Squad };
 type PObject = { id: number; name: string; color: string; symbol: string; size?: number };
@@ -1078,6 +1079,32 @@ export function initPlanner(root: HTMLElement, T: PlannerStrings): void {
   }
   const closeModal = () => $('modal').classList.remove('show');
 
+  // ---------- built-in alliance rosters (e.g. MAAX) ----------
+  // Merge by name: existing players keep their id and placement, only the squad
+  // is refreshed; new names are appended. Safe to run again after an update.
+  function importPreset(preset: AlliancePreset) {
+    const byName = new Map(state.players.map((p) => [normName(p.name), p]));
+    let added = 0;
+    let updated = 0;
+    for (const ap of preset.players) {
+      const existing = byName.get(normName(ap.name));
+      if (existing) {
+        if (ap.rank && existing.squad !== ap.rank) {
+          existing.squad = ap.rank;
+          updated++;
+        }
+        continue;
+      }
+      const player: Player = { id: nextPid++, name: ap.name, squad: ap.rank ?? 'R1' };
+      state.players.push(player);
+      byName.set(normName(ap.name), player);
+      added++;
+    }
+    switchTab('players');
+    renderAll();
+    flashMsg(fmt(T.fPresetResult, { tag: preset.tag, a: added, u: updated }));
+  }
+
   // ---------- demo seed ----------
   function maybeSeed() {
     if (hasAutosave) return;
@@ -1289,6 +1316,17 @@ export function initPlanner(root: HTMLElement, T: PlannerStrings): void {
     input.value = '';
   });
 
+  $$<HTMLButtonElement>('[data-preset]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      const preset = ALLIANCE_PRESETS.find((p) => p.tag === btn.dataset.preset);
+      if (!preset || preset.players.length === 0) return;
+      openModal(
+        fmt(T.presetConfirmTitle, { tag: preset.tag }),
+        fmt(T.presetConfirmMsg, { tag: preset.tag, n: preset.players.length }),
+        () => importPreset(preset),
+      );
+    }),
+  );
   $('btn-template').addEventListener('click', () => void downloadTemplate());
   $('btn-import').addEventListener('click', () => $('file-input').click());
   $<HTMLInputElement>('file-input').addEventListener('change', (e) => {

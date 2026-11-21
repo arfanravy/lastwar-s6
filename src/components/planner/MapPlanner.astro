@@ -1,6 +1,7 @@
 ---
 import type { Lang } from '../../config';
-import { OBJECT_COLORS, OBJECT_SYMBOLS, PLANNER_STRINGS, SQUAD_COLORS, SQUADS } from '../../lib/planner/i18n';
+import { fmt, OBJECT_COLORS, OBJECT_SYMBOLS, PLANNER_STRINGS, SQUAD_COLORS, SQUADS } from '../../lib/planner/i18n';
+import { ALLIANCE_PRESETS } from '../../lib/alliances';
 
 interface Props {
   lang: Lang;
@@ -112,6 +113,23 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
         <button type="button" class="pl-tool-btn" id="pl-btn-template">{T.btnTemplate}</button>
         <button type="button" class="pl-tool-btn" id="pl-btn-import">{T.btnImport}</button>
         <input type="file" id="pl-file-input" accept=".xlsx,.xls" hidden />
+        {
+          ALLIANCE_PRESETS.map((p) => (
+            <button
+              type="button"
+              class="pl-tool-btn preset"
+              data-preset={p.tag}
+              disabled={p.players.length === 0}
+              title={
+                p.players.length
+                  ? fmt(T.presetTitle, { n: p.players.length, tag: p.tag, server: p.server, date: p.updatedAt })
+                  : fmt(T.presetEmpty, { tag: p.tag })
+              }
+            >
+              {fmt(T.btnPreset, { tag: p.tag })}
+            </button>
+          ))
+        }
         <button type="button" class="pl-tool-btn" id="pl-btn-save">{T.btnLayout}</button>
         <button type="button" class="pl-tool-btn danger" id="pl-btn-clear-deploy">{T.btnClearDeploy}</button>
         <button type="button" class="pl-tool-btn danger" id="pl-btn-reset-all">{T.btnReset}</button>
@@ -866,6 +884,17 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
   .pl .pl-tool-btn.accent {
     border-color: var(--pl-line-bright);
     color: var(--putih);
+  }
+  .pl .pl-tool-btn.preset {
+    border-color: var(--merah);
+    color: var(--putih);
+  }
+  .pl .pl-tool-btn.preset:hover:not(:disabled) {
+    background: var(--merah);
+  }
+  .pl .pl-tool-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
   }
   .pl .pl-tool-btn.danger:hover {
     border-color: var(--pl-red);

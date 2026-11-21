@@ -18,6 +18,14 @@ const id = {
   exportBtn: 'Export',
   exportTitle: 'Export ke Excel',
   sampleData: 'Data Contoh',
+  presetBtn: (tag: string) => `Data ${tag}`,
+  presetTitle: (tag: string, server: number, n: number, date: string) =>
+    `Isi daftar dengan ${n} pemain aliansi ${tag} (#${server}), data ${date}`,
+  presetEmpty: (tag: string) => `Data pemain ${tag} belum tersedia`,
+  presetConfirm: (tag: string, n: number) =>
+    `Masukkan ${n} pemain ${tag}? Nama yang sudah ada diperbarui power-nya, sisanya ditambahkan. Vote, tim, dan penempatan yang sudah ada tidak berubah.`,
+  presetOk: (tag: string, added: number, updated: number) =>
+    `Data ${tag}: ${added} pemain ditambahkan, ${updated} diperbarui.`,
   namePlaceholder: 'Nama pemain',
   powerPlaceholder: 'Power',
   add: 'Tambah',
@@ -106,6 +114,14 @@ const en: BadaiStrings = {
   exportBtn: 'Export',
   exportTitle: 'Export to Excel',
   sampleData: 'Sample data',
+  presetBtn: (tag: string) => `${tag} data`,
+  presetTitle: (tag: string, server: number, n: number, date: string) =>
+    `Fill the list with ${n} players from alliance ${tag} (#${server}), data from ${date}`,
+  presetEmpty: (tag: string) => `${tag} player data is not available yet`,
+  presetConfirm: (tag: string, n: number) =>
+    `Add ${n} ${tag} players? Names that already exist get their power updated; the rest are added. Existing votes, teams and placements stay as they are.`,
+  presetOk: (tag: string, added: number, updated: number) =>
+    `${tag} data: ${added} players added, ${updated} updated.`,
   namePlaceholder: 'Player name',
   powerPlaceholder: 'Power',
   add: 'Add',

@@ -47,6 +47,7 @@ import {
 } from './data';
 import type { Building, Config, EventKey, FilterMode, Placements, Player, TabKey, Team } from './data';
 import { downloadTemplate, exportWorkbook, readRows, rowsToPlayers } from './excel';
+import { ALLIANCE_PRESETS, normName, type AlliancePreset } from '../../lib/alliances';
 import './badai.css';
 
 // ─── Small presentational components (module scope → never remounted) ────────
@@ -417,6 +418,42 @@ export default function BadaiManager({ lang = 'id' }: { lang?: Lang }) {
     setPlayers(SAMPLE_PLAYERS.map((p, i) => ({ id: 'p_sample_' + i + '_' + stamp, ...p })));
   };
 
+  // Built-in alliance roster (e.g. MAAX). Merges by name: existing players keep
+  // their id, votes, teams and placements; only power is refreshed.
+  const importPreset = (preset: AlliancePreset) => {
+    if (preset.players.length === 0) return;
+    if (!window.confirm(s.presetConfirm(preset.tag, preset.players.length))) return;
+    const stamp = Date.now();
+    const next = players.map((p) => ({ ...p }));
+    const byName = new Map(next.map((p) => [normName(p.name), p]));
+    let added = 0;
+    let updated = 0;
+    preset.players.forEach((ap, i) => {
+      const existing = byName.get(normName(ap.name));
+      if (existing) {
+        if (ap.power !== undefined && existing.power !== ap.power) {
+          existing.power = ap.power;
+          updated++;
+        }
+        return;
+      }
+      const player: Player = {
+        id: `p_${preset.tag.toLowerCase()}_${i}_${stamp}`,
+        name: ap.name,
+        power: ap.power ?? 0,
+        joinGurun: false,
+        joinNgarai: false,
+        gurunTeam: null,
+        ngaraiTeam: null,
+      };
+      next.push(player);
+      byName.set(normName(ap.name), player);
+      added++;
+    });
+    setPlayers(next);
+    window.alert(s.presetOk(preset.tag, added, updated));
+  };
+
   const bulkVote = (events: EventKey[], value: boolean) => {
     setPlayers((prev) =>
       prev.map((p) => {
@@ -552,6 +589,22 @@ export default function BadaiManager({ lang = 'id' }: { lang?: Lang }) {
               <Upload size={12} /> {s.importBtn}
             </button>
             <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" onChange={handleImport} hidden />
+            {ALLIANCE_PRESETS.map((preset) => (
+              <button
+                key={preset.tag}
+                type="button"
+                className="bm-btn bm-btn-xs bm-btn-preset"
+                onClick={() => importPreset(preset)}
+                disabled={preset.players.length === 0}
+                title={
+                  preset.players.length
+                    ? s.presetTitle(preset.tag, preset.server, preset.players.length, preset.updatedAt)
+                    : s.presetEmpty(preset.tag)
+                }
+              >
+                <Users size={12} /> {s.presetBtn(preset.tag)}
+              </button>
+            ))}
             <button type="button" className="bm-btn bm-btn-xs" onClick={exportData} disabled={players.length === 0} title={s.exportTitle}>
               <Download size={12} /> {s.exportBtn}
             </button>
