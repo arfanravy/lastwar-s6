@@ -1,0 +1,156 @@
+---
+/**
+ * Latar 3D di belakang seluruh halaman. Lapisan ini fixed, tidak menerima
+ * klik, dan baru memuat Three.js setelah halaman selesai tampil.
+ * Tombol nyala/mati ada di footer (lihat Base.astro, [data-backdrop-toggle]).
+ */
+interface Props {
+  /** true = satu frame diam (dipakai di halaman yang sudah punya 3D berat). */
+  still?: boolean;
+}
+const { still = false } = Astro.props;
+---
+
+<div class="backdrop" data-backdrop data-still={still ? 'true' : undefined} aria-hidden="true">
+  <div class="backdrop-canvas" data-backdrop-canvas></div>
+</div>
+
+<style is:global>
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1.4s ease;
+  }
+  .backdrop.is-on {
+    opacity: 1;
+  }
+  .backdrop-canvas {
+    position: absolute;
+    inset: 0;
+  }
+  /* Tirai gelap supaya teks di atasnya tetap terbaca */
+  .backdrop::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(900px 500px at 110% 0%, rgb(225 29 42 / 0.07), transparent 60%),
+      linear-gradient(to bottom, rgb(7 23 15 / 0.5), rgb(7 23 15 / 0.74) 45%, rgb(7 23 15 / 0.86));
+  }
+  html.has-backdrop .card {
+    background: color-mix(in srgb, var(--surface) 90%, transparent);
+  }
+
+  .backdrop-toggle {
+    margin-top: 10px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .backdrop-toggle:hover {
+    color: var(--text);
+    background: var(--surface-2);
+  }
+  .backdrop-toggle[aria-pressed='true'] {
+    color: var(--forest-200);
+    border-color: var(--forest-600);
+  }
+
+  @media print {
+    .backdrop,
+    .backdrop-toggle {
+      display: none !important;
+    }
+  }
+</style>
+
+<script>
+  import type { BackdropHandle } from '../lib/backdrop/scene';
+
+  const KEY = 'rimba.backdrop';
+  const root = document.querySelector<HTMLElement>('[data-backdrop]');
+  const btn = document.querySelector<HTMLButtonElement>('[data-backdrop-toggle]');
+
+  function webglOk() {
+    try {
+      const c = document.createElement('canvas');
+      return !!(c.getContext('webgl2') || c.getContext('webgl'));
+    } catch {
+      return false;
+    }
+  }
+
+  if (root && webglOk()) {
+    const stage = root.querySelector<HTMLElement>('[data-backdrop-canvas]')!;
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const coarse = matchMedia('(pointer: coarse)').matches;
+    const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData === true;
+    const animate = !reduced && !coarse && root.dataset.still !== 'true';
+
+    let handle: BackdropHandle | null = null;
+    let loading = false;
+    let wanted = !saveData;
+    try {
+      const saved = localStorage.getItem(KEY);
+      if (saved === 'off') wanted = false;
+      if (saved === 'on') wanted = true;
+    } catch {}
+
+    const sync = () => {
+      const on = handle !== null;
+      root.classList.toggle('is-on', on);
+      document.documentElement.classList.toggle('has-backdrop', on);
+      if (btn) {
+        btn.hidden = false;
+        btn.setAttribute('aria-pressed', String(wanted));
+        btn.textContent = (wanted ? btn.dataset.on : btn.dataset.off) ?? '';
+      }
+    };
+
+    const start = async () => {
+      if (handle || loading || !wanted) return;
+      loading = true;
+      try {
+        const { createBackdrop } = await import('../lib/backdrop/scene');
+        if (wanted) handle = createBackdrop(stage, { animate });
+      } catch (err) {
+        console.error(err);
+        wanted = false;
+      }
+      loading = false;
+      sync();
+    };
+
+    const stop = () => {
+      handle?.dispose();
+      handle = null;
+      sync();
+    };
+
+    btn?.addEventListener('click', () => {
+      wanted = !wanted;
+      try {
+        localStorage.setItem(KEY, wanted ? 'on' : 'off');
+      } catch {}
+      if (wanted) void start();
+      else stop();
+      sync();
+    });
+
+    sync();
+    // Tunggu halaman tenang dulu; latar bukan konten utama
+    const idle = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number })
+      .requestIdleCallback;
+    if (idle) idle(() => void start(), { timeout: 1500 });
+    else setTimeout(() => void start(), 300);
+  }
+</script>

@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import SiteBackdrop from '../components/SiteBackdrop.astro';
 import { LANGS, ROUTES, SITE, type Lang } from '../config';
 import { localePath, useTranslations } from '../i18n/ui';
 
@@ -15,6 +16,10 @@ const { lang, title, description, route } = Astro.props;
 const t = useTranslations(lang);
 const fullTitle = title ? `${title} · ${SITE.name}` : `${SITE.name} — ${t('site.tagline')}`;
 const desc = description ?? t('site.tagline');
+const backdropCopy = {
+  id: { on: 'Latar 3D: nyala', off: 'Latar 3D: mati' },
+  en: { on: '3D background: on', off: '3D background: off' },
+}[lang];
 ---
 
 <!doctype html>
@@ -37,6 +42,8 @@ const desc = description ?? t('site.tagline');
     />
   </head>
   <body>
+    {/* Peta 3D sudah berat; di sana latarnya cukup satu frame diam */}
+    <SiteBackdrop still={route === 'map/'} />
     <div class="flag-stripe" aria-hidden="true"></div>
     <header class="site-header">
       <div class="container">
@@ -75,6 +82,17 @@ const desc = description ?? t('site.tagline');
       <div class="container">
         <p>{t('footer.disclaimer')}</p>
         <p>{t('footer.contribute')}</p>
+        <button
+          type="button"
+          class="backdrop-toggle"
+          data-backdrop-toggle
+          data-on={backdropCopy.on}
+          data-off={backdropCopy.off}
+          aria-pressed="true"
+          hidden
+        >
+          {backdropCopy.on}
+        </button>
       </div>
     </footer>
 
