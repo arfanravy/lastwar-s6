@@ -1,6 +1,7 @@
 ---
 import reveal from '../data/faction-reveal.json';
 import topAlliances from '../data/top-alliances.json';
+import topPlayers from '../data/top-players.json';
 import { ALLIANCE_PRESETS } from '../lib/alliances';
 import { SITE, type Lang } from '../config';
 import { localePath, useTranslations } from '../i18n/ui';
@@ -57,6 +58,12 @@ const copy = {
     top5Missing: 'Data top 5 aliansi untuk server ini belum tersedia.',
     top5Source: 'Ranking power in-game · {date}',
     close: 'Tutup',
+    tabAlly: 'Ally',
+    tabThp: 'THP',
+    colAlly: 'Top 5 · Power',
+    colThp: 'Top 10 · THP',
+    thpMissing: 'Data top 10 THP untuk server ini belum tersedia.',
+    thpSource: 'Total Hero Power in-game · {date}',
     disclaimer: 'Ilustrasi 3D buatan sendiri berdasarkan layout Faction Reveal Stage, bukan peta in-game.',
   },
   en: {
@@ -90,6 +97,12 @@ const copy = {
     top5Missing: 'Top 5 alliance data for this server is not available yet.',
     top5Source: 'In-game power ranking · {date}',
     close: 'Close',
+    tabAlly: 'Ally',
+    tabThp: 'THP',
+    colAlly: 'Top 5 · Power',
+    colThp: 'Top 10 · THP',
+    thpMissing: 'Top 10 THP data for this server is not available yet.',
+    thpSource: 'In-game Total Hero Power · {date}',
     disclaimer: 'Original 3D illustration based on the Faction Reveal Stage layout, not the in-game map.',
   },
 }[lang];
@@ -98,6 +111,7 @@ const config = {
   mode,
   lang,
   top5: topAlliances,
+  top10: topPlayers,
   highlightTags: ALLIANCE_PRESETS.map((p) => p.tag),
   tiles,
   grid: reveal.grid,
@@ -126,6 +140,12 @@ const config = {
     power: copy.power,
     top5Missing: copy.top5Missing,
     top5Source: copy.top5Source,
+    tabAlly: copy.tabAlly,
+    tabThp: copy.tabThp,
+    colAlly: copy.colAlly,
+    colThp: copy.colThp,
+    thpMissing: copy.thpMissing,
+    thpSource: copy.thpSource,
   },
 };
 ---
@@ -309,7 +329,7 @@ const config = {
     bottom: 8px;
     width: auto;
     max-width: none;
-    max-height: 72%;
+    max-height: 90%;
     overflow-y: auto;
   }
   .m3d-pop.is-sheet::after {
@@ -337,16 +357,55 @@ const config = {
     padding-right: 32px;
     font: 800 1.2rem/1.2 var(--mono);
   }
-  .m3d-pop :global(.p-meta) {
+  .m3d-pop :global(.p-head) {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: 6px;
-    margin: 8px 0 0;
+    padding-right: 30px;
   }
-  .m3d-pop :global(.p-sub) {
+  .m3d-pop :global(.p-head .p-id) {
+    padding-right: 0;
+    margin-right: 2px;
+  }
+  .m3d-pop :global(.p-head .badge) {
+    font-size: 0.7rem;
+    padding: 1px 8px;
+  }
+  .m3d-pop :global(.p-head .faction-chip) {
+    font-size: 0.78rem;
+    padding: 1px 8px;
+  }
+  .m3d-pop :global(.p-bar) {
     display: flex;
     justify-content: space-between;
-    margin: 14px 0 8px;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 0 8px;
+  }
+  .m3d-pop :global(.p-tabs) {
+    display: inline-flex;
+    border: 1px solid var(--forest-600);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .m3d-pop :global(.p-tabs button) {
+    padding: 4px 14px;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font: 700 0.78rem var(--font);
+    cursor: pointer;
+  }
+  .m3d-pop :global(.p-tabs button[aria-selected='true']) {
+    background: var(--putih);
+    color: var(--forest-900);
+  }
+  .m3d-pop :global(.p-tabs button:focus-visible) {
+    outline: 2px solid var(--merah);
+    outline-offset: -2px;
+  }
+  .m3d-pop :global(.p-col) {
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.06em;
@@ -358,17 +417,17 @@ const config = {
     margin: 0;
     padding: 0;
     display: grid;
-    gap: 6px;
+    gap: 3px;
   }
   .m3d-pop :global(.p-list li) {
     display: grid;
     grid-template-columns: 20px minmax(0, 1fr) auto;
     align-items: center;
     gap: 8px;
-    padding: 7px 10px;
-    border-radius: 10px;
+    padding: 4px 10px;
+    border-radius: 8px;
     background: var(--surface-2);
-    font-size: 0.86rem;
+    font-size: 0.82rem;
   }
   .m3d-pop :global(.p-list .n) {
     font: 800 0.8rem var(--mono);
@@ -699,6 +758,7 @@ const config = {
     copy: Record<string, string>;
     lang: 'id' | 'en';
     top5: { updatedAt: string; servers: Record<string, { tag: string; name: string; power: number }[]> };
+    top10: { updatedAt: string; servers: Record<string, { tag: string; name: string; thp: number }[]> };
     highlightTags: string[];
   };
 
@@ -804,6 +864,9 @@ const config = {
     const ours = new Set(cfg.highlightTags.map((x) => x.toLowerCase()));
     const fmtPower = (n: number) =>
       (n / 1e9).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' B';
+    const fmtThp = (n: number) =>
+      (n / 1e6).toLocaleString(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' M';
+    let popTab: 'ally' | 'thp' = 'ally'; // remembered while switching servers
     const fmtDate = (iso: string) =>
       new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
     let raf = 0;
@@ -817,24 +880,26 @@ const config = {
         const t = tileById.get(current)!;
         const f = factions[t.group];
         const isMine = String(t.id) === mine;
-        const list = cfg.top5.servers[String(t.id)] ?? [];
-        const rows = list
-          .slice(0, 5)
-          .map(
-            (a, i) =>
-              `<li class="${ours.has(a.tag.toLowerCase()) ? 'is-ours' : ''}"><span class="n">${i + 1}</span>` +
-              `<span class="nm" title="[${esc(a.tag)}] ${esc(a.name)}"><span class="tag">[${esc(a.tag)}]</span>${esc(a.name)}</span>` +
-              `<span class="pw" title="${a.power.toLocaleString(locale)}">${fmtPower(a.power)}</span></li>`,
-          )
-          .join('');
+        const sid = String(t.id);
+        const row = (i: number, tag: string, name: string, value: string, full: number) =>
+          `<li class="${ours.has(tag.toLowerCase()) ? 'is-ours' : ''}"><span class="n">${i + 1}</span>` +
+          `<span class="nm" title="[${esc(tag)}] ${esc(name)}"><span class="tag">[${esc(tag)}]</span>${esc(name)}</span>` +
+          `<span class="pw" title="${full.toLocaleString(locale)}">${value}</span></li>`;
+        const isThp = popTab === 'thp';
+        const rows = isThp
+          ? (cfg.top10.servers[sid] ?? []).slice(0, 10).map((a, i) => row(i, a.tag, a.name, fmtThp(a.thp), a.thp)).join('')
+          : (cfg.top5.servers[sid] ?? []).slice(0, 5).map((a, i) => row(i, a.tag, a.name, fmtPower(a.power), a.power)).join('');
+        const tab = (key: 'ally' | 'thp', label: string) =>
+          `<button type="button" role="tab" data-tab="${key}" aria-selected="${popTab === key}">${esc(label)}</button>`;
         popBody.innerHTML =
-          `<p class="p-id">#${t.id}${isMine ? ' 📍' : ''}</p>` +
-          `<div class="p-meta"><span class="badge">${esc(cfg.copy.group)} ${t.group} · No.${t.rank}</span>${chip(f)}</div>` +
+          `<div class="p-head"><p class="p-id">#${t.id}${isMine ? ' 📍' : ''}</p>` +
+          `<span class="badge">${esc(cfg.copy.group)} ${t.group} · No.${t.rank}</span>${chip(f)}</div>` +
+          `<div class="p-bar"><div class="p-tabs" role="tablist">${tab('ally', cfg.copy.tabAlly)}${tab('thp', cfg.copy.tabThp)}</div>` +
+          `<span class="p-col">${esc(isThp ? cfg.copy.colThp : cfg.copy.colAlly)}</span></div>` +
           (rows
-            ? `<div class="p-sub"><span>${esc(cfg.copy.top5)}</span><span>${esc(cfg.copy.power)}</span></div>` +
-              `<ol class="p-list">${rows}</ol>` +
-              `<p class="p-note">${esc(cfg.copy.top5Source.replace('{date}', fmtDate(cfg.top5.updatedAt)))}</p>`
-            : `<p class="p-text">${esc(cfg.copy.top5Missing)}</p>`);
+            ? `<ol class="p-list">${rows}</ol>` +
+              `<p class="p-note">${esc((isThp ? cfg.copy.thpSource : cfg.copy.top5Source).replace('{date}', fmtDate(isThp ? cfg.top10.updatedAt : cfg.top5.updatedAt)))}</p>`
+            : `<p class="p-text">${esc(isThp ? cfg.copy.thpMissing : cfg.copy.top5Missing)}</p>`);
       }
       pop.hidden = false;
       if (!raf) raf = requestAnimationFrame(placePopup);
@@ -880,6 +945,13 @@ const config = {
       raf = 0;
     };
     q('[data-pop-close]')?.addEventListener('click', closePopup);
+    popBody?.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-tab]');
+      if (!btn) return;
+      popTab = btn.dataset.tab === 'thp' ? 'thp' : 'ally';
+      renderPopup();
+      popBody.querySelector<HTMLButtonElement>(`[data-tab="${popTab}"]`)?.focus();
+    });
     root.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closePopup();
     });
