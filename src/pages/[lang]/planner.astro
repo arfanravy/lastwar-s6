@@ -1,0 +1,29 @@
+---
+import Base from '../../layouts/Base.astro';
+import MapPlanner from '../../components/planner/MapPlanner.astro';
+import type { Lang } from '../../config';
+import { langPaths } from '../../i18n/ui';
+
+export const getStaticPaths = langPaths;
+
+const lang = Astro.params.lang as Lang;
+const copy = {
+  id: {
+    title: 'Planner Peta Aliansi',
+    lead: 'Atur posisi base anggota dan objek penting di grid koordinat, lalu simpan, ekspor, atau impor layout lewat XLSX/JSON. Semua data tersimpan di browser kamu.',
+  },
+  en: {
+    title: 'Alliance Map Planner',
+    lead: 'Lay out member bases and key objects on a coordinate grid, then save, export or import layouts via XLSX/JSON. All data stays in your browser.',
+  },
+}[lang];
+---
+
+<Base lang={lang} route="planner/" title={copy.title} description={copy.lead}>
+  <header class="page-head">
+    <span class="eyebrow">Season 6 · Alliance Tools</span>
+    <h1>{copy.title}</h1>
+    <p>{copy.lead}</p>
+  </header>
+  <MapPlanner lang={lang} />
+</Base>

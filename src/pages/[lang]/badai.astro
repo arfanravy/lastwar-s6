@@ -1,0 +1,33 @@
+---
+import Base from '../../layouts/Base.astro';
+import BadaiManager from '../../components/badai/BadaiManager.tsx';
+import type { Lang } from '../../config';
+import { langPaths } from '../../i18n/ui';
+
+export const getStaticPaths = langPaths;
+
+const lang = Astro.params.lang as Lang;
+const copy = {
+  id: {
+    title: 'Badai Manager: Badai Gurun & Badai Ngarai',
+    lead: 'Kumpulkan vote anggota, bagi Tim A/B, dan atur penempatan bangunan untuk Badai Gurun dan Badai Ngarai. Data tersimpan otomatis di browser kamu.',
+    loading: 'Memuat Badai Manager…',
+  },
+  en: {
+    title: 'Storm Manager: Desert Storm & Canyon Storm',
+    lead: 'Collect member votes, split Teams A/B and plan building placements for Desert Storm and Canyon Storm. Data is saved automatically in your browser.',
+    loading: 'Loading Storm Manager…',
+  },
+}[lang];
+---
+
+<Base lang={lang} route="badai/" title={copy.title} description={copy.lead}>
+  <header class="page-head">
+    <span class="eyebrow">Weekly Event · Alliance Tools</span>
+    <h1>{copy.title}</h1>
+    <p>{copy.lead}</p>
+  </header>
+  <BadaiManager client:only="react" lang={lang}>
+    <p slot="fallback" class="card" style="color: var(--muted)">{copy.loading}</p>
+  </BadaiManager>
+</Base>

@@ -14,4 +14,6 @@ export const ROUTES = [
   { path: 'faction-reveal/', key: 'nav.faction' },
   { path: 'map/', key: 'nav.map' },
   { path: 'season/', key: 'nav.season' },
+  { path: 'planner/', key: 'nav.planner' },
+  { path: 'badai/', key: 'nav.badai' },
 ] as const;
