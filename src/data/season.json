@@ -78,7 +78,8 @@
             "desc": {
               "id": "Wajib untuk ikut Global Expedition. Prioritaskan sebelum season dimulai.",
               "en": "Required for Global Expedition. Prioritise it before the season starts."
-            }
+            },
+            "icon": "alert-tower"
           },
           {
             "id": "rock-the-end",
@@ -89,7 +90,8 @@
             "desc": {
               "id": "+0,5% buff per level, total +2,5% di level 5. Naikkan setinggi mungkin.",
               "en": "+0.5% buff per level, +2.5% in total at level 5. Upgrade it as high as you can."
-            }
+            },
+            "icon": "rock-the-end"
           }
         ]
       },
@@ -114,7 +116,8 @@
             "desc": {
               "id": "Bintang 5 + Exclusive Weapon minimal level 20",
               "en": "5 stars + Exclusive Weapon level 20 or higher"
-            }
+            },
+            "icon": "kimberly"
           },
           {
             "id": "dva",
@@ -130,7 +133,8 @@
             "desc": {
               "id": "Bintang 5 + Exclusive Weapon minimal level 20",
               "en": "5 stars + Exclusive Weapon level 20 or higher"
-            }
+            },
+            "icon": "dva"
           },
           {
             "id": "tesla",
@@ -146,7 +150,8 @@
             "desc": {
               "id": "Bintang 5 + Exclusive Weapon minimal level 20",
               "en": "5 stars + Exclusive Weapon level 20 or higher"
-            }
+            },
+            "icon": "tesla"
           },
           {
             "id": "braz",
@@ -161,7 +166,8 @@
             "desc": {
               "id": "Kumpulkan shard dari sekarang. Braz dapat upgrade UR di Season 6.",
               "en": "Collect shards now. Braz gets a UR upgrade in Season 6."
-            }
+            },
+            "emoji": "🦸"
           }
         ]
       },
@@ -181,43 +187,48 @@
             "title": {
               "id": "Diamond 500K+",
               "en": "Diamonds 500K+"
-            }
+            },
+            "icon": "diamond"
           },
           {
             "id": "universal-speedups",
             "title": {
-              "id": "Universal Speedup 300 hari+",
-              "en": "Universal Speedups 300 days+"
-            }
+              "id": "Universal Speed-up 300 hari+",
+              "en": "Universal Speed-up 300 days+"
+            },
+            "icon": "universal-speedup"
           },
           {
             "id": "teleports",
             "title": {
               "id": "Teleport (TP) 100+",
               "en": "Teleports (TP) 100+"
-            }
+            },
+            "emoji": "🌀"
           },
           {
             "id": "troop-speedups",
             "title": {
-              "id": "Speedup pasukan",
-              "en": "Troop Speedups"
+              "id": "Training Speed-up",
+              "en": "Training Speed-up"
             },
             "desc": {
               "id": "Simpan sebanyak mungkin",
               "en": "Save as many as possible"
-            }
+            },
+            "icon": "training-speedup"
           },
           {
             "id": "healing-speedups",
             "title": {
-              "id": "Speedup penyembuhan",
-              "en": "Healing Speedups"
+              "id": "Healing Speed-up",
+              "en": "Healing Speed-up"
             },
             "desc": {
               "id": "Simpan sebanyak mungkin",
               "en": "Save as many as possible"
-            }
+            },
+            "icon": "healing-speedup"
           }
         ]
       },
@@ -231,13 +242,14 @@
           {
             "id": "mushroom-skin",
             "title": {
-              "id": "Skin base Mushroom",
-              "en": "Mushroom Base skin"
+              "id": "Skin base Enchanted Fungus",
+              "en": "Enchanted Fungus base skin"
             },
             "desc": {
-              "id": "Tersedia di Event Market. Siapkan resource kalau tertarik, dan pantau event season.",
-              "en": "Available in the Event Market. Save up if you want it, and keep an eye on seasonal events."
-            }
+              "id": "Skin base jamur (permanen) di Event Market. Siapkan resource kalau tertarik, dan pantau event season.",
+              "en": "The mushroom base skin (permanent) in the Event Market. Save up if you want it, and keep an eye on seasonal events."
+            },
+            "emoji": "🍄"
           }
         ]
       }

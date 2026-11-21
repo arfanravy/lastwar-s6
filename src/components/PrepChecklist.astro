@@ -13,6 +13,10 @@ type Item = (typeof prep.groups)[number]['items'][number] & {
   desc?: { id: string; en: string };
   when?: { id: string; en: string };
   type?: string;
+  /** file name in /public/icons/prep (without .webp) */
+  icon?: string;
+  /** fallback when no in-game icon is available yet */
+  emoji?: string;
 };
 
 const copy = {
@@ -53,6 +57,13 @@ const copy = {
                 <label>
                   <input type="checkbox" data-prep-item={item.id} />
                   <span class="box" aria-hidden="true" />
+                  <span class="ico" aria-hidden="true">
+                    {item.icon ? (
+                      <img src={`/icons/prep/${item.icon}.webp`} alt="" width="40" height="40" loading="lazy" decoding="async" />
+                    ) : (
+                      <span class="emo">{item.emoji ?? '•'}</span>
+                    )}
+                  </span>
                   <span class="txt">
                     <span class="ttl">
                       <span class="t">{item.title[lang]}</span>
@@ -156,7 +167,7 @@ const copy = {
   .prep-list label {
     display: flex;
     gap: 10px;
-    align-items: flex-start;
+    align-items: center;
     padding: 8px 10px;
     border-radius: var(--radius-sm);
     background: var(--surface-2);
@@ -201,6 +212,31 @@ const copy = {
   .prep-list input:focus-visible + .box {
     outline: 2px solid var(--putih);
     outline-offset: 2px;
+  }
+  .ico {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 9px;
+    overflow: hidden;
+    background: var(--forest-900);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+    display: grid;
+    place-items: center;
+  }
+  .ico img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .emo {
+    font-size: 1.35rem;
+    line-height: 1;
+  }
+  .prep-list input:checked ~ .ico {
+    opacity: 0.55;
+    filter: grayscale(0.6);
   }
   .txt {
     display: grid;

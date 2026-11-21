@@ -31,13 +31,13 @@ Dari panduan persiapan aliansi MAAX:
    | Resource | Target |
    | --- | --- |
    | Diamond | 500K+ |
-   | Universal Speedup | 300 hari+ |
+   | Universal Speed-up | 300 hari+ |
    | Teleport (TP) | 100+ |
-   | Speedup pasukan | sebanyak mungkin |
-   | Speedup penyembuhan | sebanyak mungkin |
+   | Training Speed-up | sebanyak mungkin |
+   | Healing Speed-up | sebanyak mungkin |
 
    Jangan dipakai untuk hal yang tidak perlu sebelum season dimulai.
-6. **Skin base Mushroom.** Tersedia lewat **Event Market**. Siapkan resource kalau tertarik, dan pantau event season beserta hadiahnya.
+6. **Skin base Enchanted Fungus (jamur).** Skin permanen, tersedia lewat **Event Market**. Siapkan resource kalau tertarik, dan pantau event season beserta hadiahnya.
 
 > Persiapan dimulai **sebelum** season, bukan setelahnya. Makin matang persiapan sekarang, makin kuat posisi kita sepanjang Season 6.
 

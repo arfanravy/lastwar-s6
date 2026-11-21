@@ -31,13 +31,13 @@ From the MAAX alliance preparation guide:
    | Resource | Target |
    | --- | --- |
    | Diamonds | 500K+ |
-   | Universal Speedups | 300 days+ |
+   | Universal Speed-ups | 300 days+ |
    | Teleports (TP) | 100+ |
-   | Troop Speedups | as many as possible |
-   | Healing Speedups | as many as possible |
+   | Training Speed-ups | as many as possible |
+   | Healing Speed-ups | as many as possible |
 
    Don't spend these on anything unnecessary before the season starts.
-6. **Mushroom Base skin.** Available through the **Event Market**. Save up if you want it, and keep an eye on seasonal events and their rewards.
+6. **Enchanted Fungus base skin (mushroom).** A permanent skin, available through the **Event Market**. Save up if you want it, and keep an eye on seasonal events and their rewards.
 
 > Preparation starts **before** the season, not after it begins. The better we prepare now, the stronger our position throughout Season 6.
 
