@@ -94,11 +94,6 @@ img {
 }
 
 /* ---------- Header ---------- */
-.flag-stripe {
-  height: 6px;
-  background: linear-gradient(to bottom, var(--merah) 50%, var(--putih) 50%);
-}
-
 .site-header {
   position: sticky;
   top: 0;

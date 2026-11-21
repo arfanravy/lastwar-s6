@@ -457,7 +457,6 @@
   body:has(.bm) { background: #fff !important; color: #111 !important; }
   body:has(.bm) .site-header,
   body:has(.bm) .site-footer,
-  body:has(.bm) .flag-stripe,
   body:has(.bm) .page-head,
   .bm .no-print { display: none !important; }
   body:has(.bm) main { padding: 0 !important; }
