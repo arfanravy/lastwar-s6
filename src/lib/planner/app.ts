@@ -137,6 +137,33 @@ export function initPlanner(root: HTMLElement, T: PlannerStrings): void {
   const worldToGridY = (y: number) => state.gridRows - 1 - (y - state.coordStartY);
   const displayCoordLabel = (x: number, y: number) => 'X:' + gridToWorldX(x) + ' / Y:' + gridToWorldY(y);
 
+  // ---------- map centre ----------
+  // Users set the map by its CENTRE coordinate. For an even size the centre is
+  // the lower-left of the two middle cells. Storage still keeps coordStartX/Y
+  // (bottom-left) so saved layouts and exports stay compatible.
+  const centerOffset = (n: number) => Math.floor((n - 1) / 2);
+  const centerWorldX = () => state.coordStartX + centerOffset(state.gridCols);
+  const centerWorldY = () => state.coordStartY + centerOffset(state.gridRows);
+  const centerGridX = (cols = state.gridCols) => centerOffset(cols);
+  const centerGridY = (rows = state.gridRows) => rows - 1 - centerOffset(rows); // grid row 0 = top
+
+  /** Move placements so they keep the same offset from the map centre after a resize. */
+  function remapPlacements(cols: number, rows: number) {
+    const dx = centerGridX(cols) - centerGridX();
+    const dy = centerGridY(rows) - centerGridY();
+    const kept: Record<string, Placement> = {};
+    let dropped = 0;
+    for (const k of Object.keys(state.placements)) {
+      const [x, y] = k.split(',').map(Number);
+      const nx = x + dx;
+      const ny = y + dy;
+      const sz = placementSize(state.placements[k]);
+      if (nx < 0 || ny < 0 || nx + sz > cols || ny + sz > rows) dropped++;
+      else kept[`${nx},${ny}`] = state.placements[k];
+    }
+    return { kept, dropped };
+  }
+
   function clampObjectSize(v: unknown): number {
     let n = parseInt(String(v), 10);
     if (!Number.isInteger(n)) n = BASE_SIZE;
@@ -188,9 +215,11 @@ export function initPlanner(root: HTMLElement, T: PlannerStrings): void {
     grid.style.gridTemplateRows = `repeat(${rows}, ${cs}px)`;
     grid.innerHTML = '';
 
+    const cgx = centerGridX();
+    const cgy = centerGridY();
     for (let x = 0; x < cols; x++) {
       const lbl = document.createElement('div');
-      lbl.className = 'pl-coord-x' + (x % 3 === 0 ? ' major' : '');
+      lbl.className = 'pl-coord-x' + (x % 3 === 0 ? ' major' : '') + (x === cgx ? ' center' : '');
       lbl.textContent = String(state.coordStartX + x);
       lbl.style.left = x * (cs + gap) + cs / 2 + 'px';
       grid.appendChild(lbl);
@@ -198,7 +227,8 @@ export function initPlanner(root: HTMLElement, T: PlannerStrings): void {
     for (let y = 0; y < rows; y++) {
       const dispY = gridToWorldY(y);
       const lbl = document.createElement('div');
-      lbl.className = 'pl-coord-y' + ((dispY - state.coordStartY) % 3 === 0 ? ' major' : '');
+      lbl.className =
+        'pl-coord-y' + ((dispY - state.coordStartY) % 3 === 0 ? ' major' : '') + (y === cgy ? ' center' : '');
       lbl.textContent = String(dispY);
       lbl.style.top = y * (cs + gap) + cs / 2 + 'px';
       grid.appendChild(lbl);
@@ -208,7 +238,7 @@ export function initPlanner(root: HTMLElement, T: PlannerStrings): void {
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) {
         const cell = document.createElement('div');
-        cell.className = 'pl-cell';
+        cell.className = 'pl-cell' + (x === cgx && y === cgy ? ' pl-cell-center' : '');
         cell.dataset.x = String(x);
         cell.dataset.y = String(y);
         cell.title = displayCoordLabel(x, y);
@@ -830,6 +860,7 @@ export function initPlanner(root: HTMLElement, T: PlannerStrings): void {
       r: state.gridRows,
       t: state.gridCols * state.gridRows,
     });
+    $('info-c').textContent = 'X:' + centerWorldX() + ' / Y:' + centerWorldY();
     $('info-x').textContent = state.coordStartX + ' – ' + ex;
     $('info-y').textContent = state.coordStartY + ' – ' + ey;
   }
@@ -837,8 +868,8 @@ export function initPlanner(root: HTMLElement, T: PlannerStrings): void {
   function openCoordModal() {
     $<HTMLInputElement>('coord-cols').value = String(state.gridCols);
     $<HTMLInputElement>('coord-rows').value = String(state.gridRows);
-    $<HTMLInputElement>('coord-sx').value = String(state.coordStartX);
-    $<HTMLInputElement>('coord-sy').value = String(state.coordStartY);
+    $<HTMLInputElement>('coord-cx').value = String(centerWorldX());
+    $<HTMLInputElement>('coord-cy').value = String(centerWorldY());
     updateCoordPreview();
     $('coord-modal').classList.add('show');
     $('coord-cols').focus();
@@ -847,35 +878,30 @@ export function initPlanner(root: HTMLElement, T: PlannerStrings): void {
 
   function getNormalizedCoordSettings() {
     const num = (id: string) => parseInt($<HTMLInputElement>(id).value, 10);
-    let cols = Math.min(MAX_GRID_DIM, Math.max(3, num('coord-cols') || 10));
-    let rows = Math.min(MAX_GRID_DIM, Math.max(3, num('coord-rows') || 10));
-    let sx = Math.min(MAX_COORD, Math.max(0, num('coord-sx') || 0));
-    let sy = Math.min(MAX_COORD, Math.max(0, num('coord-sy') || 0));
-    // Never let the far edge exceed X:999 / Y:999; minimum map is 3×3.
-    if (sx + cols - 1 > MAX_COORD) cols = MAX_COORD - sx + 1;
-    if (sy + rows - 1 > MAX_COORD) rows = MAX_COORD - sy + 1;
-    if (cols < 3) {
-      cols = 3;
-      sx = Math.max(0, MAX_COORD - 2);
-    }
-    if (rows < 3) {
-      rows = 3;
-      sy = Math.max(0, MAX_COORD - 2);
-    }
-    return { cols, rows, sx, sy, ex: sx + cols - 1, ey: sy + rows - 1 };
+    const cols = Math.min(MAX_GRID_DIM, Math.max(3, num('coord-cols') || 10));
+    const rows = Math.min(MAX_GRID_DIM, Math.max(3, num('coord-rows') || 10));
+    const inX = num('coord-cx');
+    const inY = num('coord-cy');
+    const wantX = Number.isFinite(inX) ? inX : centerWorldX();
+    const wantY = Number.isFinite(inY) ? inY : centerWorldY();
+    // Spread the map evenly around the centre, but keep every edge inside 0–999.
+    const sx = Math.min(MAX_COORD - cols + 1, Math.max(0, wantX - centerOffset(cols)));
+    const sy = Math.min(MAX_COORD - rows + 1, Math.max(0, wantY - centerOffset(rows)));
+    const cx = sx + centerOffset(cols);
+    const cy = sy + centerOffset(rows);
+    return { cols, rows, sx, sy, cx, cy, ex: sx + cols - 1, ey: sy + rows - 1, adjusted: cx !== wantX || cy !== wantY };
   }
 
   function updateCoordPreview() {
-    const { cols, rows, sx, sy, ex, ey } = getNormalizedCoordSettings();
+    const { cols, rows, sx, sy, ex, ey, cx, cy, adjusted } = getNormalizedCoordSettings();
     $('cp-size').textContent = fmt(T.cpSize, { c: cols, r: rows, t: cols * rows });
+    const center = $('cp-center');
+    center.textContent = fmt(adjusted ? T.cpCenterAdjusted : T.cpCenter, { x: cx, y: cy });
+    center.classList.toggle('warn', adjusted);
     $('cp-x').textContent = fmt(T.cpX, { a: sx, b: ex });
     $('cp-y').textContent = fmt(T.cpY, { a: sy, b: ey });
     $('cp-anchor').textContent = T.cpAnchor;
-    const willPrune = Object.keys(state.placements).filter((k) => {
-      const [x, y] = k.split(',').map(Number);
-      const sz = placementSize(state.placements[k]);
-      return x + sz > cols || y + sz > rows;
-    }).length;
+    const willPrune = remapPlacements(cols, rows).dropped;
     const warn = $('cp-warn');
     if (willPrune > 0) {
       warn.textContent = fmt(T.cpWarn, { n: willPrune });
@@ -884,19 +910,15 @@ export function initPlanner(root: HTMLElement, T: PlannerStrings): void {
   }
 
   function applyCoordSettings() {
-    const { cols, rows, sx, sy } = getNormalizedCoordSettings();
-    Object.keys(state.placements).forEach((k) => {
-      const [x, y] = k.split(',').map(Number);
-      const sz = placementSize(state.placements[k]);
-      if (x + sz > cols || y + sz > rows) delete state.placements[k];
-    });
+    const { cols, rows, sx, sy, cx, cy } = getNormalizedCoordSettings();
+    state.placements = remapPlacements(cols, rows).kept;
     state.gridCols = cols;
     state.gridRows = rows;
     state.coordStartX = sx;
     state.coordStartY = sy;
     closeCoordModal();
     renderAll();
-    flashMsg(fmt(T.fCoord, { c: cols, r: rows, x: sx, y: sy }));
+    flashMsg(fmt(T.fCoord, { c: cols, r: rows, x: cx, y: cy }));
   }
 
   // ---------- XLSX (lazy-loaded) ----------
@@ -1075,8 +1097,10 @@ export function initPlanner(root: HTMLElement, T: PlannerStrings): void {
       { name: 'SHOGUN', squad: 'R1' },
     ];
     seed.forEach((s) => state.players.push({ id: nextPid++, ...s }));
-    const cx = Math.floor((state.gridCols - BASE_SIZE) / 2);
-    const cy = Math.floor((state.gridRows - BASE_SIZE) / 2);
+    // Put the demo object's centre exactly on the map centre (⊙).
+    const half = Math.floor(BASE_SIZE / 2);
+    const cx = centerGridX() - half;
+    const cy = centerGridY() - half;
     state.placements[`${cx},${cy}`] = { type: 'object', id: 1 };
     renderAll();
   }
@@ -1215,7 +1239,7 @@ export function initPlanner(root: HTMLElement, T: PlannerStrings): void {
 
   $('btn-coord').addEventListener('click', openCoordModal);
   $('btn-coord-intel').addEventListener('click', openCoordModal);
-  ['coord-cols', 'coord-rows', 'coord-sx', 'coord-sy'].forEach((id) =>
+  ['coord-cols', 'coord-rows', 'coord-cx', 'coord-cy'].forEach((id) =>
     $(id).addEventListener('input', updateCoordPreview),
   );
   $('coord-apply').addEventListener('click', applyCoordSettings);

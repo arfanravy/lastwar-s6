@@ -160,6 +160,7 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
           <div class="pl-section-title">{T.coordMap}</div>
           <div class="pl-coord-info">
             <div class="row"><span class="k">{T.infoSize}</span><span class="v" id="pl-info-size">10 × 10</span></div>
+            <div class="row"><span class="k">⊙ {T.infoCenter}</span><span class="v" id="pl-info-c">X:4 / Y:4</span></div>
             <div class="row"><span class="k">X</span><span class="v" id="pl-info-x">0 – 9</span></div>
             <div class="row"><span class="k">Y</span><span class="v" id="pl-info-y">0 – 9</span></div>
           </div>
@@ -246,20 +247,21 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
           <input type="number" id="pl-coord-rows" min="3" max="120" placeholder="10" />
         </div>
       </div>
-      <div class="pl-coord-section" style="margin-top:14px">{T.coordStartLabel}</div>
+      <div class="pl-coord-section" style="margin-top:14px">⊙ {T.coordCenterLabel}</div>
       <div class="pl-coord-row">
         <div class="pl-field">
-          <label for="pl-coord-sx">{T.coordSx}</label>
-          <input type="number" id="pl-coord-sx" min="0" max="999" placeholder="0" />
+          <label for="pl-coord-cx">{T.coordCx}</label>
+          <input type="number" id="pl-coord-cx" min="0" max="999" placeholder="500" />
         </div>
-        <div class="pl-coord-sep" aria-hidden="true"></div>
+        <div class="pl-coord-sep" aria-hidden="true">:</div>
         <div class="pl-field">
-          <label for="pl-coord-sy">{T.coordSy}</label>
-          <input type="number" id="pl-coord-sy" min="0" max="999" placeholder="0" />
+          <label for="pl-coord-cy">{T.coordCy}</label>
+          <input type="number" id="pl-coord-cy" min="0" max="999" placeholder="500" />
         </div>
       </div>
       <div class="pl-coord-preview">
         <div class="row" id="pl-cp-size"></div>
+        <div class="row" id="pl-cp-center"></div>
         <div class="row" id="pl-cp-x"></div>
         <div class="row" id="pl-cp-y"></div>
         <div class="row" id="pl-cp-anchor"></div>
@@ -976,6 +978,24 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
   .pl .pl-coord-y.major {
     color: var(--pl-accent-text);
     font-weight: 700;
+  }
+  .pl .pl-coord-x.center,
+  .pl .pl-coord-y.center {
+    color: var(--putih);
+    background: var(--merah);
+    font-weight: 800;
+    padding: 1px 3px;
+    border-radius: 3px;
+    z-index: 1;
+  }
+  .pl .pl-cell.pl-cell-center::after {
+    content: '';
+    position: absolute;
+    inset: 22%;
+    border-radius: 50%;
+    border: 1.5px solid var(--merah-text);
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.35);
+    pointer-events: none;
   }
 
   /* ---------- 2D / 3D toggle + 3D stage ---------- */
