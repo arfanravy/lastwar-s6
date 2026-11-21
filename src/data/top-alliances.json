@@ -1,0 +1,41 @@
+{
+  "updatedAt": "2026-11-21",
+  "source": "In-game alliance power ranking (screenshots)",
+  "servers": {
+    "1196": [
+      { "tag": "UFO", "name": "UNITED FOR ONE", "power": 28582037336 },
+      { "tag": "offj", "name": "Trickers", "power": 25328029227 },
+      { "tag": "MAAX", "name": "MEDIA to RELAX", "power": 24262185329 },
+      { "tag": "FORG", "name": "FORGE X", "power": 22545855961 },
+      { "tag": "LaUp", "name": "レイアップ", "power": 21863595529 }
+    ],
+    "1200": [
+      { "tag": "kiSs", "name": "Kingdom of Souls", "power": 26482291527 },
+      { "tag": "UnFA", "name": "Ferro et Igni", "power": 25076530536 },
+      { "tag": "NoHu", "name": "Nordic Hunters", "power": 24057768481 },
+      { "tag": "EpIc", "name": "EvilPotatoesInCamo", "power": 22094001784 },
+      { "tag": "B05S", "name": "Blades of Steel", "power": 20685517096 }
+    ],
+    "1271": [
+      { "tag": "NAY", "name": "Nya Army", "power": 31434032733 },
+      { "tag": "RTW", "name": "終末世界", "power": 27678946437 },
+      { "tag": "WEBK", "name": "WEALTHY KILLER", "power": 24742424079 },
+      { "tag": "ROON", "name": "walnuts", "power": 21341440473 },
+      { "tag": "HKCW", "name": "はらぺこ熊", "power": 19917696500 }
+    ],
+    "1276": [
+      { "tag": "y0mi", "name": "YOL", "power": 23242562837 },
+      { "tag": "IKAT", "name": "INTER KING ATTACK", "power": 20975577733 },
+      { "tag": "RxTR", "name": "RxTR", "power": 14153693776 },
+      { "tag": "yank", "name": "Bomb", "power": 13267483329 },
+      { "tag": "BlaK", "name": "BlacK Shadow", "power": 5522827127 }
+    ],
+    "1281": [
+      { "tag": "ZANT", "name": "Zero Anger Nice Team", "power": 23971000926 },
+      { "tag": "CBEL", "name": "Clemens Bellum", "power": 15959777501 },
+      { "tag": "SQRL", "name": "Squirrely Fury", "power": 15490149325 },
+      { "tag": "W2R", "name": "World To Raise", "power": 12047973768 },
+      { "tag": "CHIL", "name": "MattariRenmei", "power": 7223967607 }
+    ]
+  }
+}

@@ -41,6 +41,8 @@ export interface MapHandle {
   select(id: number | 'center' | null): void;
   resetView(): void;
   setLabelsVisible(v: boolean): void;
+  /** Screen position (px, relative to the map container) of a tile's label anchor. */
+  anchorOf(key: number | 'center'): { x: number; y: number; visible: boolean } | null;
   setHighQuality(v: boolean): void;
   readonly highQuality: boolean;
   dispose(): void;
@@ -1131,6 +1133,18 @@ export function createRainforestMap(container: HTMLElement, opts: MapOptions): M
       select(null);
       focus = { pos: HOME_POS.clone(), target: HOME_TARGET.clone() };
       if (!userInteracted && !reducedMotion) controls.autoRotate = true;
+    },
+    anchorOf(key) {
+      const t = tileByKey(key);
+      if (!t) return null;
+      const v = t.group.position.clone();
+      v.y += t.data ? 4.6 : 7.2; // same anchor as the HTML labels
+      v.project(camera);
+      return {
+        x: ((v.x + 1) / 2) * container.clientWidth,
+        y: ((1 - v.y) / 2) * container.clientHeight,
+        visible: v.z <= 1,
+      };
     },
     setLabelsVisible(v) {
       labelsVisible = v;

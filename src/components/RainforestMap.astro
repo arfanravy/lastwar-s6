@@ -1,5 +1,7 @@
 ---
 import reveal from '../data/faction-reveal.json';
+import topAlliances from '../data/top-alliances.json';
+import { ALLIANCE_PRESETS } from '../lib/alliances';
 import { SITE, type Lang } from '../config';
 import { localePath, useTranslations } from '../i18n/ui';
 import type { GroupKey } from '../lib/faction';
@@ -50,6 +52,11 @@ const copy = {
     centerBody:
       'Lokasi Ancestral Temple — target paling bergengsi Season 6. Faksi yang merebutnya mendapat Influence Points dalam jumlah besar. Berbatasan dengan semua warzone.',
     explore: 'Jelajahi peta 3D',
+    top5: 'Top 5 aliansi',
+    power: 'Power',
+    top5Missing: 'Data top 5 aliansi untuk server ini belum tersedia.',
+    top5Source: 'Ranking power in-game · {date}',
+    close: 'Tutup',
     disclaimer: 'Ilustrasi 3D buatan sendiri berdasarkan layout Faction Reveal Stage, bukan peta in-game.',
   },
   en: {
@@ -78,12 +85,20 @@ const copy = {
     centerBody:
       'Home of the Ancestral Temple — the most prestigious target of Season 6. The faction that captures it earns a large amount of Influence Points. Borders every warzone.',
     explore: 'Explore the 3D map',
+    top5: 'Top 5 alliances',
+    power: 'Power',
+    top5Missing: 'Top 5 alliance data for this server is not available yet.',
+    top5Source: 'In-game power ranking · {date}',
+    close: 'Close',
     disclaimer: 'Original 3D illustration based on the Faction Reveal Stage layout, not the in-game map.',
   },
 }[lang];
 
 const config = {
   mode,
+  lang,
+  top5: topAlliances,
+  highlightTags: ALLIANCE_PRESETS.map((p) => p.tag),
   tiles,
   grid: reveal.grid,
   picks: { A: groups.A.pick, B: groups.B.pick },
@@ -107,6 +122,10 @@ const config = {
     off: copy.off,
     real: copy.real,
     flipped: copy.flipped,
+    top5: copy.top5,
+    power: copy.power,
+    top5Missing: copy.top5Missing,
+    top5Source: copy.top5Source,
   },
 };
 ---
@@ -123,6 +142,16 @@ const config = {
       <p>{copy.noWebgl}</p>
       <a class="btn" href={localePath(lang, 'faction-reveal/')}>{copy.noWebglLink}</a>
     </div>
+    {
+      mode === 'full' && (
+        <div class="m3d-pop" data-pop hidden role="dialog" aria-label={copy.top5}>
+          <button type="button" class="m3d-pop-x" data-pop-close aria-label={copy.close} title={copy.close}>
+            ✕
+          </button>
+          <div data-pop-body></div>
+        </div>
+      )
+    }
     {
       mode === 'full' ? (
         <p class="m3d-hint">{copy.hint}</p>
@@ -235,6 +264,153 @@ const config = {
     inset: 0;
     pointer-events: none;
     overflow: hidden;
+    z-index: 1; /* own stacking context: per-label z-indexes stay below the popup */
+  }
+
+  /* ---------- Popup: top 5 alliances of the clicked server ---------- */
+  .m3d-pop {
+    --arrow-x: 36px;
+    position: absolute;
+    z-index: 3;
+    width: 300px;
+    max-width: calc(100% - 16px);
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid var(--forest-600);
+    background: rgb(10 30 20 / 0.95);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 18px 40px rgb(0 0 0 / 0.55);
+    color: var(--text);
+  }
+  .m3d-pop[hidden] {
+    display: none;
+  }
+  .m3d-pop::after {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: calc(var(--arrow-x) - 7px);
+    width: 14px;
+    height: 14px;
+    background: inherit;
+    border-left: 1px solid var(--forest-600);
+    border-top: 1px solid var(--forest-600);
+    transform: rotate(45deg);
+  }
+  .m3d-pop.is-above::after {
+    top: auto;
+    bottom: -8px;
+    transform: rotate(225deg);
+  }
+  .m3d-pop.is-sheet {
+    left: 8px !important;
+    right: 8px;
+    top: auto !important;
+    bottom: 8px;
+    width: auto;
+    max-width: none;
+    max-height: 72%;
+    overflow-y: auto;
+  }
+  .m3d-pop.is-sheet::after {
+    display: none;
+  }
+  .m3d-pop-x {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--muted);
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  .m3d-pop-x:hover {
+    background: var(--surface-2);
+    color: var(--putih);
+  }
+  .m3d-pop :global(.p-id) {
+    margin: 0;
+    padding-right: 32px;
+    font: 800 1.2rem/1.2 var(--mono);
+  }
+  .m3d-pop :global(.p-meta) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0 0;
+  }
+  .m3d-pop :global(.p-sub) {
+    display: flex;
+    justify-content: space-between;
+    margin: 14px 0 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .m3d-pop :global(.p-list) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 6px;
+  }
+  .m3d-pop :global(.p-list li) {
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 10px;
+    background: var(--surface-2);
+    font-size: 0.86rem;
+  }
+  .m3d-pop :global(.p-list .n) {
+    font: 800 0.8rem var(--mono);
+    color: var(--muted);
+    text-align: center;
+  }
+  .m3d-pop :global(.p-list li:nth-child(1) .n) {
+    color: #ffd34d;
+  }
+  .m3d-pop :global(.p-list li:nth-child(2) .n) {
+    color: #cfd8e3;
+  }
+  .m3d-pop :global(.p-list li:nth-child(3) .n) {
+    color: #e2a27a;
+  }
+  .m3d-pop :global(.p-list .nm) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .m3d-pop :global(.p-list .tag) {
+    margin-right: 4px;
+    font: 800 0.72rem var(--mono);
+    color: var(--merah-text);
+  }
+  .m3d-pop :global(.p-list .pw) {
+    font: 700 0.8rem var(--mono);
+    color: var(--forest-200);
+  }
+  .m3d-pop :global(.p-list li.is-ours) {
+    outline: 2px solid var(--merah);
+    background: rgb(225 29 42 / 0.12);
+  }
+  .m3d-pop :global(.p-note) {
+    margin: 10px 0 0;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+  .m3d-pop :global(.p-text) {
+    margin: 10px 0 0;
+    font-size: 0.88rem;
+    color: var(--forest-200);
   }
   .m3d--ambient .m3d-labels {
     pointer-events: none;
@@ -521,6 +697,9 @@ const config = {
     home: number;
     labels: { deepwood: string; wetland: string; center: string; temple: string };
     copy: Record<string, string>;
+    lang: 'id' | 'en';
+    top5: { updatedAt: string; servers: Record<string, { tag: string; name: string; power: number }[]> };
+    highlightTags: string[];
   };
 
   const STORAGE_KEY = 'rimba.myServer';
@@ -617,6 +796,94 @@ const config = {
       );
     };
 
+    // ---------- Popup: top 5 alliances of the clicked server ----------
+    const pop = q<HTMLElement>('[data-pop]');
+    const popBody = q<HTMLElement>('[data-pop-body]');
+    const stage = q<HTMLElement>('[data-stage]')!;
+    const locale = cfg.lang === 'id' ? 'id-ID' : 'en-US';
+    const ours = new Set(cfg.highlightTags.map((x) => x.toLowerCase()));
+    const fmtPower = (n: number) =>
+      (n / 1e9).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' B';
+    const fmtDate = (iso: string) =>
+      new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+    let raf = 0;
+
+    const renderPopup = () => {
+      if (!pop || !popBody) return;
+      if (current === null) return closePopup();
+      if (current === 'center') {
+        popBody.innerHTML = `<p class="p-id">🏛️ ${esc(cfg.copy.centerTitle)}</p><p class="p-text">${esc(cfg.copy.centerBody)}</p>`;
+      } else {
+        const t = tileById.get(current)!;
+        const f = factions[t.group];
+        const isMine = String(t.id) === mine;
+        const list = cfg.top5.servers[String(t.id)] ?? [];
+        const rows = list
+          .slice(0, 5)
+          .map(
+            (a, i) =>
+              `<li class="${ours.has(a.tag.toLowerCase()) ? 'is-ours' : ''}"><span class="n">${i + 1}</span>` +
+              `<span class="nm" title="[${esc(a.tag)}] ${esc(a.name)}"><span class="tag">[${esc(a.tag)}]</span>${esc(a.name)}</span>` +
+              `<span class="pw" title="${a.power.toLocaleString(locale)}">${fmtPower(a.power)}</span></li>`,
+          )
+          .join('');
+        popBody.innerHTML =
+          `<p class="p-id">#${t.id}${isMine ? ' 📍' : ''}</p>` +
+          `<div class="p-meta"><span class="badge">${esc(cfg.copy.group)} ${t.group} · No.${t.rank}</span>${chip(f)}</div>` +
+          (rows
+            ? `<div class="p-sub"><span>${esc(cfg.copy.top5)}</span><span>${esc(cfg.copy.power)}</span></div>` +
+              `<ol class="p-list">${rows}</ol>` +
+              `<p class="p-note">${esc(cfg.copy.top5Source.replace('{date}', fmtDate(cfg.top5.updatedAt)))}</p>`
+            : `<p class="p-text">${esc(cfg.copy.top5Missing)}</p>`);
+      }
+      pop.hidden = false;
+      if (!raf) raf = requestAnimationFrame(placePopup);
+    };
+
+    // Keep the popup next to the server's label while the camera moves;
+    // on narrow screens it becomes a sheet at the bottom of the map.
+    const placePopup = () => {
+      raf = 0;
+      if (!pop || pop.hidden || current === null || !map) return;
+      const W = stage.clientWidth;
+      const H = stage.clientHeight;
+      const sheet = W < 600;
+      pop.classList.toggle('is-sheet', sheet);
+      if (!sheet) {
+        const a = map.anchorOf(current);
+        if (a) {
+          const pw = pop.offsetWidth;
+          const ph = pop.offsetHeight;
+          const left = Math.min(Math.max(8, a.x - 36), W - pw - 8);
+          let top = a.y + 12;
+          let above = false;
+          if (top + ph > H - 8) {
+            top = a.y - 40 - ph;
+            above = true;
+          }
+          top = Math.min(Math.max(8, top), Math.max(8, H - ph - 8));
+          pop.style.left = left + 'px';
+          pop.style.top = top + 'px';
+          pop.classList.toggle('is-above', above);
+          pop.style.setProperty('--arrow-x', Math.min(Math.max(18, a.x - left), pw - 18) + 'px');
+          pop.style.visibility = a.visible ? '' : 'hidden';
+        }
+      } else {
+        pop.style.visibility = '';
+      }
+      raf = requestAnimationFrame(placePopup);
+    };
+
+    const closePopup = () => {
+      if (pop) pop.hidden = true;
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+    };
+    q('[data-pop-close]')?.addEventListener('click', closePopup);
+    root.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closePopup();
+    });
+
     const { createRainforestMap } = await import('../lib/map3d/scene');
     map = createRainforestMap(q<HTMLElement>('[data-canvas]')!, {
       mode: cfg.mode,
@@ -628,6 +895,7 @@ const config = {
       onSelect: (id) => {
         current = id;
         renderDetail();
+        if (cfg.mode === 'full') renderPopup();
       },
     });
     loading.hidden = true;
@@ -650,6 +918,7 @@ const config = {
       flipBtn.setAttribute('aria-pressed', String(flipped));
       flipBtn.textContent = flipped ? cfg.copy.flipped : cfg.copy.real;
       renderDetail();
+      if (pop && !pop.hidden) renderPopup();
     });
 
     const labelsBtn = q<HTMLButtonElement>('[data-labels-toggle]')!;
@@ -680,6 +949,7 @@ const config = {
       } catch {}
       map!.setMyServer(mine);
       renderDetail();
+      if (pop && !pop.hidden) renderPopup();
     });
 
     // Deep link: /faction-reveal/#1196
