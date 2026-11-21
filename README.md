@@ -31,7 +31,7 @@ src/
   components/RainforestMap.astro  wrapper peta 3D (mode full & ambient), lazy-load
   components/FactionTracker.astro
   layouts/Base.astro
-  pages/[lang]/             halaman: beranda, faction-reveal, map, season
+  pages/[lang]/             halaman: beranda, faction-reveal (peta 3D), season
 ```
 
 ## Memperbarui data

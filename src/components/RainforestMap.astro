@@ -127,7 +127,7 @@ const config = {
       mode === 'full' ? (
         <p class="m3d-hint">{copy.hint}</p>
       ) : (
-        <a class="m3d-cta" href={localePath(lang, 'map/')}>
+        <a class="m3d-cta" href={localePath(lang, 'faction-reveal/')}>
           {copy.explore} →
         </a>
       )
@@ -682,7 +682,7 @@ const config = {
       renderDetail();
     });
 
-    // Deep link: /map/#1196
+    // Deep link: /faction-reveal/#1196
     const hash = location.hash.replace('#', '');
     if (hash === 'center') map.select('center');
     else if (tileById.has(Number(hash))) map.select(Number(hash));
