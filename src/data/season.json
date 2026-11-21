@@ -57,65 +57,189 @@
       "id": "Panduan persiapan aliansi MAAX",
       "en": "MAAX alliance preparation guide"
     },
-    "items": [
+    "reminder": {
+      "id": "Persiapan dimulai sebelum season, bukan setelahnya. Upgrade yang bisa, siapkan hero, dan hemat resource.",
+      "en": "Preparation starts before the season, not after it begins. Upgrade what you can, prepare your heroes, and save your resources wisely."
+    },
+    "groups": [
       {
-        "id": "alert-tower",
+        "id": "build",
         "title": {
-          "id": "Alert Tower level 27",
-          "en": "Alert Tower level 27"
+          "id": "Bangunan & fitur",
+          "en": "Buildings & features"
         },
-        "desc": {
-          "id": "Wajib untuk ikut Global Expedition. Prioritaskan sebelum season dimulai.",
-          "en": "Required for Global Expedition. Prioritise it before the season starts."
-        }
+        "items": [
+          {
+            "id": "alert-tower",
+            "title": {
+              "id": "Alert Tower level 27",
+              "en": "Alert Tower level 27"
+            },
+            "desc": {
+              "id": "Wajib untuk ikut Global Expedition. Prioritaskan sebelum season dimulai.",
+              "en": "Required for Global Expedition. Prioritise it before the season starts."
+            }
+          },
+          {
+            "id": "rock-the-end",
+            "title": {
+              "id": "Rock the End level 5",
+              "en": "Rock the End level 5"
+            },
+            "desc": {
+              "id": "+0,5% buff per level, total +2,5% di level 5. Naikkan setinggi mungkin.",
+              "en": "+0.5% buff per level, +2.5% in total at level 5. Upgrade it as high as you can."
+            }
+          }
+        ]
       },
       {
-        "id": "kimberly",
+        "id": "heroes",
         "title": {
-          "id": "Kimberly siap Awakening",
-          "en": "Kimberly ready to awaken"
+          "id": "Hero",
+          "en": "Heroes"
         },
-        "when": {
-          "id": "Minggu 1",
-          "en": "Week 1"
-        },
-        "type": "Tank",
-        "desc": {
-          "id": "Bintang 5 + Exclusive Weapon minimal level 20",
-          "en": "5 stars + Exclusive Weapon level 20 or higher"
-        }
+        "items": [
+          {
+            "id": "kimberly",
+            "title": {
+              "id": "Kimberly siap Awakening",
+              "en": "Kimberly ready to awaken"
+            },
+            "when": {
+              "id": "Minggu 1",
+              "en": "Week 1"
+            },
+            "type": "Tank",
+            "desc": {
+              "id": "Bintang 5 + Exclusive Weapon minimal level 20",
+              "en": "5 stars + Exclusive Weapon level 20 or higher"
+            }
+          },
+          {
+            "id": "dva",
+            "title": {
+              "id": "DVA siap Awakening",
+              "en": "DVA ready to awaken"
+            },
+            "when": {
+              "id": "Minggu 3",
+              "en": "Week 3"
+            },
+            "type": "Aircraft",
+            "desc": {
+              "id": "Bintang 5 + Exclusive Weapon minimal level 20",
+              "en": "5 stars + Exclusive Weapon level 20 or higher"
+            }
+          },
+          {
+            "id": "tesla",
+            "title": {
+              "id": "Tesla siap Awakening",
+              "en": "Tesla ready to awaken"
+            },
+            "when": {
+              "id": "Minggu 5",
+              "en": "Week 5"
+            },
+            "type": "Missile",
+            "desc": {
+              "id": "Bintang 5 + Exclusive Weapon minimal level 20",
+              "en": "5 stars + Exclusive Weapon level 20 or higher"
+            }
+          },
+          {
+            "id": "braz",
+            "title": {
+              "id": "Braz bintang 5",
+              "en": "Braz at 5 stars"
+            },
+            "when": {
+              "id": "Upgrade UR",
+              "en": "UR upgrade"
+            },
+            "desc": {
+              "id": "Kumpulkan shard dari sekarang. Braz dapat upgrade UR di Season 6.",
+              "en": "Collect shards now. Braz gets a UR upgrade in Season 6."
+            }
+          }
+        ]
       },
       {
-        "id": "dva",
+        "id": "stock",
         "title": {
-          "id": "DVA siap Awakening",
-          "en": "DVA ready to awaken"
+          "id": "Stok resource (sangat penting)",
+          "en": "Resource stockpile (very important)"
         },
-        "when": {
-          "id": "Minggu 3",
-          "en": "Week 3"
+        "note": {
+          "id": "Jangan dipakai untuk hal yang tidak perlu sebelum season dimulai.",
+          "en": "Don't spend these on anything unnecessary before the season starts."
         },
-        "type": "Aircraft",
-        "desc": {
-          "id": "Bintang 5 + Exclusive Weapon minimal level 20",
-          "en": "5 stars + Exclusive Weapon level 20 or higher"
-        }
+        "items": [
+          {
+            "id": "diamonds",
+            "title": {
+              "id": "Diamond 500K+",
+              "en": "Diamonds 500K+"
+            }
+          },
+          {
+            "id": "universal-speedups",
+            "title": {
+              "id": "Universal Speedup 300 hari+",
+              "en": "Universal Speedups 300 days+"
+            }
+          },
+          {
+            "id": "teleports",
+            "title": {
+              "id": "Teleport (TP) 100+",
+              "en": "Teleports (TP) 100+"
+            }
+          },
+          {
+            "id": "troop-speedups",
+            "title": {
+              "id": "Speedup pasukan",
+              "en": "Troop Speedups"
+            },
+            "desc": {
+              "id": "Simpan sebanyak mungkin",
+              "en": "Save as many as possible"
+            }
+          },
+          {
+            "id": "healing-speedups",
+            "title": {
+              "id": "Speedup penyembuhan",
+              "en": "Healing Speedups"
+            },
+            "desc": {
+              "id": "Simpan sebanyak mungkin",
+              "en": "Save as many as possible"
+            }
+          }
+        ]
       },
       {
-        "id": "tesla",
+        "id": "optional",
         "title": {
-          "id": "Tesla siap Awakening",
-          "en": "Tesla ready to awaken"
+          "id": "Opsional",
+          "en": "Optional"
         },
-        "when": {
-          "id": "Minggu 5",
-          "en": "Week 5"
-        },
-        "type": "Missile",
-        "desc": {
-          "id": "Bintang 5 + Exclusive Weapon minimal level 20",
-          "en": "5 stars + Exclusive Weapon level 20 or higher"
-        }
+        "items": [
+          {
+            "id": "mushroom-skin",
+            "title": {
+              "id": "Skin base Mushroom",
+              "en": "Mushroom Base skin"
+            },
+            "desc": {
+              "id": "Tersedia di Event Market. Siapkan resource kalau tertarik, dan pantau event season.",
+              "en": "Available in the Event Market. Save up if you want it, and keep an eye on seasonal events."
+            }
+          }
+        ]
       }
     ]
   }

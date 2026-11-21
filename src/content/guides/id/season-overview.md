@@ -22,8 +22,24 @@ Pra-musim dibuka dari ikon event Season 6 di bawah tombol Duel VS. Tiap server p
 
 Dari panduan persiapan aliansi MAAX:
 
-1. **Alert Tower level 27.** Wajib untuk ikut **Global Expedition**. Prioritaskan bangunan ini sebelum season dimulai supaya tidak ketinggalan konten season.
-2. **Siapkan hero Awakening** sesuai jadwal: **Kimberly** minggu 1, **DVA** minggu 3, **Tesla** minggu 5. Tiap hero harus **bintang 5** dengan **Exclusive Weapon minimal level 20**. Siapkan dari sekarang supaya Awakening bisa langsung dibuka begitu jadwalnya tiba.
+1. **Alert Tower level 27.** Wajib untuk ikut **Global Expedition**. Prioritaskan sebelum season dimulai supaya tidak ketinggalan konten season.
+2. **Hero Awakening.** Jadwal: **Kimberly** minggu 1, **DVA** minggu 3, **Tesla** minggu 5. Tiap hero harus **bintang 5** dengan **Exclusive Weapon minimal level 20**. Siapkan dari sekarang supaya Awakening bisa langsung dibuka begitu jadwalnya tiba.
+3. **Rock the End.** Naikkan setinggi mungkin sampai **level 5**. Tiap level memberi buff **+0,5%**, jadi total **+2,5%** di level 5.
+4. **Braz ke bintang 5.** Braz mendapat **upgrade UR** di Season 6. Kumpulkan shard dari sekarang supaya tidak terburu-buru saat season dimulai.
+5. **Stok resource (sangat penting).** Target persiapan:
+
+   | Resource | Target |
+   | --- | --- |
+   | Diamond | 500K+ |
+   | Universal Speedup | 300 hari+ |
+   | Teleport (TP) | 100+ |
+   | Speedup pasukan | sebanyak mungkin |
+   | Speedup penyembuhan | sebanyak mungkin |
+
+   Jangan dipakai untuk hal yang tidak perlu sebelum season dimulai.
+6. **Skin base Mushroom.** Tersedia lewat **Event Market**. Siapkan resource kalau tertarik, dan pantau event season beserta hadiahnya.
+
+> Persiapan dimulai **sebelum** season, bukan setelahnya. Makin matang persiapan sekarang, makin kuat posisi kita sepanjang Season 6.
 
 Centang progresmu di [checklist persiapan di beranda](../#persiapan).
 

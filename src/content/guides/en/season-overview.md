@@ -22,8 +22,24 @@ The pre-season is opened from the Season 6 event icon below the Duel VS button. 
 
 From the MAAX alliance preparation guide:
 
-1. **Alert Tower level 27.** Required for **Global Expedition**. Prioritise this building before the season starts so you don't miss seasonal content.
-2. **Get your Awakening heroes ready** for their schedule: **Kimberly** in week 1, **DVA** in week 3, **Tesla** in week 5. Each hero needs **5 stars** and an **Exclusive Weapon at level 20 or higher**. Prepare them now so you can awaken them as soon as their week arrives.
+1. **Alert Tower level 27.** Required for **Global Expedition**. Prioritise it before the season starts so you don't miss seasonal content.
+2. **Hero Awakening.** Schedule: **Kimberly** in week 1, **DVA** in week 3, **Tesla** in week 5. Each hero needs **5 stars** and an **Exclusive Weapon at level 20 or higher**. Prepare them now so you can awaken them as soon as their week arrives.
+3. **Rock the End.** Upgrade it as high as possible, up to **level 5**. Each level gives a **+0.5%** buff, for **+2.5%** in total at level 5.
+4. **Braz to 5 stars.** Braz gets a **UR upgrade** in Season 6. Collect his shards now so you don't have to rush once the season starts.
+5. **Resource stockpile (very important).** Recommended targets:
+
+   | Resource | Target |
+   | --- | --- |
+   | Diamonds | 500K+ |
+   | Universal Speedups | 300 days+ |
+   | Teleports (TP) | 100+ |
+   | Troop Speedups | as many as possible |
+   | Healing Speedups | as many as possible |
+
+   Don't spend these on anything unnecessary before the season starts.
+6. **Mushroom Base skin.** Available through the **Event Market**. Save up if you want it, and keep an eye on seasonal events and their rewards.
+
+> Preparation starts **before** the season, not after it begins. The better we prepare now, the stronger our position throughout Season 6.
 
 Track your progress in the [preparation checklist on the home page](../#persiapan).
 
