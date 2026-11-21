@@ -16,6 +16,13 @@
       { "tag": "EpIc", "name": "EvilPotatoesInCamo", "power": 22094001784 },
       { "tag": "B05S", "name": "Blades of Steel", "power": 20685517096 }
     ],
+    "1212": [
+      { "tag": "BOSz", "name": "BEST OF STARz", "power": 31827937206 },
+      { "tag": "WB96", "name": "らぁ麺白熊", "power": 27610196927 },
+      { "tag": "GoLd", "name": "stay gold", "power": 27164979233 },
+      { "tag": "SHIB", "name": "シバンチュー", "power": 23351043454 },
+      { "tag": "ALRz", "name": "ALL STARS", "power": 20506423753 }
+    ],
     "1271": [
       { "tag": "NAY", "name": "Nya Army", "power": 31434032733 },
       { "tag": "RTW", "name": "終末世界", "power": 27678946437 },
@@ -36,6 +43,20 @@
       { "tag": "SQRL", "name": "Squirrely Fury", "power": 15490149325 },
       { "tag": "W2R", "name": "World To Raise", "power": 12047973768 },
       { "tag": "CHIL", "name": "MattariRenmei", "power": 7223967607 }
+    ],
+    "1297": [
+      { "tag": "L297", "name": "Legion UKG", "power": 26895291353 },
+      { "tag": "A297", "name": "Amazones 1297", "power": 24443108015 },
+      { "tag": "NrC", "name": "Carrots", "power": 23406566565 },
+      { "tag": "Lbrn", "name": "Liberation", "power": 20947051947 },
+      { "tag": "SFDK", "name": "Escuadron hispano", "power": 20867411291 }
+    ],
+    "1314": [
+      { "tag": "OuOu", "name": "星星俱樂部", "power": 27070562557 },
+      { "tag": "HOSP", "name": "青山魅姬客", "power": 26624420533 },
+      { "tag": "VNae", "name": "Anhem VN", "power": 24560116006 },
+      { "tag": "WANP", "name": "War n Peace", "power": 23510357042 },
+      { "tag": "DVMT", "name": "DV Mai Táng", "power": 22050763532 }
     ]
   }
 }
