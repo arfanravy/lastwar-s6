@@ -1,4 +1,4 @@
-# Rimba S6
+# 1196-MAAX
 
 Situs fan info **Last War: Survival — Season 6 (Lost Rainforest)**, dwibahasa Indonesia/Inggris.
 Dibangun dengan [Astro](https://astro.build) sebagai situs statis.

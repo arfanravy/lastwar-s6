@@ -1,5 +1,5 @@
 export const SITE = {
-  name: 'Rimba S6',
+  name: '1196-MAAX',
   /** Server yang disorot secara default di tracker (bisa diganti pengunjung). */
   homeServer: 1196,
   /** Waktu server Last War. Cocok dengan timer in-game yang habis di 02:00 UTC. */
