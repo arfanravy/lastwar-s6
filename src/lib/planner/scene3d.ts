@@ -23,6 +23,8 @@ export interface Planner3DModel extends GroundSpec {
 export interface Planner3DHost {
   /** Footprint (in cells) of the unit selected in the roster, or null when nothing is selected. */
   selectionSize(): number | null;
+  /** The pointer marks the footprint centre: top-left anchor of a size×size footprint centred on this cell. */
+  anchorFor(gx: number, gy: number, size: number): { x: number; y: number };
   /** Same rule as the 2D grid: can a size×size footprint be anchored at this cell? */
   canPlace(ax: number, ay: number, size: number): boolean;
   /** Deploy the selected unit with its anchor at this cell. */
@@ -492,7 +494,8 @@ export function createPlannerScene(opts: Planner3DOptions): Planner3DHandle {
       hidePreview();
       canvas.style.cursor = 'pointer';
     } else if (size !== null && cell) {
-      showFootprint(cell.gx, cell.gy, size, host.canPlace(cell.gx, cell.gy, size));
+      const a = host.anchorFor(cell.gx, cell.gy, size);
+      showFootprint(a.x, a.y, size, host.canPlace(a.x, a.y, size));
       canvas.style.cursor = 'crosshair';
     } else {
       if (performance.now() >= flashUntil) hidePreview();
@@ -533,10 +536,11 @@ export function createPlannerScene(opts: Planner3DOptions): Planner3DHandle {
     if (item !== null && built) {
       host.remove(built.items[item].spec.key); // same as clicking a marker in 2D
     } else if (size !== null && cell) {
-      if (host.canPlace(cell.gx, cell.gy, size)) host.place(cell.gx, cell.gy);
+      const a = host.anchorFor(cell.gx, cell.gy, size);
+      if (host.canPlace(a.x, a.y, size)) host.place(a.x, a.y);
       else {
         // Blocked: flash the footprint red, like the 2D grid does.
-        showFootprint(cell.gx, cell.gy, size, false);
+        showFootprint(a.x, a.y, size, false);
         flashUntil = performance.now() + 400;
         window.setTimeout(() => {
           if (performance.now() >= flashUntil) refreshHover();

@@ -79,7 +79,7 @@ const id = {
   cellXL: 'Sangat besar (28px)',
   help: [
     ['KLIK', 'kartu = pilih unit'],
-    ['KLIK', 'petak = anchor (sesuai skala)'],
+    ['KLIK', 'petak = titik tengah base/objek'],
     ['OBJEK', 'skala bisa diatur (1×1, 3×3, dst)'],
     ['⊙', 'tanda titik tengah peta'],
     ['HIJAU', 'bisa, MERAH = bentrok'],
@@ -258,7 +258,7 @@ const en: PlannerStrings = {
   cellXL: 'Extra large (28px)',
   help: [
     ['CLICK', 'card = select unit'],
-    ['CLICK', 'tile = anchor (per footprint)'],
+    ['CLICK', 'a tile = centre of the base/object'],
     ['OBJECTS', 'have adjustable size (1×1, 3×3, …)'],
     ['⊙', 'marks the map centre'],
     ['GREEN', 'fits, RED = collision'],

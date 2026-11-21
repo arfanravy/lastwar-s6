@@ -359,10 +359,24 @@ export function initPlanner(root: HTMLElement, T: PlannerStrings): void {
     });
   }
 
-  function onCellHover(x: number, y: number) {
+  /**
+   * The pointer marks the CENTRE of the footprint (the same cell whose coordinate
+   * is shown under a base's name). Returns the footprint's top-left anchor,
+   * nudged inward near the map edge so it still fits.
+   */
+  function anchorFromPointer(px: number, py: number, size: number) {
+    const off = Math.floor(size / 2);
+    return {
+      x: Math.min(Math.max(0, px - off), Math.max(0, state.gridCols - size)),
+      y: Math.min(Math.max(0, py - off), Math.max(0, state.gridRows - size)),
+    };
+  }
+
+  function onCellHover(px: number, py: number) {
     clearPreview();
     if (!state.selected) return;
     const sz = placementSize(state.selected);
+    const { x, y } = anchorFromPointer(px, py, sz);
     const ok = canPlace(x, y, getOccupiedCells(), sz);
     for (let dy = 0; dy < sz; dy++) {
       for (let dx = 0; dx < sz; dx++) {
@@ -374,7 +388,14 @@ export function initPlanner(root: HTMLElement, T: PlannerStrings): void {
     }
   }
 
-  function onCellClick(x: number, y: number) {
+  function onCellClick(px: number, py: number) {
+    if (!state.selected) return;
+    const { x, y } = anchorFromPointer(px, py, placementSize(state.selected));
+    placeAt(x, y);
+  }
+
+  /** Deploy the selected unit with its top-left anchor at (x, y). */
+  function placeAt(x: number, y: number) {
     if (!state.selected) return;
     const sz = placementSize(state.selected);
     if (!canPlace(x, y, getOccupiedCells(), sz)) {
@@ -656,8 +677,9 @@ export function initPlanner(root: HTMLElement, T: PlannerStrings): void {
           labelRoot: $('3d-labels'),
           host: {
             selectionSize: () => (state.selected ? placementSize(state.selected) : null),
+            anchorFor: (gx, gy, size) => anchorFromPointer(gx, gy, size),
             canPlace: (ax, ay, size) => canPlace(ax, ay, getOccupiedCells(), size),
-            place: (ax, ay) => onCellClick(ax, ay),
+            place: (ax, ay) => placeAt(ax, ay),
             remove: (key) => removePlacement(key),
           },
         });
