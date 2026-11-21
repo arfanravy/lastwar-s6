@@ -2,7 +2,7 @@
   "season": 6,
   "name": "Lost Rainforest",
   "mapName": "Shadow Rainforest",
-  "lastVerified": "2026-11-19",
+  "lastVerified": "2026-11-21",
   "preseason": {
     "endsAt": "2026-11-30T02:00:00Z",
     "endsAtEstimated": true,
@@ -13,24 +13,25 @@
       "id": "season-preview",
       "name": "Season Preview",
       "desc": {
-        "id": "Cuplikan isi Season 6: cerita, hero, dan mekanik baru.",
-        "en": "A first look at Season 6: story, heroes, and new mechanics."
+        "id": "Target harian satu warzone selama 7 hari. Tiap target yang tercapai membuka info season (klan, War Merit, Alliance Pact, Altar) dan hadiah.",
+        "en": "Seven daily warzone-wide goals. Each one you clear reveals season info (clans, War Merit, Alliance Pacts, Altars) and a reward."
       }
     },
     {
       "id": "season-boost",
       "name": "Season Boost (Pre-Season)",
       "desc": {
-        "id": "Event persiapan pra-musim. Detail hadiah menyusul.",
-        "en": "Pre-season preparation event. Reward details to follow."
-      }
+        "id": "Pratinjau buff selama season, termasuk skin base Enchanted Fungus dan promosi Braz ke UR.",
+        "en": "Preview of the season's buffs, including the Enchanted Fungus base skin and Braz's UR promotion."
+      },
+      "link": "season/"
     },
     {
       "id": "alliance-safe-time",
       "name": "Alliance Safe Time",
       "desc": {
-        "id": "Pengaturan waktu aman aliansi. Detail menyusul.",
-        "en": "Alliance safe-time setting. Details to follow."
+        "id": "Pilih satu jendela pertempuran di mana kota dan wilayah aliansi tidak bisa diserang. Atur di Alliance → Settings → Alliance Safe Time.",
+        "en": "Pick one battle window when your alliance's cities and territory can't be attacked. Set it in Alliance → Settings → Alliance Safe Time."
       }
     },
     {
@@ -41,6 +42,14 @@
         "en": "Assigns the two warzone groups to the Deepwood and Wetland factions via the Faction Reveal Stage."
       },
       "link": "faction-reveal/"
+    },
+    {
+      "id": "capitol-conquest",
+      "name": "Capitol Conquest (Pre-Season)",
+      "desc": {
+        "id": "Minggu ke-2 pra-musim, hari 5 pukul 12:00 waktu server. Semua aliansi boleh ikut tanpa wilayah bersebelahan; pemenangnya jadi Presiden sepanjang off-season.",
+        "en": "Pre-season week 2, day 5 at 12:00 server time. Any alliance can join without adjacent land; the winner holds President through the off-season."
+      }
     }
   ]
 }
