@@ -47,7 +47,7 @@ import {
 } from './data';
 import type { Building, Config, EventKey, FilterMode, Placements, Player, TabKey, Team } from './data';
 import { downloadTemplate, exportWorkbook, readRows, rowsToPlayers } from './excel';
-import { ALLIANCE_PRESETS, normName, type AlliancePreset } from '../../lib/alliances';
+import { ALLIANCE_PRESETS, matchRosterPlayer, normName, type AlliancePreset } from '../../lib/alliances';
 import './badai.css';
 
 // ─── Small presentational components (module scope → never remounted) ────────
@@ -429,12 +429,12 @@ export default function BadaiManager({ lang = 'id' }: { lang?: Lang }) {
     let added = 0;
     let updated = 0;
     preset.players.forEach((ap, i) => {
-      const existing = byName.get(normName(ap.name));
-      if (existing) {
-        if (ap.power !== undefined && existing.power !== ap.power) {
-          existing.power = ap.power;
-          updated++;
-        }
+      const match = matchRosterPlayer(byName, ap);
+      if (match) {
+        const existing = match.player;
+        const powerChanged = ap.power !== undefined && existing.power !== ap.power;
+        if (powerChanged) existing.power = ap.power!;
+        if (powerChanged || match.renamed) updated++;
         return;
       }
       const player: Player = {

@@ -6,7 +6,7 @@
 import { fmt, SQUAD_COLORS, SQUADS, type PlannerStrings, type Squad } from './i18n';
 // Type-only: the 3D modules (and `three`) are loaded with a dynamic import() on first use.
 import type { Planner3DHandle, Planner3DModel } from './scene3d';
-import { ALLIANCE_PRESETS, normName, type AlliancePreset } from '../alliances';
+import { ALLIANCE_PRESETS, matchRosterPlayer, normName, type AlliancePreset } from '../alliances';
 
 type Player = { id: number; name: string; squad: Squad };
 type PObject = { id: number; name: string; color: string; symbol: string; size?: number };
@@ -1132,12 +1132,12 @@ export function initPlanner(root: HTMLElement, T: PlannerStrings): void {
     let added = 0;
     let updated = 0;
     for (const ap of preset.players) {
-      const existing = byName.get(normName(ap.name));
-      if (existing) {
-        if (ap.rank && existing.squad !== ap.rank) {
-          existing.squad = ap.rank;
-          updated++;
-        }
+      const match = matchRosterPlayer(byName, ap);
+      if (match) {
+        const existing = match.player;
+        const squadChanged = !!ap.rank && existing.squad !== ap.rank;
+        if (squadChanged) existing.squad = ap.rank!;
+        if (squadChanged || match.renamed) updated++;
         continue;
       }
       const player: Player = { id: nextPid++, name: ap.name, squad: ap.rank ?? 'R1' };

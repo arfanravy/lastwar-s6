@@ -42,7 +42,7 @@ src/
 | Timer pra-musim, event | `src/data/season.json` |
 | Isi panduan | `src/content/guides/id/*.md` **dan** `src/content/guides/en/*.md` |
 | Teks menu/footer | `src/i18n/ui.ts` |
-| Roster aliansi MAAX (tombol "Data MAAX" di Planner & Badai) | `src/data/alliances/maax.json` — per pemain: `name`, `rank` (R1–R5), `power` |
+| Roster aliansi MAAX (tombol "Data MAAX" di Planner & Badai) | `src/data/alliances/maax.json` — per pemain: `name`, `rank` (R1–R5), `power`, `type`; isi `was` (nama lama) kalau pemain ganti nama supaya import tidak membuat pemain dobel |
 
 Semua waktu disimpan dalam **UTC** (ISO 8601, akhiran `Z`). Waktu server Last War = UTC-2, jadi reset harian 00:00 server = 02:00 UTC = 09:00 WIB.
 
