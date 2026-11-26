@@ -259,6 +259,19 @@ const estimatedNote = copy.estimated.replace('{date}', fmtServerDay(dayStart('se
 </Base>
 
 <style>
+  .cal {
+    /* fades for switched-off filter chips and finished days/weeks */
+    --cal-chip-off: 0.45;
+    --cal-past-day: 0.55;
+    --cal-past-week: 0.6;
+  }
+  /* Light text loses contrast faster when faded: fade less so off chips stay
+     readable (>= 4.5:1) and past days stay about as legible as in dark. */
+  :global(:root[data-theme='light']) .cal {
+    --cal-chip-off: 0.65;
+    --cal-past-day: 0.7;
+    --cal-past-week: 0.72;
+  }
   .small {
     font-size: 0.82rem;
   }
@@ -336,7 +349,7 @@ const estimatedNote = copy.estimated.replace('{date}', fmtServerDay(dayStart('se
     cursor: pointer;
   }
   .chip[aria-pressed='false'] {
-    opacity: 0.45;
+    opacity: var(--cal-chip-off);
     background: transparent;
   }
   .cal.hide-war :global([data-cat='war']:not(.chip)),
@@ -387,7 +400,7 @@ const estimatedNote = copy.estimated.replace('{date}', fmtServerDay(dayStart('se
     box-shadow: 0 0 0 1px var(--merah);
   }
   .wk.is-past summary {
-    opacity: 0.6;
+    opacity: var(--cal-past-week);
   }
   .wk-body {
     display: grid;
@@ -416,10 +429,10 @@ const estimatedNote = copy.estimated.replace('{date}', fmtServerDay(dayStart('se
   .badge.today {
     background: var(--merah);
     border-color: var(--merah);
-    color: var(--putih);
+    color: var(--on-accent);
   }
   .day.is-past {
-    opacity: 0.55;
+    opacity: var(--cal-past-day);
   }
   .items {
     list-style: none;

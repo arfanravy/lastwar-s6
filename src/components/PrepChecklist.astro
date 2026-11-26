@@ -88,6 +88,18 @@ const copy = {
 <style>
   .prep {
     scroll-margin-top: 124px; /* keep the title clear of the sticky header on #persiapan */
+    --prep-bar-track: var(--surface-2);
+    --prep-bar-end: #ff8a8f;
+    --prep-ico-ring: rgb(255 255 255 / 0.08);
+    --prep-done-badge: 0.6;
+  }
+  /* Light: visible bar track and a deeper bar end on the white card, a dark
+     hairline round the icon tiles, and badges of ticked items faded less. */
+  :global(:root[data-theme='light']) .prep {
+    --prep-bar-track: var(--forest-700);
+    --prep-bar-end: #ec5761;
+    --prep-ico-ring: rgb(16 36 26 / 0.1);
+    --prep-done-badge: 0.75;
   }
   .prep h2 {
     margin: 0 0 2px;
@@ -121,14 +133,14 @@ const copy = {
     width: 160px;
     height: 6px;
     border-radius: 6px;
-    background: var(--surface-2);
+    background: var(--prep-bar-track);
     overflow: hidden;
   }
   .bar span {
     display: block;
     height: 100%;
     width: 0;
-    background: linear-gradient(90deg, var(--merah), #ff8a8f);
+    background: linear-gradient(90deg, var(--merah), var(--prep-bar-end));
     transition: width 0.3s ease;
   }
 
@@ -204,7 +216,7 @@ const copy = {
   }
   .prep-list input:checked + .box::after {
     content: '✓';
-    color: var(--putih);
+    color: var(--on-accent);
     font-weight: 900;
     font-size: 0.8rem;
     line-height: 1;
@@ -220,9 +232,15 @@ const copy = {
     border-radius: 9px;
     overflow: hidden;
     background: var(--forest-900);
-    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+    box-shadow: inset 0 0 0 1px var(--prep-ico-ring);
     display: grid;
     place-items: center;
+  }
+  /* Light: the opaque icon images cover the inset ring, and the pale ones
+     blend into the pale row, so frame the tile on top of the image. */
+  :global(:root[data-theme='light']) .ico {
+    outline: 1px solid var(--prep-ico-ring);
+    outline-offset: -1px;
   }
   .ico img {
     width: 100%;
@@ -260,7 +278,7 @@ const copy = {
     color: var(--muted);
   }
   .prep-list input:checked ~ .txt .badge {
-    opacity: 0.6;
+    opacity: var(--prep-done-badge);
   }
   .reminder {
     margin: 2px 0 0;

@@ -152,14 +152,24 @@ const copy = {
 
 <style>
   .hero {
+    /* corner glows; the forest-800/900 gradient follows the theme by itself */
+    --hero-glow-red: rgb(225 29 42 / 0.18);
+    --hero-glow-green: rgb(63 191 106 / 0.18);
     padding: 0;
     display: grid;
     grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
     background:
-      radial-gradient(500px 260px at 100% 0%, rgb(225 29 42 / 0.18), transparent 70%),
+      radial-gradient(500px 260px at 100% 0%, var(--hero-glow-red), transparent 70%),
       linear-gradient(135deg, var(--forest-800), var(--forest-900));
     position: relative;
     overflow: hidden;
+  }
+  /* Light: softer glows so the pale card does not turn pink/green; the
+     masked 3D map (light clear colour) fades into the pale gradient. */
+  :global(:root[data-theme='light']) .hero {
+    --hero-glow-red: rgb(225 29 42 / 0.1);
+    --hero-glow-green: rgb(63 191 106 / 0.14);
+    box-shadow: var(--shadow);
   }
   .hero::after {
     content: '';
@@ -169,7 +179,7 @@ const copy = {
     width: 220px;
     height: 220px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgb(63 191 106 / 0.18), transparent 70%);
+    background: radial-gradient(circle, var(--hero-glow-green), transparent 70%);
     pointer-events: none;
   }
   .hero-copy {
@@ -180,6 +190,7 @@ const copy = {
   .hero-3d {
     position: relative;
     min-height: 360px;
+    /* alpha-only mask (#000 = opaque): works the same in both themes */
     -webkit-mask-image: linear-gradient(to right, transparent 0, #000 18%);
     mask-image: linear-gradient(to right, transparent 0, #000 18%);
   }

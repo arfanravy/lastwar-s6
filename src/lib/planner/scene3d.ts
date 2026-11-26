@@ -13,6 +13,7 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { CELL, createAssetKit, type GroundBuild, type GroundSpec, type ItemSpec, type ItemsBuild } from './assets3d';
+import { getTheme, onThemeChange, type Theme } from '../theme';
 
 export type { ItemSpec };
 
@@ -53,8 +54,72 @@ export interface Planner3DHandle {
 const CLICK_SLOP = 6; // px of pointer travel that still counts as a click (not an orbit drag)
 const HOME_DIR = new THREE.Vector3(0, 0.8, 0.6).normalize();
 const UP = new THREE.Vector3(0, 1, 0);
-const OK_COLOR = 0x3fbf6a;
-const BAD_COLOR = 0xff4d57;
+
+/** Renderer, fog, lights and bloom per site theme (the asset kit has its own palette). */
+interface ScenePalette {
+  clear: number;
+  fog: number;
+  /** Multiplier on the fog density (pale daytime haze reads much stronger). */
+  fogScale: number;
+  exposure: number;
+  hemiSky: number;
+  hemiGround: number;
+  hemiIntensity: number;
+  sun: number;
+  sunIntensity: number;
+  rim: number;
+  rimIntensity: number;
+  bloomStrength: number;
+  bloomThreshold: number;
+  /** Footprint preview: green = fits, red = blocked. */
+  previewOk: number;
+  previewBad: number;
+  previewOpacity: number;
+}
+
+const SCENE_PALETTES: Record<Theme, ScenePalette> = {
+  // Night: the original look (keep these values as they are).
+  dark: {
+    clear: 0x07170f,
+    fog: 0x0a2417,
+    fogScale: 1,
+    exposure: 1.05,
+    hemiSky: 0xcdeedb,
+    hemiGround: 0x0c2216,
+    hemiIntensity: 1.1,
+    sun: 0xffe7c2,
+    sunIntensity: 2.2,
+    rim: 0x6fd0ff,
+    rimIntensity: 0.6,
+    bloomStrength: 0.45,
+    bloomThreshold: 0.85,
+    previewOk: 0x3fbf6a,
+    previewBad: 0xff4d57,
+    previewOpacity: 0.42,
+  },
+  // Daytime: pale sky haze and strong sunlight. Bloom only catches real
+  // highlights (windows, beacons, gems): a threshold of 1 keeps plain white
+  // surfaces such as the symbol badges from glowing.
+  light: {
+    clear: 0xdfeae3,
+    fog: 0xdfeae3,
+    fogScale: 0.5,
+    exposure: 1.0,
+    hemiSky: 0xeaf6ff,
+    hemiGround: 0x4d6b45,
+    hemiIntensity: 1.6,
+    sun: 0xfff0d8,
+    sunIntensity: 3.4,
+    rim: 0xcfeaff,
+    rimIntensity: 0.5,
+    bloomStrength: 0.22,
+    bloomThreshold: 1,
+    // The sunlit grass is about as bright as the night "ok" green: use a deep green.
+    previewOk: 0x0b6b2c,
+    previewBad: 0xe5303b,
+    previewOpacity: 0.5,
+  },
+};
 
 export function createPlannerScene(opts: Planner3DOptions): Planner3DHandle {
   const { canvasRoot: container, labelRoot, host } = opts;
@@ -64,12 +129,14 @@ export function createPlannerScene(opts: Planner3DOptions): Planner3DHandle {
   const highQuality = !coarse && cores >= 4;
   const shadows = highQuality;
   const motion = reducedMotion ? 0 : 1; // ambient animation (water, spores, flags, gems) is frozen
+  let theme: Theme = getTheme();
+  let pal = SCENE_PALETTES[theme];
 
   /* Renderer ------------------------------------------------------- */
   const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
-  renderer.setClearColor(0x07170f);
+  renderer.setClearColor(pal.clear);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
+  renderer.toneMappingExposure = pal.exposure;
   renderer.shadowMap.enabled = shadows;
   renderer.shadowMap.type = THREE.PCFShadowMap;
   renderer.shadowMap.autoUpdate = false; // the scene is static between rebuilds
@@ -83,7 +150,7 @@ export function createPlannerScene(opts: Planner3DOptions): Planner3DHandle {
   container.appendChild(canvas);
 
   const scene = new THREE.Scene();
-  const fog = new THREE.FogExp2(0x0a2417, 0.016);
+  const fog = new THREE.FogExp2(pal.fog, 0.016);
   scene.fog = fog;
 
   const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 400);
@@ -94,8 +161,9 @@ export function createPlannerScene(opts: Planner3DOptions): Planner3DHandle {
   camera.lookAt(HOME_TARGET);
 
   /* Lights --------------------------------------------------------- */
-  scene.add(new THREE.HemisphereLight(0xcdeedb, 0x0c2216, 1.1));
-  const sun = new THREE.DirectionalLight(0xffe7c2, 2.2);
+  const hemi = new THREE.HemisphereLight(pal.hemiSky, pal.hemiGround, pal.hemiIntensity);
+  scene.add(hemi);
+  const sun = new THREE.DirectionalLight(pal.sun, pal.sunIntensity);
   const SUN_DIR = new THREE.Vector3(-20, 34, 16).normalize();
   sun.castShadow = shadows;
   if (shadows) {
@@ -104,7 +172,7 @@ export function createPlannerScene(opts: Planner3DOptions): Planner3DHandle {
     sun.shadow.normalBias = 0.04;
   }
   scene.add(sun, sun.target);
-  const rim = new THREE.DirectionalLight(0x6fd0ff, 0.6);
+  const rim = new THREE.DirectionalLight(pal.rim, pal.rimIntensity);
   rim.position.set(24, 10, -30);
   scene.add(rim);
 
@@ -117,8 +185,8 @@ export function createPlannerScene(opts: Planner3DOptions): Planner3DHandle {
     pixelRatio: renderer.getPixelRatio(),
     maxAnisotropy: Math.min(8, renderer.capabilities.getMaxAnisotropy()),
     monoFont: cssVar('--mono', 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace'),
-    tickColor: '#b9d8c4',
-    tickMajorColor: cssVar('--merah-text', '#ff8a92'),
+    theme,
+    tickMajorColor: () => cssVar('--merah-text', '#ff8a92'),
   });
 
   let spec: GroundSpec | null = null;
@@ -131,9 +199,9 @@ export function createPlannerScene(opts: Planner3DOptions): Planner3DHandle {
   const unitPlane = new THREE.PlaneGeometry(1, 1);
   unitPlane.rotateX(-Math.PI / 2);
   const previewMat = new THREE.MeshBasicMaterial({
-    color: OK_COLOR,
+    color: pal.previewOk,
     transparent: true,
-    opacity: 0.42,
+    opacity: pal.previewOpacity,
     depthWrite: false,
     toneMapped: false,
     polygonOffset: true,
@@ -152,7 +220,8 @@ export function createPlannerScene(opts: Planner3DOptions): Planner3DHandle {
       [-0.5, 0.5],
     ].map(([x, z]) => new THREE.Vector3(x, 0, z)),
   );
-  const previewLineMat = new THREE.LineBasicMaterial({ color: OK_COLOR, toneMapped: false, depthTest: false, transparent: true });
+  const previewLineMat = new THREE.LineBasicMaterial({ color: pal.previewOk, toneMapped: false, depthTest: false, transparent: true });
+  let previewFits = true; // state shown by the footprint preview (recoloured on a theme change)
   const previewLine = new THREE.LineLoop(outlineGeo, previewLineMat);
   previewLine.position.y = 0.05;
   previewLine.renderOrder = 3;
@@ -166,10 +235,12 @@ export function createPlannerScene(opts: Planner3DOptions): Planner3DHandle {
 
   /* Post-processing ------------------------------------------------ */
   let composer: EffectComposer | null = null;
+  let bloom: UnrealBloomPass | null = null;
   if (highQuality) {
     composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
-    composer.addPass(new UnrealBloomPass(new THREE.Vector2(1, 1), 0.45, 0.5, 0.85));
+    bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), pal.bloomStrength, 0.5, pal.bloomThreshold);
+    composer.addPass(bloom);
     composer.addPass(new OutputPass());
   }
 
@@ -228,8 +299,12 @@ export function createPlannerScene(opts: Planner3DOptions): Planner3DHandle {
     HOME_POS.copy(HOME_DIR).multiplyScalar(homeDist);
     controls.maxDistance = homeDist * 1.6;
     camera.far = Math.max(400, homeDist * 6);
-    fog.density = 0.45 / homeDist;
+    updateFogDensity();
     ground?.setSporeScale(Math.max(1, homeDist / 60));
+  }
+
+  function updateFogDensity() {
+    fog.density = (0.45 / homeDist) * pal.fogScale;
   }
 
   function snapHome() {
@@ -450,7 +525,8 @@ export function createPlannerScene(opts: Planner3DOptions): Planner3DHandle {
     const d = (y1 - y0) * CELL;
     const cx = ((x0 + x1) / 2 - spec.cols / 2) * CELL;
     const cz = ((y0 + y1) / 2 - spec.rows / 2) * CELL;
-    const color = ok ? OK_COLOR : BAD_COLOR;
+    previewFits = ok;
+    const color = ok ? pal.previewOk : pal.previewBad;
     previewMat.color.setHex(color);
     previewLineMat.color.setHex(color);
     for (const o of [preview, previewLine]) {
@@ -708,6 +784,36 @@ export function createPlannerScene(opts: Planner3DOptions): Planner3DHandle {
 
   resize();
 
+  /* Theme ---------------------------------------------------------- */
+  // Follow the site theme live (header toggle or OS change), no rebuild needed.
+  function applyTheme(next: Theme) {
+    if (next === theme) return;
+    theme = next;
+    pal = SCENE_PALETTES[next];
+    renderer.setClearColor(pal.clear);
+    renderer.toneMappingExposure = pal.exposure;
+    fog.color.setHex(pal.fog);
+    updateFogDensity();
+    hemi.color.setHex(pal.hemiSky);
+    hemi.groundColor.setHex(pal.hemiGround);
+    hemi.intensity = pal.hemiIntensity;
+    sun.color.setHex(pal.sun);
+    sun.intensity = pal.sunIntensity;
+    rim.color.setHex(pal.rim);
+    rim.intensity = pal.rimIntensity;
+    if (bloom) {
+      bloom.strength = pal.bloomStrength;
+      bloom.threshold = pal.bloomThreshold;
+    }
+    const previewColor = previewFits ? pal.previewOk : pal.previewBad;
+    previewMat.color.setHex(previewColor);
+    previewMat.opacity = pal.previewOpacity;
+    previewLineMat.color.setHex(previewColor);
+    kit.setTheme(next); // ground, water, tick labels, symbol badges, spores
+    requestRender();
+  }
+  const offTheme = onThemeChange(applyTheme);
+
   /* Public API ----------------------------------------------------- */
   return {
     update,
@@ -733,6 +839,7 @@ export function createPlannerScene(opts: Planner3DOptions): Planner3DHandle {
     },
     dispose() {
       active = false;
+      offTheme();
       renderer.setAnimationLoop(null);
       ro.disconnect();
       io.disconnect();
