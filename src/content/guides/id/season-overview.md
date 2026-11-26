@@ -84,6 +84,7 @@ Tanggal bisa sedikit beda per server. Cek kalender in-game kalau ada yang tidak 
 - **Penghancuran itu permanen.** Mulai minggu 3, merebut kota faksi lawan berarti menghancurkannya. Kota jadi reruntuhan tanpa pemilik, tidak memberi wilayah bersebelahan, dan tidak bisa dibangun ulang.
 - **Influence.** Aliansi penyerang mendapat Influence Points kota itu (makin tinggi level kota, makin besar). Pihak bertahan kehilangannya. Kalau beberapa aliansi menyerang kota yang sama, yang memberi Durability Damage terbesar yang dapat poinnya.
 - **Hari perang** adalah **Rabu dan Sabtu**, masing-masing tiga jendela pertempuran. Menghancurkan dan mendeklarasikan perang berbagi batas **2 aksi per hari perang**. Fishing Grounds tidak memakai jatah deklarasi.
+- **Jadwal War Time (layar Rules in-game):** Fishing Ground yang belum direbut bisa diserang setiap hari. Rabu & Sabtu, selama 3 Battle Time, Fishing Ground dan kota yang sudah direbut (dan tidak dilindungi) juga bisa diserang. **Sabtu, base komandan bisa diserang warzone lain** — pasang Shield kalau tidak ikut perang. Fishing Ground di warzone lain bisa diserang mulai minggu 2, kota di warzone musuh mulai minggu 3. Lihat tabelnya di [Kalender](../calendar/).
 - **Tidak ada perlindungan setelah bertahan.** Kota yang sama bisa diserang lagi di jendela berikutnya. Pakai **Alliance Safe Time** untuk mengunci satu jendela (Alliance → Settings → Alliance Safe Time).
 - **Satu faksi tidak saling serang** di Neutral City atau Outpost.
 - **Sanctuary**: ibu kota tiap warzone. Merebut Sanctuary sendiri memberi 200.000 Influence ke 60 aliansi teratas faksi. Kalau musuh menghancurkannya, poin itu ditarik lagi. Diperebutkan di Sanctuary Duel (Sabtu minggu 5–7).
@@ -118,10 +119,10 @@ Aturan:
 
 | Nama | Keterangan |
 | --- | --- |
-| **Rainforest Mushroom** | Untuk membangun dan menaikkan level **Spore Factory**. Kota milik faksimu juga menghasilkannya tiap jam (War Spoils), tapi harus diambil manual di layar Faction Tech. |
-| **Spore** | Dihasilkan Spore Factory. Untuk menaikkan **Fungus Institute** dan Totem. |
+| **Rainforest Mushroom** | Untuk membangun dan menaikkan level **Spore Factory**. Kota milik faksimu juga menghasilkannya tiap jam (War Spoils), tapi harus diambil manual di layar Faction Tech. Sisa Mushroom di akhir season diubah jadi **Profession EXP**. |
+| **Spore** | Dihasilkan Spore Factory. Untuk menaikkan **Fungus Institute** dan Totem. Sisa Spore di akhir season diubah jadi **Profession EXP**. |
 | **Fungus Institute** | Menaikkan **Virus Resistance**. Resistance rendah bikin squad kuat pun lemah melawan boss dan defender season. Bangun di hari pertama. |
-| **Spore Factory (I–IV)** | Level maksimal 30 per pabrik. Buka keempatnya dulu. |
+| **Spore Factory (I–IV)** | Level maksimal 30 per pabrik. Buka keempatnya dulu. Fungus Institute dan Spore Factory dibongkar setelah season berakhir. |
 | **Totem** | **Bear** (Tank), **Eagle** (Aircraft), **Jaguar** (Missile). Masing-masing menambah damage hero satu tipe pasukan. |
 | **Protector's Field** | Memanggil Desert Protector. |
 | **War Merit** | Skor pribadi season. Menaikkan Faction War Rank (19 tingkat) untuk gaji harian dan buff. Belanja di shop **tidak** mengurangi total untuk rank. |

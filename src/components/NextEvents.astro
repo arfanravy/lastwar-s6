@@ -1,0 +1,67 @@
+---
+// Homepage card: what's live now and the next few Season 6 events.
+import type { Lang } from '../config';
+import { localePath } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+const copy = {
+  id: { title: 'Event berikutnya', more: 'Kalender lengkap' },
+  en: { title: 'Up next', more: 'Full calendar' },
+}[lang];
+
+const labels = {
+  live: lang === 'id' ? 'Sedang berlangsung' : 'Live now',
+  next: lang === 'id' ? 'Berikutnya' : 'Up next',
+  startsIn: lang === 'id' ? 'mulai dalam' : 'starts in',
+  endsIn: lang === 'id' ? 'berakhir dalam' : 'ends in',
+  allDay: lang === 'id' ? 'seharian (waktu server)' : 'all day (server time)',
+  server: 'server',
+  empty: lang === 'id' ? 'Tidak ada event terjadwal.' : 'No scheduled events.',
+  tbc: lang === 'id' ? 'perkiraan' : 'estimated',
+};
+---
+
+<section class="card next-events" data-next-events data-lang={lang} data-up-labels={JSON.stringify(labels)}>
+  <div class="ne-head">
+    <h2>📅 {copy.title}</h2>
+    <a href={localePath(lang, 'calendar/')}>{copy.more} →</a>
+  </div>
+  <ol class="up-list" data-upcoming><li class="up-empty muted">…</li></ol>
+</section>
+
+<style>
+  .ne-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .ne-head h2 {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+  .ne-head a {
+    font-size: 0.88rem;
+    font-weight: 700;
+  }
+</style>
+
+<script>
+  import type { Lang } from '../config';
+  import { mountUpcoming, type UpcomingLabels } from '../lib/calendar-client';
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-next-events]')) {
+    const list = root.querySelector<HTMLElement>('[data-upcoming]')!;
+    mountUpcoming(list, root.dataset.lang as Lang, {
+      next: 3,
+      live: 2,
+      labels: JSON.parse(root.dataset.upLabels!) as UpcomingLabels,
+    });
+  }
+</script>

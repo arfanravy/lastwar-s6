@@ -84,6 +84,7 @@ Dates shift a little per server. Check the in-game calendar if something doesn't
 - **Destruction is permanent.** From week 3, capturing an enemy faction's city destroys it. It becomes a ruin with no owner, gives no adjacency, and cannot be rebuilt.
 - **Influence.** The attacking alliance gains the city's Influence Points (higher level city, more points). The defending side loses it. If several alliances hit the same city, the one with the most Durability Damage gets the credit.
 - **War days** are **Wednesday and Saturday**, with three battle windows each. Destroying and declaring war share a cap of **2 actions per war day**. Fishing Grounds don't use a declaration.
+- **War Time schedule (in-game Rules screen):** uncaptured Fishing Grounds can be attacked every day. On Wednesday and Saturday, during the 3 Battle Times, captured Fishing Grounds and cities not under protection can be attacked too. **On Saturday, Commander bases can be attacked by other warzones** — activate a Shield if you are not fighting. Fishing Grounds in other warzones open from week 2, cities in enemy warzones from week 3. See the table in the [Calendar](../calendar/).
 - **No protection after a defense.** The same city can be attacked again in the next window. Use **Alliance Safe Time** to lock one window (Alliance → Settings → Alliance Safe Time).
 - **Same faction = no fighting** over Neutral Cities or Outposts.
 - **Sanctuary**: each warzone's capital. Capturing your own gives the faction's top 60 alliances 200,000 Influence. If the enemy destroys it, that is taken back. Fought in the Sanctuary Duels (Saturdays of weeks 5–7).
@@ -118,10 +119,10 @@ Rules:
 
 | Name | Notes |
 | --- | --- |
-| **Rainforest Mushroom** | Builds and upgrades **Spore Factories**. Your faction's cities also produce it hourly (War Spoils), but you must collect it by hand on the Faction Tech screen. |
-| **Spore** | Made by Spore Factories. Upgrades the **Fungus Institute** and the Totems. |
+| **Rainforest Mushroom** | Builds and upgrades **Spore Factories**. Your faction's cities also produce it hourly (War Spoils), but you must collect it by hand on the Faction Tech screen. Leftover Mushrooms become **Profession EXP** when the season ends. |
+| **Spore** | Made by Spore Factories. Upgrades the **Fungus Institute** and the Totems. Leftover Spore becomes **Profession EXP** when the season ends. |
 | **Fungus Institute** | Raises **Virus Resistance**. Low resistance makes strong squads underperform against seasonal bosses and defenders. Build it on day 1. |
-| **Spore Factory (I–IV)** | Max level 30 each. Unlock all four first. |
+| **Spore Factory (I–IV)** | Max level 30 each. Unlock all four first. The Fungus Institute and Spore Factories are removed after the season ends. |
 | **Totems** | **Bear** (Tank), **Eagle** (Aircraft), **Jaguar** (Missile). Each boosts hero damage for one troop type. |
 | **Protector's Field** | Summons Desert Protectors. |
 | **War Merit** | Personal season score. Raises your Faction War Rank (19 ranks) for daily stipends and buffs. Spending it in the shop does **not** lower your rank total. |

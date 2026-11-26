@@ -40,6 +40,7 @@ src/
 | --- | --- |
 | Angka Faction Reveal / anggota grup | `src/data/faction-reveal.json` (perbarui juga `updatedAt`) |
 | Timer pra-musim, event | `src/data/season.json` |
+| Jadwal Kalender (event per minggu/hari/jam server) | `src/data/calendar.json` — tanggal dihitung dari akhir pra-musim di `season.json`; file `.ics` ikut ter-generate |
 | Isi panduan | `src/content/guides/id/*.md` **dan** `src/content/guides/en/*.md` |
 | Teks menu/footer | `src/i18n/ui.ts` |
 | Roster aliansi MAAX (tombol "Data MAAX" di Planner & Badai) | `src/data/alliances/maax.json` — per pemain: `name`, `rank` (R1–R5), `power`, `type`; isi `was` (nama lama) kalau pemain ganti nama supaya import tidak membuat pemain dobel |

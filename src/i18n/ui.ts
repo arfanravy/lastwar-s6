@@ -4,6 +4,7 @@ export const ui = {
   id: {
     'site.tagline': 'Info Last War Season 6 · Lost Rainforest',
     'nav.home': 'Beranda',
+    'nav.calendar': 'Kalender',
     'nav.faction': 'Faction Reveal',
     'nav.season': 'Panduan Season',
     'nav.planner': 'Planner Peta',
@@ -27,6 +28,7 @@ export const ui = {
   en: {
     'site.tagline': 'Last War Season 6 info · Lost Rainforest',
     'nav.home': 'Home',
+    'nav.calendar': 'Calendar',
     'nav.faction': 'Faction Reveal',
     'nav.season': 'Season Guide',
     'nav.planner': 'Map Planner',

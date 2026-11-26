@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import RainforestMap from '../../components/RainforestMap.astro';
 import PrepChecklist from '../../components/PrepChecklist.astro';
+import NextEvents from '../../components/NextEvents.astro';
 import season from '../../data/season.json';
 import reveal from '../../data/faction-reveal.json';
 import { SITE, type Lang } from '../../config';
@@ -85,6 +86,10 @@ const copy = {
       <RainforestMap lang={lang} mode="ambient" />
     </div>
   </section>
+
+  <div class="section">
+    <NextEvents lang={lang} />
+  </div>
 
   <div class="section">
     <PrepChecklist lang={lang} />

@@ -1,0 +1,525 @@
+{
+  "lastVerified": "2026-11-26",
+  "sources": [
+    "In-game Rules screen (War Time, Week 1), recorded 2026-11-26",
+    "https://www.lastwartutorial.com/season-6-preseason/",
+    "https://www.lastwartutorial.com/season-6-week-1/",
+    "https://www.lastwartutorial.com/season-6-week-2/",
+    "MAAX alliance preparation guide"
+  ],
+  "events": [
+    {
+      "id": "faction-selection",
+      "cat": "season",
+      "phase": "pre",
+      "week": 1,
+      "day": 1,
+      "durDays": 3,
+      "title": {
+        "id": "Faction Selection Stage",
+        "en": "Faction Selection Stage"
+      },
+      "desc": {
+        "id": "Server No.1 tiap grup memasang angka (bisa diganti, jeda 12 jam).",
+        "en": "Each group's No.1 server sets a number (changeable, 12-hour cooldown)."
+      }
+    },
+    {
+      "id": "faction-reveal",
+      "cat": "season",
+      "phase": "pre",
+      "week": 1,
+      "day": 4,
+      "durDays": 11,
+      "title": {
+        "id": "Faction Reveal Stage",
+        "en": "Faction Reveal Stage"
+      },
+      "desc": {
+        "id": "Pembagian faksi dan posisi warzone terlihat sampai pra-musim selesai.",
+        "en": "Faction split and warzone positions are visible until the pre-season ends."
+      }
+    },
+    {
+      "id": "capitol",
+      "cat": "war",
+      "phase": "pre",
+      "week": 2,
+      "day": 5,
+      "time": "12:00",
+      "hours": 4,
+      "title": {
+        "id": "Capitol Conquest",
+        "en": "Capitol Conquest"
+      },
+      "desc": {
+        "id": "Rebut Capitol tanpa syarat wilayah bersebelahan, maksimal 4 jam. Pemimpin aliansi pemenang jadi President.",
+        "en": "Fight for the Capitol without adjacent land, up to 4 hours. The winning alliance's leader becomes President."
+      }
+    },
+    {
+      "id": "season-start",
+      "cat": "season",
+      "week": 1,
+      "day": 1,
+      "time": "00:00",
+      "title": {
+        "id": "Season 6 dimulai",
+        "en": "Season 6 starts"
+      },
+      "desc": {
+        "id": "Peta Shadow Rainforest dibuka. Bangun Fungus Institute di hari pertama.",
+        "en": "The Shadow Rainforest map opens. Build the Fungus Institute on day 1."
+      }
+    },
+    {
+      "id": "fungus-secrets",
+      "cat": "event",
+      "week": 1,
+      "day": 1,
+      "title": {
+        "id": "Fungus Secrets",
+        "en": "Fungus Secrets"
+      },
+      "desc": {
+        "id": "Donasi bersama untuk membuka Fungus Institute (Virus Resistance).",
+        "en": "Warzone donation that unlocks the Fungus Institute (Virus Resistance)."
+      }
+    },
+    {
+      "id": "purge-action",
+      "cat": "event",
+      "week": 1,
+      "day": 1,
+      "durDays": 9,
+      "title": {
+        "id": "Purge Action",
+        "en": "Purge Action"
+      },
+      "desc": {
+        "id": "Ranking kill zombie season (sampai level 50), 9 hari.",
+        "en": "Season zombie-kill ranking (up to level 50), 9 days."
+      }
+    },
+    {
+      "id": "fishing-conquest",
+      "cat": "event",
+      "week": 1,
+      "day": 1,
+      "durDays": 14,
+      "title": {
+        "id": "Fishing Ground Conquest",
+        "en": "Fishing Ground Conquest"
+      },
+      "desc": {
+        "id": "Ranking aliansi merebut Fishing Grounds, 14 hari.",
+        "en": "Alliance ranking for capturing Fishing Grounds, 14 days."
+      }
+    },
+    {
+      "id": "beneath-ruins",
+      "cat": "event",
+      "week": 1,
+      "day": 2,
+      "durDays": 48,
+      "title": {
+        "id": "Beneath the Ruins",
+        "en": "Beneath the Ruins"
+      },
+      "desc": {
+        "id": "Mini-game season dibuka. Mode duel menyusul di minggu 2.",
+        "en": "The season mini-game opens. Duel mode follows in week 2."
+      }
+    },
+    {
+      "id": "fishing-grounds",
+      "cat": "event",
+      "week": 1,
+      "day": 2,
+      "title": {
+        "id": "Capture Fishing Grounds & Fishing Fest",
+        "en": "Capture Fishing Grounds & Fishing Fest"
+      },
+      "desc": {
+        "id": "Mulai rebut Fishing Grounds dan memancing.",
+        "en": "Start capturing Fishing Grounds and fishing."
+      }
+    },
+    {
+      "id": "city-lv1",
+      "cat": "war",
+      "week": 1,
+      "day": 3,
+      "time": "12:00",
+      "title": {
+        "id": "Kota Lv.1 bisa direbut",
+        "en": "Lv.1 cities open for capture"
+      },
+      "desc": {
+        "id": "City Clash S6 dimulai. R4/R5 deklarasi perang ke kota yang wilayahnya tersambung.",
+        "en": "City Clash S6 begins. R4/R5 declare war on cities connected to your territory."
+      }
+    },
+    {
+      "id": "kimberly",
+      "cat": "hero",
+      "week": 1,
+      "day": 4,
+      "durDays": 7,
+      "title": {
+        "id": "Kimberly Awakening",
+        "en": "Kimberly Awakening"
+      },
+      "desc": {
+        "id": "Battle Pass Awakening Kimberly, 7 hari. Syarat: bintang 5, Exclusive Weapon lv.20+.",
+        "en": "Kimberly's Awakening Battle Pass, 7 days. Needs 5 stars and Exclusive Weapon lv.20+."
+      }
+    },
+    {
+      "id": "global-expedition",
+      "cat": "event",
+      "week": 1,
+      "day": 4,
+      "tbc": true,
+      "title": {
+        "id": "Global Expedition pertama",
+        "en": "First Global Expedition"
+      },
+      "desc": {
+        "id": "Butuh Alert Tower lv.27. Hari pastinya belum terkonfirmasi.",
+        "en": "Needs Alert Tower lv.27. Exact day not confirmed."
+      }
+    },
+    {
+      "id": "city-lv2",
+      "cat": "war",
+      "week": 1,
+      "day": 6,
+      "time": "12:00",
+      "title": {
+        "id": "Kota Lv.2 bisa direbut",
+        "en": "Lv.2 cities open for capture"
+      }
+    },
+    {
+      "id": "cross-warzone",
+      "cat": "war",
+      "week": 2,
+      "day": 1,
+      "title": {
+        "id": "Cross-Warzone Expedition",
+        "en": "Cross-Warzone Expedition"
+      },
+      "desc": {
+        "id": "Fishing Grounds di warzone faksi lawan mulai bisa diserang.",
+        "en": "Fishing Grounds in enemy-faction warzones can now be attacked."
+      }
+    },
+    {
+      "id": "city-lv3",
+      "cat": "war",
+      "week": 2,
+      "day": 3,
+      "time": "12:00",
+      "title": {
+        "id": "Kota Lv.3 bisa direbut",
+        "en": "Lv.3 cities open for capture"
+      }
+    },
+    {
+      "id": "trade-war",
+      "cat": "war",
+      "week": 2,
+      "day": 5,
+      "time": "12:00",
+      "title": {
+        "id": "Trade War",
+        "en": "Trade War"
+      },
+      "desc": {
+        "id": "Rebut Trade Post.",
+        "en": "Capture Trade Posts."
+      }
+    },
+    {
+      "id": "sanctuary-ready",
+      "cat": "war",
+      "week": 2,
+      "day": 7,
+      "time": "12:00",
+      "title": {
+        "id": "Sanctuary bisa direbut",
+        "en": "Sanctuary open for capture"
+      },
+      "desc": {
+        "id": "Ibu kota warzone. Merebut Sanctuary sendiri memberi 200.000 Influence ke 60 aliansi teratas faksi.",
+        "en": "The warzone capital. Capturing your own gives the faction's top 60 alliances 200,000 Influence."
+      }
+    },
+    {
+      "id": "city-lv4",
+      "cat": "war",
+      "week": 2,
+      "day": 7,
+      "time": "12:00",
+      "tbc": true,
+      "title": {
+        "id": "Kota Lv.4 bisa direbut",
+        "en": "Lv.4 cities open for capture"
+      }
+    },
+    {
+      "id": "faction-clash",
+      "cat": "war",
+      "week": 3,
+      "title": {
+        "id": "Faction Clash",
+        "en": "Faction Clash"
+      },
+      "desc": {
+        "id": "Kota faksi lawan mulai bisa dihancurkan. Penghancuran permanen.",
+        "en": "Enemy-faction cities can now be destroyed. Destruction is permanent."
+      }
+    },
+    {
+      "id": "city-lv5",
+      "cat": "war",
+      "week": 3,
+      "day": 3,
+      "time": "12:00",
+      "tbc": true,
+      "title": {
+        "id": "Kota Lv.5 bisa direbut",
+        "en": "Lv.5 cities open for capture"
+      }
+    },
+    {
+      "id": "braz-ur",
+      "cat": "hero",
+      "week": 3,
+      "title": {
+        "id": "Braz → UR",
+        "en": "Braz → UR"
+      },
+      "desc": {
+        "id": "Promosi Braz SSR bintang 5 ke UR (butuh 1 UR Hero Badge).",
+        "en": "Promote 5-star SSR Braz to UR (needs 1 UR Hero Badge)."
+      }
+    },
+    {
+      "id": "dva",
+      "cat": "hero",
+      "week": 3,
+      "title": {
+        "id": "DVA Awakening",
+        "en": "DVA Awakening"
+      },
+      "desc": {
+        "id": "Sesuai panduan aliansi. Syarat: bintang 5, Exclusive Weapon lv.20+.",
+        "en": "Per the alliance guide. Needs 5 stars and Exclusive Weapon lv.20+."
+      }
+    },
+    {
+      "id": "altar",
+      "cat": "altar",
+      "weeks": [
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "days": [
+        2
+      ],
+      "time": "12:00",
+      "hours": 1,
+      "title": {
+        "id": "Altar Conquest",
+        "en": "Altar Conquest"
+      },
+      "desc": {
+        "id": "1 jam, tanpa syarat wilayah bersebelahan. Maksimal 3 Altar per aliansi.",
+        "en": "1 hour, no adjacency needed. Max 3 Altars per alliance."
+      },
+      "weekNote": {
+        "3": {
+          "id": "Snake & Echo Altar",
+          "en": "Snake & Echo Altars"
+        },
+        "4": {
+          "id": "+ Gust Altar",
+          "en": "+ Gust Altar"
+        },
+        "5": {
+          "id": "+ Feather Altar",
+          "en": "+ Feather Altar"
+        },
+        "6": {
+          "id": "+ Treehaven Altar",
+          "en": "+ Treehaven Altar"
+        },
+        "7": {
+          "id": "Semua Altar",
+          "en": "All Altars"
+        }
+      }
+    },
+    {
+      "id": "outpost",
+      "cat": "war",
+      "week": 4,
+      "title": {
+        "id": "Penempatan Outpost dimulai",
+        "en": "Outpost placement begins"
+      }
+    },
+    {
+      "id": "tesla",
+      "cat": "hero",
+      "week": 5,
+      "title": {
+        "id": "Tesla Awakening",
+        "en": "Tesla Awakening"
+      },
+      "desc": {
+        "id": "Sesuai panduan aliansi. Syarat: bintang 5, Exclusive Weapon lv.20+.",
+        "en": "Per the alliance guide. Needs 5 stars and Exclusive Weapon lv.20+."
+      }
+    },
+    {
+      "id": "sanctuary-duel",
+      "cat": "war",
+      "weeks": [
+        5,
+        6,
+        7
+      ],
+      "days": [
+        6
+      ],
+      "title": {
+        "id": "Sanctuary Duel",
+        "en": "Sanctuary Duel"
+      },
+      "desc": {
+        "id": "Jam mulai belum diketahui, cek in-game.",
+        "en": "Start time not known yet, check in game."
+      },
+      "weekNote": {
+        "5": {
+          "id": "Duel 1",
+          "en": "Duel 1"
+        },
+        "6": {
+          "id": "Duel 2",
+          "en": "Duel 2"
+        },
+        "7": {
+          "id": "Duel 3",
+          "en": "Duel 3"
+        }
+      }
+    },
+    {
+      "id": "awakening-swap",
+      "cat": "hero",
+      "week": 6,
+      "title": {
+        "id": "Awakening Swap terbuka",
+        "en": "Awakening Swap unlocks"
+      }
+    },
+    {
+      "id": "faction-duel",
+      "cat": "war",
+      "week": 7,
+      "day": 7,
+      "time": "12:00",
+      "title": {
+        "id": "Faction Duel · Ancestral Temple",
+        "en": "Faction Duel · Ancestral Temple"
+      },
+      "desc": {
+        "id": "Faksi pertama yang mencapai 100% dapat 30 juta Influence.",
+        "en": "The first faction to reach 100% earns 30 million Influence."
+      }
+    },
+    {
+      "id": "war-day-wed",
+      "cat": "war",
+      "weeks": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "days": [
+        3
+      ],
+      "title": {
+        "id": "Hari perang · Fishing Ground & kota",
+        "en": "War day · Fishing Grounds & cities"
+      },
+      "desc": {
+        "id": "3 Battle Time (@1 jam, jam cek in-game): Fishing Ground & kota yang sudah direbut dan tidak dilindungi bisa diserang. Kunci satu jendela dengan Alliance Safe Time.",
+        "en": "3 Battle Times (1 hour each, check times in game): captured Fishing Grounds and cities not under protection can be attacked. Lock one window with Alliance Safe Time."
+      }
+    },
+    {
+      "id": "war-day-sat",
+      "cat": "war",
+      "weeks": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "days": [
+        6
+      ],
+      "alarmMin": 60,
+      "title": {
+        "id": "Hari perang · base bisa diserang",
+        "en": "War day · bases can be attacked"
+      },
+      "desc": {
+        "id": "Seperti Rabu, ditambah base komandan bisa diserang warzone lain. Pasang Shield kalau tidak ikut perang!",
+        "en": "Same as Wednesday, plus Commander bases can be attacked by other warzones. Activate a Shield if you are not fighting!"
+      }
+    },
+    {
+      "id": "settlement",
+      "cat": "season",
+      "week": 8,
+      "title": {
+        "id": "Settlement",
+        "en": "Settlement"
+      },
+      "desc": {
+        "id": "Tidak ada perang. Hadiah berdasarkan peringkat Influence.",
+        "en": "No more war. Rewards by Influence ranking."
+      }
+    },
+    {
+      "id": "celebration",
+      "cat": "season",
+      "phase": "celebration",
+      "week": 1,
+      "title": {
+        "id": "Celebration",
+        "en": "Celebration"
+      },
+      "desc": {
+        "id": "Black Market (lengkapi shard Exclusive Weapon), lalu off-season.",
+        "en": "Black Market (complete Exclusive Weapon shards), then off-season."
+      }
+    }
+  ]
+}

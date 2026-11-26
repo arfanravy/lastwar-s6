@@ -11,6 +11,7 @@ export type Lang = (typeof LANGS)[number];
 
 export const ROUTES = [
   { path: '', key: 'nav.home' },
+  { path: 'calendar/', key: 'nav.calendar' },
   { path: 'faction-reveal/', key: 'nav.faction' },
   { path: 'season/', key: 'nav.season' },
   { path: 'planner/', key: 'nav.planner' },

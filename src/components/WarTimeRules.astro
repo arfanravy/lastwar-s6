@@ -1,0 +1,218 @@
+---
+// Weekly war-time rules, as shown on the in-game "Lost Rainforest → Rules → War Time" screen.
+import type { Lang } from '../config';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+type Cell = 'open' | 'battle' | 'base' | null;
+// Mon..Sun: [Fishing Ground, City, BASE]
+const GRID: Cell[][] = [
+  ['open', null, null],
+  ['open', null, null],
+  ['battle', 'battle', null],
+  ['open', null, null],
+  ['open', null, null],
+  ['battle', 'battle', 'base'],
+  ['open', null, null],
+];
+
+const copy = {
+  id: {
+    title: 'Aturan War Time',
+    sub: 'Dari layar Rules in-game (Lost Rainforest → Rules → War Time).',
+    days: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
+    cols: ['Fishing Ground', 'Kota', 'Base'],
+    cell: { open: 'Belum direbut', battle: 'Battle Time', base: 'Bisa diserang' },
+    today: 'hari ini',
+    notes: [
+      '<b>Hari biasa:</b> hanya Fishing Ground yang <b>belum direbut</b> yang bisa diserang.',
+      '<b>Rabu & Sabtu, selama 3 Battle Time:</b> Fishing Ground dan kota yang <b>sudah direbut</b> (dan tidak sedang dilindungi) juga bisa diserang. Deklarasi perang ke kota hanya di hari ini.',
+      '<b>Sabtu: base komandan bisa diserang warzone lain.</b> Kalau tidak ikut perang, <b>pasang Shield</b>.',
+      'Mulai <b>minggu 2</b>: Fishing Ground di warzone lain. Mulai <b>minggu 3</b>: kota di warzone musuh.',
+    ],
+  },
+  en: {
+    title: 'War Time rules',
+    sub: 'From the in-game Rules screen (Lost Rainforest → Rules → War Time).',
+    days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    cols: ['Fishing Ground', 'City', 'Base'],
+    cell: { open: 'Uncaptured', battle: 'Battle Time', base: 'Attackable' },
+    today: 'today',
+    notes: [
+      '<b>Normal days:</b> only <b>uncaptured</b> Fishing Grounds can be attacked.',
+      '<b>Wednesday & Saturday, during the 3 Battle Times:</b> <b>captured</b> Fishing Grounds and cities not under protection can be attacked too. City war declarations only on these days.',
+      '<b>Saturday: Commander bases can be attacked by other warzones.</b> If you are not fighting, <b>activate a Shield</b>.',
+      'From <b>week 2</b>: Fishing Grounds in other warzones. From <b>week 3</b>: cities in enemy warzones.',
+    ],
+  },
+}[lang];
+---
+
+<section class="card wt" data-wartime>
+  <h2>⚔️ {copy.title}</h2>
+  <p class="muted small">{copy.sub}</p>
+  <div class="wt-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col"></th>
+          {copy.cols.map((c) => <th scope="col">{c}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {
+          GRID.map((row, i) => (
+            <tr data-dow={i + 1}>
+              <th scope="row">
+                {copy.days[i]}
+                <span class="wt-today">{copy.today}</span>
+              </th>
+              {row.map((c) => (
+                <td>{c ? <span class={`wt-pill ${c}`}>{copy.cell[c]}</span> : <span class="wt-none">—</span>}</td>
+              ))}
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+  <ul class="wt-notes">
+    {copy.notes.map((n) => <li set:html={n} />)}
+  </ul>
+</section>
+
+<style>
+  .wt h2 {
+    margin: 0 0 2px;
+    font-size: 1.1rem;
+  }
+  .small {
+    font-size: 0.8rem;
+    margin: 0 0 12px;
+  }
+  .wt-scroll {
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 4px;
+    font-size: 0.85rem;
+  }
+  th,
+  td {
+    padding: 6px 8px;
+    text-align: center;
+  }
+  thead th {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--forest-200);
+  }
+  tbody th {
+    text-align: left;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  tbody tr {
+    background: var(--surface-2);
+  }
+  tbody tr > :first-child {
+    border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+  }
+  tbody tr > :last-child {
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  }
+  tr.is-today {
+    background: rgb(225 29 42 / 0.16);
+    outline: 2px solid var(--merah);
+    outline-offset: -2px;
+    border-radius: var(--radius-sm);
+  }
+  .wt-today {
+    display: none;
+    margin-left: 6px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--merah-text);
+  }
+  tr.is-today .wt-today {
+    display: inline;
+  }
+  .wt-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .wt-pill.open {
+    background: rgb(255 255 255 / 0.1);
+    color: var(--forest-200);
+  }
+  .wt-pill.battle,
+  .wt-pill.base {
+    background: rgb(255 90 120 / 0.2);
+    color: #ffb3c1;
+    border: 1px solid rgb(255 90 120 / 0.55);
+  }
+  .wt-pill.base {
+    background: var(--merah);
+    border-color: var(--merah);
+    color: var(--putih);
+  }
+  .wt-none {
+    color: var(--forest-700);
+  }
+  .wt-notes {
+    margin: 12px 0 0;
+    padding-left: 1.2em;
+    font-size: 0.85rem;
+    color: var(--forest-200);
+    display: grid;
+    gap: 4px;
+  }
+  @media (max-width: 480px) {
+    table {
+      font-size: 0.8rem;
+    }
+    th,
+    td {
+      padding: 5px 2px;
+    }
+    thead th {
+      font-size: 0.62rem;
+    }
+    tbody th {
+      padding-left: 8px;
+    }
+    tr.is-today .wt-today {
+      display: block;
+      margin: 0;
+      font-size: 0.55rem;
+    }
+    .wt-pill {
+      padding: 2px 5px;
+      font-size: 0.6rem;
+    }
+  }
+</style>
+
+<script>
+  // Highlight today's row by server day (UTC-2).
+  for (const root of document.querySelectorAll<HTMLElement>('[data-wartime]')) {
+    const mark = () => {
+      const dow = new Date(Date.now() - 2 * 3_600_000).getUTCDay() || 7; // 1 = Monday … 7 = Sunday
+      root.querySelectorAll<HTMLElement>('tr[data-dow]').forEach((tr) => tr.classList.toggle('is-today', Number(tr.dataset.dow) === dow));
+    };
+    mark();
+    setInterval(mark, 60_000);
+  }
+</script>
