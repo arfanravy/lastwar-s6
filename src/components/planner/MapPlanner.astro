@@ -43,7 +43,7 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
             <div class="pl-squad-grid">
               {
                 SQUADS.map((s, i) => (
-                  <button type="button" class:list={['pl-squad-btn', { active: i === 0 }]} data-squad={s} style={`color:${SQUAD_COLORS[s]}`} aria-pressed={i === 0 ? 'true' : 'false'}>
+                  <button type="button" class:list={['pl-squad-btn', { active: i === 0 }]} data-squad={s} style={`--sq:${SQUAD_COLORS[s]}`} aria-pressed={i === 0 ? 'true' : 'false'}>
                     {s}
                   </button>
                 ))
@@ -314,10 +314,27 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
     --pl-cell-alt: #0f2a1b;
     --pl-accent: var(--merah);
     --pl-accent-text: var(--merah-text);
-    --pl-green: #3fbf6a;
+    --pl-green: #3fbf6a; /* "ok" text, outlines and status dots */
+    --pl-green-fill: #3fbf6a; /* fill under --pl-dark text: same in both themes */
     --pl-red: #ff4d57;
     --pl-gold: #d8a040;
-    --pl-dark: #10170f;
+    --pl-dark: #10170f; /* text on squad / object colour fills: same in both themes */
+    --pl-coord-text: var(--muted);
+    --pl-tab-ct-active: var(--muted);
+    --pl-frame-shadow: 0 8px 24px rgb(0 0 0 / 0.4);
+    --pl-center-halo: rgb(0 0 0 / 0.35);
+    --pl-fp-line: rgb(0 0 0 / 0.45);
+    --pl-glyph-halo: rgb(0 0 0 / 0.75);
+    --pl-glyph-drop: rgb(0 0 0 / 0.4);
+    --pl-banner-shadow: 0 1px 5px rgb(0 0 0 / 0.45);
+    --pl-label-bg: rgb(7 23 15 / 0.84);
+    --pl-label-shadow: 0 2px 8px rgb(0 0 0 / 0.45);
+    --pl-label-shadow-hot: 0 6px 18px rgb(0 0 0 / 0.5);
+    --pl-veil: rgb(7 23 15 / 0.7);
+    --pl-hint-bg: rgb(7 23 15 / 0.75);
+    --pl-scrim: rgb(2 10 6 / 0.7);
+    --pl-scrim-drawer: rgb(2 10 6 / 0.6);
+    --pl-drawer-shadow: 0 -6px 24px rgb(0 0 0 / 0.5);
     position: relative;
     display: flex;
     flex-direction: column;
@@ -331,6 +348,31 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
     font-family: var(--font);
     font-size: 14px;
     line-height: 1.4;
+  }
+  /* Light theme: a pale grid, darker status colours (WCAG AA on light
+     surfaces) and soft green-grey shadows instead of black ones. */
+  :root[data-theme='light'] .pl {
+    --pl-cell: #fbfdfc;
+    --pl-cell-alt: #f1f6f2;
+    --pl-green: #16733a;
+    --pl-red: #c41a26;
+    --pl-gold: #8a5a00;
+    --pl-coord-text: #3d5c4b;
+    --pl-tab-ct-active: #3d5c4b;
+    --pl-frame-shadow: 0 8px 24px rgb(16 36 26 / 0.12);
+    --pl-center-halo: rgb(255 255 255 / 0.85);
+    --pl-fp-line: rgb(11 31 20 / 0.3);
+    --pl-glyph-halo: rgb(255 255 255 / 0.85);
+    --pl-glyph-drop: rgb(16 36 26 / 0.18);
+    --pl-banner-shadow: 0 1px 4px rgb(16 36 26 / 0.3);
+    --pl-label-bg: rgb(255 255 255 / 0.92);
+    --pl-label-shadow: 0 2px 8px rgb(16 36 26 / 0.18);
+    --pl-label-shadow-hot: 0 6px 18px rgb(16 36 26 / 0.28);
+    --pl-veil: rgb(242 247 243 / 0.82);
+    --pl-hint-bg: rgb(255 255 255 / 0.9);
+    --pl-scrim: rgb(16 36 26 / 0.45);
+    --pl-scrim-drawer: rgb(16 36 26 / 0.35);
+    --pl-drawer-shadow: 0 -6px 24px rgb(16 36 26 / 0.18);
   }
   .pl *,
   .pl *::before,
@@ -488,6 +530,9 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
     color: var(--muted);
     margin-left: 2px;
   }
+  .pl .pl-tab.active .ct {
+    color: var(--pl-tab-ct-active);
+  }
   .pl .pl-tab-pane {
     display: none;
     flex-direction: column;
@@ -551,6 +596,7 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
     border: 1px solid var(--pl-line);
     border-radius: 6px;
     background: var(--pl-deep);
+    color: var(--sq);
     font-size: 0.78rem;
     font-weight: 800;
     cursor: pointer;
@@ -562,9 +608,20 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
   }
   .pl .pl-squad-btn.active {
     opacity: 1;
-    border-color: currentColor;
-    background: color-mix(in srgb, currentColor 18%, transparent);
-    box-shadow: 0 0 10px color-mix(in srgb, currentColor 30%, transparent);
+    border-color: var(--sq);
+    background: color-mix(in srgb, var(--sq) 18%, transparent);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--sq) 30%, transparent);
+  }
+  /* Light theme: the pastel squad colours are too pale for text, so the label
+     uses a darker shade of the same hue. Dimming with opacity would push it
+     below AA again, so idle buttons stay opaque (the active one keeps its
+     coloured border, tint and glow). */
+  :root[data-theme='light'] .pl .pl-squad-btn {
+    color: color-mix(in srgb, var(--sq) 50%, #000);
+    opacity: 1;
+  }
+  :root[data-theme='light'] .pl .pl-squad-btn:not(.active):hover {
+    border-color: var(--pl-line-bright);
   }
 
   .pl .pl-color-row {
@@ -661,7 +718,7 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
   .pl .pl-btn-primary {
     width: 100%;
     background: var(--pl-accent);
-    color: var(--putih);
+    color: var(--on-accent);
     border: none;
     border-radius: 999px;
     padding: 9px;
@@ -891,6 +948,7 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
   }
   .pl .pl-tool-btn.preset:hover:not(:disabled) {
     background: var(--merah);
+    color: var(--on-accent);
   }
   .pl .pl-tool-btn:disabled {
     opacity: 0.45;
@@ -916,7 +974,7 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
     background: linear-gradient(135deg, rgb(225 29 42 / 0.06), transparent 50%), var(--pl-sunk);
     border: 2px solid var(--pl-line-bright);
     border-radius: 6px;
-    box-shadow: 0 8px 24px rgb(0 0 0 / 0.4);
+    box-shadow: var(--pl-frame-shadow);
   }
   .pl .pl-grid-container::before,
   .pl .pl-grid-container::after,
@@ -989,7 +1047,7 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
     font-family: var(--mono);
     font-size: 9px;
     line-height: 1;
-    color: var(--muted);
+    color: var(--pl-coord-text);
     pointer-events: none;
     white-space: nowrap;
     user-select: none;
@@ -1010,7 +1068,7 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
   }
   .pl .pl-coord-x.center,
   .pl .pl-coord-y.center {
-    color: var(--putih);
+    color: var(--on-accent);
     background: var(--merah);
     font-weight: 800;
     padding: 1px 3px;
@@ -1023,7 +1081,7 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
     inset: 22%;
     border-radius: 50%;
     border: 1.5px solid var(--merah-text);
-    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.35);
+    box-shadow: 0 0 0 1px var(--pl-center-halo);
     pointer-events: none;
   }
 
@@ -1057,7 +1115,7 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
   }
   .pl .pl-view-btn.active {
     background: var(--merah);
-    color: var(--putih);
+    color: var(--on-accent);
   }
   .pl .pl-view-btn[aria-disabled='true'] {
     opacity: 0.5;
@@ -1125,7 +1183,7 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
     padding: 2px 7px 3px;
     border: 1.5px solid var(--c);
     border-radius: 6px;
-    background: rgb(7 23 15 / 0.84);
+    background: var(--pl-label-bg);
     color: var(--putih);
     font: 800 0.68rem/1.1 var(--font);
     white-space: nowrap;
@@ -1133,7 +1191,7 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
     user-select: none;
     transform-origin: 50% 100%;
     will-change: transform;
-    box-shadow: 0 2px 8px rgb(0 0 0 / 0.45);
+    box-shadow: var(--pl-label-shadow);
   }
   .pl .pl-3d-label .nm {
     display: flex;
@@ -1156,6 +1214,10 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
     font-family: var(--font);
     font-size: 0.72rem;
   }
+  /* Light theme: a darker shade of the squad / object colour reads on the white label. */
+  :root[data-theme='light'] .pl .pl-3d-label:not(.is-hover) .tg {
+    color: color-mix(in srgb, var(--c) 45%, #000);
+  }
   .pl .pl-3d-label .co {
     font-family: var(--mono);
     font-size: 0.6rem;
@@ -1171,7 +1233,7 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
     color: var(--forest-950);
     box-shadow:
       0 0 0 2px var(--c),
-      0 6px 18px rgb(0 0 0 / 0.5);
+      var(--pl-label-shadow-hot);
   }
   .pl .pl-3d-label.is-hover .co {
     color: var(--forest-700);
@@ -1191,7 +1253,7 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
     text-align: center;
     color: var(--muted);
     font-weight: 600;
-    background: rgb(7 23 15 / 0.7);
+    background: var(--pl-veil);
   }
   .pl .pl-3d-loading[hidden] {
     display: none;
@@ -1220,7 +1282,7 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
     max-width: calc(100% - 20px);
     border: 1px solid var(--border);
     border-radius: 999px;
-    background: rgb(7 23 15 / 0.75);
+    background: var(--pl-hint-bg);
     color: var(--forest-200);
     font-size: 0.7rem;
     white-space: nowrap;
@@ -1298,8 +1360,8 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
     position: absolute;
     inset: 0;
     background:
-      repeating-linear-gradient(0deg, transparent 0, transparent calc(33.333% - 0.5px), rgb(0 0 0 / 0.45) calc(33.333% - 0.5px), rgb(0 0 0 / 0.45) calc(33.333% + 0.5px)),
-      repeating-linear-gradient(90deg, transparent 0, transparent calc(33.333% - 0.5px), rgb(0 0 0 / 0.45) calc(33.333% - 0.5px), rgb(0 0 0 / 0.45) calc(33.333% + 0.5px)),
+      repeating-linear-gradient(0deg, transparent 0, transparent calc(33.333% - 0.5px), var(--pl-fp-line) calc(33.333% - 0.5px), var(--pl-fp-line) calc(33.333% + 0.5px)),
+      repeating-linear-gradient(90deg, transparent 0, transparent calc(33.333% - 0.5px), var(--pl-fp-line) calc(33.333% - 0.5px), var(--pl-fp-line) calc(33.333% + 0.5px)),
       linear-gradient(135deg, color-mix(in srgb, var(--base-color) 38%, transparent), color-mix(in srgb, var(--base-color) 16%, transparent));
     border: 1.5px solid var(--base-color);
     box-shadow:
@@ -1351,11 +1413,11 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
     font-size: calc(var(--cs) * 1.15);
     color: var(--putih);
     text-shadow:
-      -1px -1px 0 rgb(0 0 0 / 0.75),
-      1px -1px 0 rgb(0 0 0 / 0.75),
-      -1px 1px 0 rgb(0 0 0 / 0.75),
-      1px 1px 0 rgb(0 0 0 / 0.75),
-      0 2px 4px rgb(0 0 0 / 0.4);
+      -1px -1px 0 var(--pl-glyph-halo),
+      1px -1px 0 var(--pl-glyph-halo),
+      -1px 1px 0 var(--pl-glyph-halo),
+      1px 1px 0 var(--pl-glyph-halo),
+      0 2px 4px var(--pl-glyph-drop);
     line-height: 1;
     letter-spacing: -0.02em;
   }
@@ -1411,7 +1473,7 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
     line-height: 1.05;
     border-radius: 3px;
     border: 1px solid color-mix(in srgb, var(--base-color) 60%, #000);
-    box-shadow: 0 1px 5px rgb(0 0 0 / 0.45);
+    box-shadow: var(--pl-banner-shadow);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1543,7 +1605,7 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
     transform: translateX(-50%);
     z-index: 1000;
     background: var(--pl-accent);
-    color: var(--putih);
+    color: var(--on-accent);
     padding: 8px 24px;
     font-weight: 800;
     font-size: 0.8rem;
@@ -1576,7 +1638,7 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
   .pl .pl-modal-backdrop {
     position: fixed;
     inset: 0;
-    background: rgb(2 10 6 / 0.7);
+    background: var(--pl-scrim);
     display: none;
     place-items: center;
     z-index: 2000;
@@ -1633,7 +1695,7 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
   .pl .pl-modal .actions button.primary {
     background: var(--pl-accent);
     border-color: var(--pl-accent);
-    color: var(--putih);
+    color: var(--on-accent);
   }
   .pl .pl-modal .actions button.danger:hover,
   .pl .pl-modal .actions button.primary:hover {
@@ -1716,7 +1778,7 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
     flex: 0 0 auto;
     padding: 0 18px;
     background: var(--pl-accent);
-    color: var(--putih);
+    color: var(--on-accent);
     border: none;
     border-radius: 999px;
     font-weight: 800;
@@ -1773,7 +1835,7 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
   .pl .pl-loadout-load {
     flex: 0 0 auto;
     padding: 6px 12px;
-    background: var(--pl-green);
+    background: var(--pl-green-fill);
     color: var(--pl-dark);
     border: none;
     border-radius: 999px;
@@ -1867,7 +1929,7 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
       transform: translateY(110%);
       transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
       border-top: 2px solid var(--pl-line-bright);
-      box-shadow: 0 -6px 24px rgb(0 0 0 / 0.5);
+      box-shadow: var(--pl-drawer-shadow);
       border-radius: 16px 16px 0 0;
     }
     .pl .pl-aside.drawer-open {
@@ -1970,7 +2032,7 @@ const rankLabel = { R5: T.rankR5, R4: T.rankR4, R3: T.rankR3, R2: T.rankR2, R1: 
       display: block;
       position: fixed;
       inset: 0;
-      background: rgb(2 10 6 / 0.6);
+      background: var(--pl-scrim-drawer);
       backdrop-filter: blur(2px);
       z-index: 1400;
       opacity: 0;

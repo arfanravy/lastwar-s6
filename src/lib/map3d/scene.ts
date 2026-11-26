@@ -5,6 +5,7 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { FACTION_ICON, predictFactions, type Faction, type GroupKey } from '../faction';
+import type { Theme } from '../theme';
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -32,6 +33,8 @@ export interface MapOptions {
   myServer?: string;
   labels: MapLabels;
   labelRoot?: HTMLElement;
+  /** Site theme for the initial palette (default 'dark' = night scene). */
+  theme?: Theme;
   onSelect?: (id: number | 'center' | null) => void;
 }
 
@@ -45,6 +48,8 @@ export interface MapHandle {
   anchorOf(key: number | 'center'): { x: number; y: number; visible: boolean } | null;
   setHighQuality(v: boolean): void;
   readonly highQuality: boolean;
+  /** Switch between the night (dark) and daytime (light) palette without rebuilding. */
+  setTheme(theme: Theme): void;
   dispose(): void;
 }
 
@@ -63,6 +68,144 @@ const FACTION_COLOR: Record<Faction, THREE.Color> = {
   wetland: new THREE.Color(0x2fb0ff),
 };
 const GOLD = new THREE.Color(0xffc24d);
+const TORCH = new THREE.Color(0xff8a2a);
+const PULSE = new THREE.Color(0xff3344);
+
+/* ------------------------------------------------------------------ */
+/* Palettes                                                            */
+/* ------------------------------------------------------------------ */
+
+/** Everything in the scene that changes with the site theme. */
+interface Palette {
+  clear: number;
+  fog: number;
+  /** Multiplier on the fog density (pale daytime haze reads much stronger). */
+  fogScale: number;
+  exposure: number;
+  hemiSky: number;
+  hemiGround: number;
+  hemiIntensity: number;
+  sun: number;
+  sunIntensity: number;
+  rim: number;
+  rimIntensity: number;
+  waterDeep: number;
+  waterShallow: number;
+  waterGlint: number;
+  outerLand: number;
+  jungleTop: number;
+  plazaTop: number;
+  earthSide: number;
+  /** Faction ring colours (unlit, not tone mapped) and their brightness boost. */
+  ring: Record<Faction, THREE.Color>;
+  ringBoost: number;
+  goldRing: THREE.Color;
+  goldRingBoost: number;
+  capGlow: number;
+  goldGlow: number;
+  templeGlow: number;
+  torchBoost: number;
+  pulseBoost: number;
+  /** Spores: raw shader colours, brightness, alpha and blending. */
+  sporeA: [number, number, number];
+  sporeB: [number, number, number];
+  sporeBoost: number;
+  sporeAlpha: number;
+  sporeAdditive: boolean;
+  beam: THREE.Color;
+  beamBoost: number;
+  beamAlpha: number;
+  beamAdditive: boolean;
+  bloomStrength: number;
+  bloomThreshold: number;
+}
+
+const PALETTES: Record<Theme, Palette> = {
+  // Night: the original look (keep these values as they are).
+  dark: {
+    clear: 0x07170f,
+    fog: 0x0a2417,
+    fogScale: 1,
+    exposure: 1.05,
+    hemiSky: 0xcdeedb,
+    hemiGround: 0x0c2216,
+    hemiIntensity: 1.1,
+    sun: 0xffe7c2,
+    sunIntensity: 2.2,
+    rim: 0x6fd0ff,
+    rimIntensity: 0.6,
+    waterDeep: 0x06302e,
+    waterShallow: 0x1c7f6d,
+    waterGlint: 0xbff7e0,
+    outerLand: 0x1d4a2c,
+    jungleTop: 0x2c6b3f,
+    plazaTop: 0x5f6b4a,
+    earthSide: 0x4a3a28,
+    ring: FACTION_COLOR,
+    ringBoost: 1.35,
+    goldRing: GOLD,
+    goldRingBoost: 1.3,
+    capGlow: 1.6,
+    goldGlow: 2.2,
+    templeGlow: 60,
+    torchBoost: 2.2,
+    pulseBoost: 1.8,
+    sporeA: [0.78, 1.0, 0.35],
+    sporeB: [1.0, 0.5, 0.85],
+    sporeBoost: 1.6,
+    sporeAlpha: 0.9,
+    sporeAdditive: true,
+    beam: GOLD,
+    beamBoost: 1.4,
+    beamAlpha: 0.32,
+    beamAdditive: true,
+    bloomStrength: 0.7,
+    bloomThreshold: 0.85,
+  },
+  // Daytime: bright sky haze, sunlit jungle, clear river water. Glow is
+  // toned down and drawn with normal blending so it still reads on a
+  // bright scene; faction rings are deeper so they stand out on the water.
+  light: {
+    clear: 0xdfeae3,
+    fog: 0xdfeae3,
+    fogScale: 0.5,
+    exposure: 1.0,
+    hemiSky: 0xeaf6ff,
+    hemiGround: 0x4d6b45,
+    hemiIntensity: 1.6,
+    sun: 0xfff0d8,
+    sunIntensity: 3.4,
+    rim: 0xcfeaff,
+    rimIntensity: 0.5,
+    waterDeep: 0x1b6b80,
+    waterShallow: 0x4bb0b8,
+    waterGlint: 0xffffff,
+    outerLand: 0x528a46,
+    jungleTop: 0x3f8f45,
+    plazaTop: 0x8a8f6a,
+    earthSide: 0x7a5a3a,
+    ring: { deepwood: new THREE.Color(0x1fbf5c), wetland: new THREE.Color(0x168fe8) },
+    ringBoost: 1,
+    goldRing: new THREE.Color(0xe8a41c),
+    goldRingBoost: 1,
+    capGlow: 0.45,
+    goldGlow: 0.7,
+    templeGlow: 18,
+    torchBoost: 1.4,
+    pulseBoost: 1.1,
+    sporeA: [0.45, 0.62, 0.12],
+    sporeB: [0.85, 0.3, 0.62],
+    sporeBoost: 1,
+    sporeAlpha: 0.6,
+    sporeAdditive: false,
+    beam: new THREE.Color(0xffb020),
+    beamBoost: 1,
+    beamAlpha: 0.3,
+    beamAdditive: false,
+    bloomStrength: 0.35,
+    bloomThreshold: 0.95,
+  },
+};
 
 function mulberry32(seed: number) {
   return () => {
@@ -300,6 +443,11 @@ function sporeMaterial(pixelRatio: number) {
       uTime: { value: 0 },
       uPixelRatio: { value: pixelRatio },
       uHeight: { value: 14 },
+      // Raw shader colours (no colour management), set per theme
+      uColorA: { value: new THREE.Vector3(0.78, 1.0, 0.35) },
+      uColorB: { value: new THREE.Vector3(1.0, 0.5, 0.85) },
+      uBoost: { value: 1.6 },
+      uAlpha: { value: 0.9 },
     },
     vertexShader: /* glsl */ `
       attribute float aSeed;
@@ -322,15 +470,17 @@ function sporeMaterial(pixelRatio: number) {
       }
     `,
     fragmentShader: /* glsl */ `
+      uniform vec3 uColorA;
+      uniform vec3 uColorB;
+      uniform float uBoost;
+      uniform float uAlpha;
       varying float vSeed;
       varying float vFade;
       void main() {
         float d = length(gl_PointCoord - 0.5);
         float a = smoothstep(0.5, 0.0, d);
-        vec3 lime = vec3(0.78, 1.0, 0.35);
-        vec3 pink = vec3(1.0, 0.5, 0.85);
-        vec3 col = mix(lime, pink, step(0.72, vSeed)) * 1.6;
-        gl_FragColor = vec4(col, a * vFade * 0.9);
+        vec3 col = mix(uColorA, uColorB, step(0.72, vSeed)) * uBoost;
+        gl_FragColor = vec4(col, a * vFade * uAlpha);
       }
     `,
   });
@@ -342,7 +492,7 @@ function beamMaterial() {
     depthWrite: false,
     side: THREE.DoubleSide,
     blending: THREE.AdditiveBlending,
-    uniforms: { uTime: { value: 0 }, uColor: { value: GOLD.clone() } },
+    uniforms: { uTime: { value: 0 }, uColor: { value: GOLD.clone() }, uBoost: { value: 1.4 }, uAlpha: { value: 0.32 } },
     vertexShader: /* glsl */ `
       varying vec2 vUv;
       void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }
@@ -350,11 +500,13 @@ function beamMaterial() {
     fragmentShader: /* glsl */ `
       uniform float uTime;
       uniform vec3 uColor;
+      uniform float uBoost;
+      uniform float uAlpha;
       varying vec2 vUv;
       void main() {
         float fade = pow(1.0 - vUv.y, 2.2);
         float bands = 0.75 + 0.25 * sin(vUv.y * 30.0 - uTime * 3.0);
-        gl_FragColor = vec4(uColor * 1.4, fade * bands * 0.32);
+        gl_FragColor = vec4(uColor * uBoost, fade * bands * uAlpha);
       }
     `,
   });
@@ -387,12 +539,16 @@ export function createRainforestMap(container: HTMLElement, opts: MapOptions): M
   let highQuality = !coarse && cores >= 4 && !ambient;
   const shadows = highQuality;
   const motion = reducedMotion ? 0.15 : 1;
+  let theme: Theme = opts.theme ?? 'dark';
+  let pal = PALETTES[theme];
+  const ringColorFor = (f: Faction) => pal.ring[f].clone().multiplyScalar(pal.ringBoost);
+  const goldRingColor = () => pal.goldRing.clone().multiplyScalar(pal.goldRingBoost);
 
   /* Renderer ------------------------------------------------------- */
   const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
-  renderer.setClearColor(0x07170f);
+  renderer.setClearColor(pal.clear);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
+  renderer.toneMappingExposure = pal.exposure;
   renderer.shadowMap.enabled = shadows;
   renderer.shadowMap.type = THREE.PCFShadowMap;
   const maxDpr = () => Math.min(window.devicePixelRatio || 1, highQuality ? 2 : 1.5);
@@ -403,7 +559,9 @@ export function createRainforestMap(container: HTMLElement, opts: MapOptions): M
   renderer.domElement.style.height = '100%';
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x0a2417, ambient ? 0.02 : 0.016);
+  const fogDensity = ambient ? 0.02 : 0.016;
+  const fog = new THREE.FogExp2(pal.fog, fogDensity * pal.fogScale);
+  scene.fog = fog;
 
   const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 400);
   const HOME_BASE = ambient ? new THREE.Vector3(26, 24, 30) : new THREE.Vector3(0, 34, 38);
@@ -414,8 +572,9 @@ export function createRainforestMap(container: HTMLElement, opts: MapOptions): M
   camera.lookAt(HOME_TARGET);
 
   /* Lights --------------------------------------------------------- */
-  scene.add(new THREE.HemisphereLight(0xcdeedb, 0x0c2216, 1.1));
-  const sun = new THREE.DirectionalLight(0xffe7c2, 2.2);
+  const hemi = new THREE.HemisphereLight(pal.hemiSky, pal.hemiGround, pal.hemiIntensity);
+  scene.add(hemi);
+  const sun = new THREE.DirectionalLight(pal.sun, pal.sunIntensity);
   sun.position.set(-20, 34, 16);
   sun.castShadow = shadows;
   if (shadows) {
@@ -429,7 +588,7 @@ export function createRainforestMap(container: HTMLElement, opts: MapOptions): M
     sun.shadow.normalBias = 0.04;
   }
   scene.add(sun);
-  const rim = new THREE.DirectionalLight(0x6fd0ff, 0.6);
+  const rim = new THREE.DirectionalLight(pal.rim, pal.rimIntensity);
   rim.position.set(24, 10, -30);
   scene.add(rim);
 
@@ -453,9 +612,9 @@ export function createRainforestMap(container: HTMLElement, opts: MapOptions): M
   const ringGeo = track(new THREE.ShapeGeometry(ringShape(TILE + 0.75, TILE + 0.2, 1.2), 6));
   ringGeo.rotateX(-Math.PI / 2);
 
-  const jungleTop = track(new THREE.MeshStandardMaterial({ color: 0x2c6b3f, roughness: 0.95, flatShading: true }));
-  const plazaTop = track(new THREE.MeshStandardMaterial({ color: 0x5f6b4a, roughness: 0.9, flatShading: true }));
-  const earthSide = track(new THREE.MeshStandardMaterial({ color: 0x4a3a28, roughness: 1, flatShading: true }));
+  const jungleTop = track(new THREE.MeshStandardMaterial({ color: pal.jungleTop, roughness: 0.95, flatShading: true }));
+  const plazaTop = track(new THREE.MeshStandardMaterial({ color: pal.plazaTop, roughness: 0.9, flatShading: true }));
+  const earthSide = track(new THREE.MeshStandardMaterial({ color: pal.earthSide, roughness: 1, flatShading: true }));
 
   const trunkGeo = track(new THREE.CylinderGeometry(0.1, 0.17, 1, 5));
   trunkGeo.translate(0, 0.5, 0);
@@ -470,13 +629,13 @@ export function createRainforestMap(container: HTMLElement, opts: MapOptions): M
   const capGeo = track(new THREE.SphereGeometry(0.62, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2));
   const stemMat = track(new THREE.MeshStandardMaterial({ color: 0xe9e2cf, roughness: 0.7 }));
   const capMats = [0xff4fa0, 0xb36bff, 0x4fe3ff].map((c) =>
-    track(new THREE.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: 1.6, roughness: 0.4 })),
+    track(new THREE.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: pal.capGlow, roughness: 0.4 })),
   );
 
   const stoneMat = track(new THREE.MeshStandardMaterial({ color: 0x8a8d68, roughness: 0.95, flatShading: true }));
   const stoneDark = track(new THREE.MeshStandardMaterial({ color: 0x6c6f50, roughness: 0.95, flatShading: true }));
   const goldMat = track(
-    new THREE.MeshStandardMaterial({ color: 0xffc24d, emissive: 0xffa31a, emissiveIntensity: 2.2, metalness: 0.6, roughness: 0.3 }),
+    new THREE.MeshStandardMaterial({ color: 0xffc24d, emissive: 0xffa31a, emissiveIntensity: pal.goldGlow, metalness: 0.6, roughness: 0.3 }),
   );
   const poleMat = track(new THREE.MeshStandardMaterial({ color: 0x3b2a1c, roughness: 0.9 }));
   const flagGeo = track(new THREE.PlaneGeometry(1.7, 1.06, 14, 6));
@@ -495,10 +654,8 @@ export function createRainforestMap(container: HTMLElement, opts: MapOptions): M
   );
   outerGeo.rotateX(-Math.PI / 2);
   outerGeo.translate(0, -1.1, 0);
-  const outer = new THREE.Mesh(outerGeo, [
-    track(new THREE.MeshStandardMaterial({ color: 0x1d4a2c, roughness: 1, flatShading: true })),
-    earthSide,
-  ]);
+  const outerTop = track(new THREE.MeshStandardMaterial({ color: pal.outerLand, roughness: 1, flatShading: true }));
+  const outer = new THREE.Mesh(outerGeo, [outerTop, earthSide]);
   outer.receiveShadow = shadows;
   scene.add(outer);
 
@@ -610,7 +767,7 @@ export function createRainforestMap(container: HTMLElement, opts: MapOptions): M
     group.add(base);
 
     const faction = factions[data.group];
-    const ringMat = track(new THREE.MeshBasicMaterial({ color: FACTION_COLOR[faction].clone().multiplyScalar(1.35), toneMapped: false }));
+    const ringMat = track(new THREE.MeshBasicMaterial({ color: ringColorFor(faction), toneMapped: false }));
     const ring = new THREE.Mesh(ringGeo, ringMat);
     ring.position.y = TOP + 0.03;
     group.add(ring);
@@ -660,14 +817,16 @@ export function createRainforestMap(container: HTMLElement, opts: MapOptions): M
 
   /* Center tile: Ancestral Temple --------------------------------- */
   let gem: THREE.Mesh;
+  let glow: THREE.PointLight;
   const beamMat = track(beamMaterial());
+  const torchMat = track(new THREE.MeshBasicMaterial({ color: TORCH.clone().multiplyScalar(pal.torchBoost), toneMapped: false }));
   {
     const group = new THREE.Group();
     const base = new THREE.Mesh(tileGeo, [plazaTop, earthSide]);
     base.receiveShadow = shadows;
     base.userData.tileKey = 'center';
     group.add(base);
-    const ringMat = track(new THREE.MeshBasicMaterial({ color: GOLD.clone().multiplyScalar(1.3), toneMapped: false }));
+    const ringMat = track(new THREE.MeshBasicMaterial({ color: goldRingColor(), toneMapped: false }));
     const ring = new THREE.Mesh(ringGeo, ringMat);
     ring.position.y = TOP + 0.03;
     group.add(ring);
@@ -709,12 +868,11 @@ export function createRainforestMap(container: HTMLElement, opts: MapOptions): M
     beam.position.y = TOP + H + 1.2 + 8;
     group.add(beam);
 
-    const glow = new THREE.PointLight(0xffb340, 60, 22, 2);
+    glow = new THREE.PointLight(0xffb340, pal.templeGlow, 22, 2);
     glow.position.y = TOP + H + 2.2;
     group.add(glow);
 
     // Torches on plaza corners
-    const torchMat = track(new THREE.MeshBasicMaterial({ color: new THREE.Color(0xff8a2a).multiplyScalar(2.2), toneMapped: false }));
     for (const [x, z] of [
       [-3.2, -3.2],
       [3.2, -3.2],
@@ -747,6 +905,9 @@ export function createRainforestMap(container: HTMLElement, opts: MapOptions): M
 
   /* Merah putih marker for "my server" ---------------------------- */
   const marker = new THREE.Group();
+  const pulseMat = track(
+    new THREE.MeshBasicMaterial({ color: PULSE.clone().multiplyScalar(pal.pulseBoost), transparent: true, toneMapped: false, depthWrite: false }),
+  );
   {
     const pole = new THREE.Mesh(track(new THREE.CylinderGeometry(0.05, 0.05, 5.4, 6)), track(new THREE.MeshStandardMaterial({ color: 0xf2f2f2 })));
     pole.position.y = 2.7;
@@ -758,9 +919,6 @@ export function createRainforestMap(container: HTMLElement, opts: MapOptions): M
     flag.position.y = 4.9;
     flag.userData.base = Float32Array.from(flag.geometry.attributes.position.array as Float32Array);
     flag.name = 'mp-flag';
-    const pulseMat = track(
-      new THREE.MeshBasicMaterial({ color: new THREE.Color(0xff3344).multiplyScalar(1.8), transparent: true, toneMapped: false, depthWrite: false }),
-    );
     const pulse = new THREE.Mesh(track(new THREE.RingGeometry(0.9, 1.05, 48)), pulseMat);
     pulse.rotation.x = -Math.PI / 2;
     pulse.position.y = TOP + 0.06;
@@ -796,11 +954,63 @@ export function createRainforestMap(container: HTMLElement, opts: MapOptions): M
   const buildComposer = () => {
     composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
-    bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.7, 0.5, 0.85);
+    bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), pal.bloomStrength, 0.5, pal.bloomThreshold);
     composer.addPass(bloom);
     composer.addPass(new OutputPass());
   };
   if (highQuality) buildComposer();
+
+  /* Theme ---------------------------------------------------------- */
+  // Pushes the current palette into the renderer, lights, materials and
+  // uniforms. Runs once at start-up and again on every setTheme().
+  const applyPalette = () => {
+    renderer.setClearColor(pal.clear);
+    renderer.toneMappingExposure = pal.exposure;
+    fog.color.setHex(pal.fog);
+    fog.density = fogDensity * pal.fogScale;
+    hemi.color.setHex(pal.hemiSky);
+    hemi.groundColor.setHex(pal.hemiGround);
+    hemi.intensity = pal.hemiIntensity;
+    sun.color.setHex(pal.sun);
+    sun.intensity = pal.sunIntensity;
+    rim.color.setHex(pal.rim);
+    rim.intensity = pal.rimIntensity;
+    const wu = (water.material as THREE.ShaderMaterial).uniforms;
+    wu.uDeep.value.setHex(pal.waterDeep);
+    wu.uShallow.value.setHex(pal.waterShallow);
+    wu.uGlint.value.setHex(pal.waterGlint);
+    outerTop.color.setHex(pal.outerLand);
+    jungleTop.color.setHex(pal.jungleTop);
+    plazaTop.color.setHex(pal.plazaTop);
+    earthSide.color.setHex(pal.earthSide);
+    for (const m of capMats) m.emissiveIntensity = pal.capGlow;
+    goldMat.emissiveIntensity = pal.goldGlow;
+    glow.intensity = pal.templeGlow;
+    torchMat.color.copy(TORCH).multiplyScalar(pal.torchBoost);
+    pulseMat.color.copy(PULSE).multiplyScalar(pal.pulseBoost);
+    const su = sporeMat.uniforms;
+    su.uColorA.value.fromArray(pal.sporeA);
+    su.uColorB.value.fromArray(pal.sporeB);
+    su.uBoost.value = pal.sporeBoost;
+    su.uAlpha.value = pal.sporeAlpha;
+    sporeMat.blending = pal.sporeAdditive ? THREE.AdditiveBlending : THREE.NormalBlending;
+    const bu = beamMat.uniforms;
+    bu.uColor.value.copy(pal.beam);
+    bu.uBoost.value = pal.beamBoost;
+    bu.uAlpha.value = pal.beamAlpha;
+    beamMat.blending = pal.beamAdditive ? THREE.AdditiveBlending : THREE.NormalBlending;
+    if (bloom) {
+      bloom.strength = pal.bloomStrength;
+      bloom.threshold = pal.bloomThreshold;
+    }
+    // Rings jump straight to the new colours (faction changes still fade)
+    for (const t of tiles) {
+      t.ringTarget.copy(t.data ? ringColorFor(factions[t.data.group]) : goldRingColor());
+      t.ringColor.copy(t.ringTarget);
+      t.ringMat.color.copy(t.ringTarget);
+    }
+  };
+  applyPalette();
 
   /* Controls ------------------------------------------------------- */
   let controls: OrbitControls | null = null;
@@ -1109,7 +1319,7 @@ export function createRainforestMap(container: HTMLElement, opts: MapOptions): M
     for (const t of tiles) {
       if (!t.data) continue;
       const f = factions[t.data.group];
-      t.ringTarget.copy(FACTION_COLOR[f]).multiplyScalar(1.35);
+      t.ringTarget.copy(ringColorFor(f));
       if (t.flag) {
         t.flag.material.map = factionFlagTexture(f);
         t.flag.material.needsUpdate = true;
@@ -1161,6 +1371,13 @@ export function createRainforestMap(container: HTMLElement, opts: MapOptions): M
     },
     get highQuality() {
       return highQuality;
+    },
+    setTheme(next) {
+      if (next === theme) return;
+      theme = next;
+      pal = PALETTES[next];
+      applyPalette();
+      if (!running) renderFrame(0);
     },
     dispose() {
       renderer.setAnimationLoop(null);

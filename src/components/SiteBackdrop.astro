@@ -17,12 +17,17 @@ const { still = false } = Astro.props;
 
 <style is:global>
   .backdrop {
+    /* Red glow in the top right corner of the curtain */
+    --backdrop-tint: rgb(225 29 42 / 0.07);
     position: fixed;
     inset: 0;
     z-index: -1;
     pointer-events: none;
     opacity: 0;
     transition: opacity 1.4s ease;
+  }
+  :root[data-theme='light'] .backdrop {
+    --backdrop-tint: var(--tint-red);
   }
   .backdrop.is-on {
     opacity: 1;
@@ -31,14 +36,14 @@ const { still = false } = Astro.props;
     position: absolute;
     inset: 0;
   }
-  /* Tirai gelap supaya teks di atasnya tetap terbaca */
+  /* Curtain that keeps text on top readable: a dark veil in the dark theme, a pale one in light */
   .backdrop::after {
     content: '';
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(900px 500px at 110% 0%, rgb(225 29 42 / 0.07), transparent 60%),
-      linear-gradient(to bottom, rgb(7 23 15 / 0.5), rgb(7 23 15 / 0.74) 45%, rgb(7 23 15 / 0.86));
+      radial-gradient(900px 500px at 110% 0%, var(--backdrop-tint), transparent 60%),
+      linear-gradient(to bottom, var(--curtain-top), var(--curtain-mid) 45%, var(--curtain-bottom));
   }
   html.has-backdrop .card {
     background: color-mix(in srgb, var(--surface) 90%, transparent);
@@ -75,6 +80,7 @@ const { still = false } = Astro.props;
 
 <script>
   import type { BackdropHandle } from '../lib/backdrop/scene';
+  import { getTheme, onThemeChange } from '../lib/theme';
 
   const KEY = 'rimba.backdrop';
   const root = document.querySelector<HTMLElement>('[data-backdrop]');
@@ -97,6 +103,7 @@ const { still = false } = Astro.props;
     const animate = !reduced && !coarse && root.dataset.still !== 'true';
 
     let handle: BackdropHandle | null = null;
+    let unsubTheme: (() => void) | null = null;
     let loading = false;
     let wanted = !saveData;
     try {
@@ -121,7 +128,12 @@ const { still = false } = Astro.props;
       loading = true;
       try {
         const { createBackdrop } = await import('../lib/backdrop/scene');
-        if (wanted) handle = createBackdrop(stage, { animate });
+        if (wanted) {
+          const h = createBackdrop(stage, { animate, theme: getTheme() });
+          handle = h;
+          // Day / night forest follows the site theme, also when it flips without a reload
+          unsubTheme = onThemeChange((theme) => h.setTheme(theme));
+        }
       } catch (err) {
         console.error(err);
         wanted = false;
@@ -131,6 +143,8 @@ const { still = false } = Astro.props;
     };
 
     const stop = () => {
+      unsubTheme?.();
+      unsubTheme = null;
       handle?.dispose();
       handle = null;
       sync();

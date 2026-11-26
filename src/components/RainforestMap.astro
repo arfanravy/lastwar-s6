@@ -251,14 +251,18 @@ const config = {
   }
 
   .m3d-stage {
+    --m3d-stage-glow: rgb(63 191 106 / 0.18);
     position: relative;
     overflow: hidden;
     border-radius: var(--radius);
     border: 1px solid var(--border);
     background:
-      radial-gradient(circle at 50% 40%, rgb(63 191 106 / 0.18), transparent 60%),
+      radial-gradient(circle at 50% 40%, var(--m3d-stage-glow), transparent 60%),
       var(--forest-950);
     isolation: isolate;
+  }
+  :global(:root[data-theme='light']) .m3d-stage {
+    --m3d-stage-glow: rgb(63 191 106 / 0.12);
   }
   .m3d--full .m3d-stage {
     height: min(74vh, 720px);
@@ -290,6 +294,12 @@ const config = {
   /* ---------- Popup: top 5 alliances of the clicked server ---------- */
   .m3d-pop {
     --arrow-x: 36px;
+    --m3d-pop-shadow: 0 18px 40px rgb(0 0 0 / 0.55);
+    /* rank numbers 1-3 and the "our alliance" row */
+    --m3d-rank-1: #ffd34d;
+    --m3d-rank-2: #cfd8e3;
+    --m3d-rank-3: #e2a27a;
+    --m3d-ours-bg: rgb(225 29 42 / 0.12);
     position: absolute;
     z-index: 3;
     width: 300px;
@@ -297,10 +307,17 @@ const config = {
     padding: 14px;
     border-radius: 14px;
     border: 1px solid var(--forest-600);
-    background: rgb(10 30 20 / 0.95);
+    background: var(--overlay-bg);
     backdrop-filter: blur(8px);
-    box-shadow: 0 18px 40px rgb(0 0 0 / 0.55);
+    box-shadow: var(--m3d-pop-shadow);
     color: var(--text);
+  }
+  :global(:root[data-theme='light']) .m3d-pop {
+    --m3d-pop-shadow: 0 18px 40px rgb(16 36 26 / 0.18);
+    --m3d-rank-1: #7a5600;
+    --m3d-rank-2: #525f6e;
+    --m3d-rank-3: #8a4b22;
+    --m3d-ours-bg: rgb(225 29 42 / 0.08);
   }
   .m3d-pop[hidden] {
     display: none;
@@ -435,13 +452,13 @@ const config = {
     text-align: center;
   }
   .m3d-pop :global(.p-list li:nth-child(1) .n) {
-    color: #ffd34d;
+    color: var(--m3d-rank-1);
   }
   .m3d-pop :global(.p-list li:nth-child(2) .n) {
-    color: #cfd8e3;
+    color: var(--m3d-rank-2);
   }
   .m3d-pop :global(.p-list li:nth-child(3) .n) {
-    color: #e2a27a;
+    color: var(--m3d-rank-3);
   }
   .m3d-pop :global(.p-list .nm) {
     overflow: hidden;
@@ -459,7 +476,7 @@ const config = {
   }
   .m3d-pop :global(.p-list li.is-ours) {
     outline: 2px solid var(--merah);
-    background: rgb(225 29 42 / 0.12);
+    background: var(--m3d-ours-bg);
   }
   .m3d-pop :global(.p-note) {
     margin: 10px 0 0;
@@ -507,6 +524,7 @@ const config = {
   }
 
   .m3d-hint {
+    --m3d-hint-bg: rgb(7 23 15 / 0.75);
     position: absolute;
     left: 50%;
     bottom: 12px;
@@ -514,7 +532,7 @@ const config = {
     margin: 0;
     padding: 6px 14px;
     border-radius: 999px;
-    background: rgb(7 23 15 / 0.75);
+    background: var(--m3d-hint-bg);
     border: 1px solid var(--border);
     font-size: 0.78rem;
     color: var(--forest-200);
@@ -524,6 +542,10 @@ const config = {
     text-overflow: ellipsis;
     pointer-events: none;
   }
+  :global(:root[data-theme='light']) .m3d-hint {
+    /* frosted light pill over the daytime scene */
+    --m3d-hint-bg: rgb(255 255 255 / 0.88);
+  }
   .m3d-cta {
     position: absolute;
     right: 12px;
@@ -531,7 +553,7 @@ const config = {
     padding: 8px 14px;
     border-radius: 999px;
     background: var(--merah);
-    color: var(--putih);
+    color: var(--on-accent);
     font-weight: 700;
     font-size: 0.85rem;
     text-decoration: none;
@@ -539,7 +561,7 @@ const config = {
   }
   .m3d-cta:hover {
     background: var(--merah-hover);
-    color: var(--putih);
+    color: var(--on-accent);
   }
 
   .m3d-panel {
@@ -590,9 +612,15 @@ const config = {
     border-color: var(--putih);
   }
   .toggle[data-flip][aria-pressed='true'] {
-    background: rgb(250 204 21 / 0.15);
-    color: #fde68a;
-    border-color: rgb(250 204 21 / 0.5);
+    --m3d-flip-bg: rgb(250 204 21 / 0.15);
+    --m3d-flip-border: rgb(250 204 21 / 0.5);
+    background: var(--m3d-flip-bg);
+    color: var(--warn-text);
+    border-color: var(--m3d-flip-border);
+  }
+  :global(:root[data-theme='light']) .toggle[data-flip][aria-pressed='true'] {
+    --m3d-flip-bg: var(--warn-bg);
+    --m3d-flip-border: var(--warn-border);
   }
   .m3d-tools .btn {
     justify-content: center;
@@ -662,9 +690,23 @@ const config = {
     font-size: 0.75rem;
     font-weight: 700;
   }
+  :global(:root[data-theme='light']) .m3d-detail :global(.tag-enemy) {
+    color: var(--merah-text);
+  }
+  :global(:root[data-theme='light']) .m3d-detail :global(.tag-ally) {
+    color: var(--deepwood-text);
+  }
 
   /* 3D labels (created by the scene) */
   .m3d-labels :global(.m3d-label) {
+    --lbl-bg: rgb(7 23 15 / 0.82);
+    --lbl-border: rgb(255 255 255 / 0.25);
+    --lbl-deepwood: rgb(63 191 106 / 0.8);
+    --lbl-wetland: rgb(47 159 224 / 0.8);
+    --lbl-center-border: #d9b45a;
+    --lbl-center-text: #ffe3a3;
+    --lbl-shadow: none;
+    --lbl-lift-shadow: 0 6px 18px rgb(0 0 0 / 0.5);
     position: absolute;
     left: 0;
     top: 0;
@@ -673,8 +715,9 @@ const config = {
     gap: 5px;
     padding: 3px 9px 3px 5px;
     border-radius: 999px;
-    border: 1.5px solid rgb(255 255 255 / 0.25);
-    background: rgb(7 23 15 / 0.82);
+    border: 1.5px solid var(--lbl-border);
+    background: var(--lbl-bg);
+    box-shadow: var(--lbl-shadow);
     color: var(--putih);
     font: 700 0.78rem/1.2 var(--font);
     white-space: nowrap;
@@ -695,15 +738,27 @@ const config = {
       display: none;
     }
   }
+  /* Daytime scene: light frosted pills with dark text ("is-mine" inverts to
+     a dark pill through --putih / --forest-950, so it still stands out). */
+  :global(:root[data-theme='light']) .m3d-labels :global(.m3d-label) {
+    --lbl-bg: rgb(255 255 255 / 0.92);
+    --lbl-border: rgb(11 31 20 / 0.2);
+    --lbl-deepwood: var(--deepwood);
+    --lbl-wetland: var(--wetland);
+    --lbl-center-border: #c08a1e;
+    --lbl-center-text: #7a5200;
+    --lbl-shadow: 0 2px 8px rgb(16 36 26 / 0.18);
+    --lbl-lift-shadow: 0 6px 18px rgb(16 36 26 / 0.28);
+  }
   .m3d-labels :global(.m3d-label[data-faction='deepwood']) {
-    border-color: rgb(63 191 106 / 0.8);
+    border-color: var(--lbl-deepwood);
   }
   .m3d-labels :global(.m3d-label[data-faction='wetland']) {
-    border-color: rgb(47 159 224 / 0.8);
+    border-color: var(--lbl-wetland);
   }
   .m3d-labels :global(.m3d-label.is-center) {
-    border-color: #d9b45a;
-    color: #ffe3a3;
+    border-color: var(--lbl-center-border);
+    color: var(--lbl-center-text);
   }
   .m3d-labels :global(.m3d-label .em) {
     font-size: 1rem;
@@ -725,7 +780,7 @@ const config = {
     width: 14px;
     height: 10px;
     border-radius: 2px;
-    background: linear-gradient(to bottom, var(--merah) 50%, #fff 50%);
+    background: linear-gradient(to bottom, var(--merah) 50%, var(--flag-white) 50%);
     box-shadow: 0 0 0 1px rgb(0 0 0 / 0.25);
   }
   .m3d-labels :global(.m3d-label.is-mine .rk) {
@@ -736,7 +791,7 @@ const config = {
   .m3d-labels :global(.m3d-label.is-selected) {
     box-shadow:
       0 0 0 2px var(--putih),
-      0 6px 18px rgb(0 0 0 / 0.5);
+      var(--lbl-lift-shadow);
   }
   .m3d-labels :global(.m3d-label:focus-visible) {
     outline: 2px solid var(--merah);
@@ -747,6 +802,7 @@ const config = {
 <script>
   import type { MapHandle, MapTile } from '../lib/map3d/scene';
   import { FACTION_ICON, predictFactions, type Faction } from '../lib/faction';
+  import { getTheme, onThemeChange } from '../lib/theme';
 
   type Config = {
     mode: 'full' | 'ambient';
@@ -964,12 +1020,20 @@ const config = {
       myServer: mine,
       labels: cfg.labels,
       labelRoot: q<HTMLElement>('[data-labels]') ?? undefined,
+      theme: getTheme(),
       onSelect: (id) => {
         current = id;
         renderDetail();
         if (cfg.mode === 'full') renderPopup();
       },
     });
+    // Follow the header theme toggle live (night <-> daytime scene)
+    const offTheme = onThemeChange((theme) => map?.setTheme(theme));
+    const disposeMap = map.dispose;
+    map.dispose = () => {
+      offTheme();
+      disposeMap();
+    };
     loading.hidden = true;
 
     if (cfg.mode === 'ambient') {

@@ -11,6 +11,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { SQUAD_COLORS, SQUADS, type Squad } from './i18n';
+import type { Theme } from '../theme';
 
 /* ------------------------------------------------------------------ */
 /* Public types                                                        */
@@ -51,8 +52,10 @@ export interface KitOptions {
   maxAnisotropy: number;
   /** CSS font-family used for the coordinate ticks. */
   monoFont: string;
-  tickColor: string;
-  tickMajorColor: string;
+  /** Initial site theme (the kit follows later changes through setTheme). */
+  theme: Theme;
+  /** Major tick colour from the site CSS, used when the palette does not set one. Read on every repaint. */
+  tickMajorColor: () => string;
 }
 
 export interface GroundBuild {
@@ -92,8 +95,92 @@ export interface AssetKit {
   buildGround(spec: GroundSpec): GroundBuild;
   buildItems(spec: GroundSpec, items: ItemSpec[]): ItemsBuild;
   tick(t: number): void;
+  /** Repaint materials and canvas textures for the night (dark) or daytime (light) palette. */
+  setTheme(theme: Theme): void;
   dispose(): void;
 }
+
+/** Kit colours that follow the site theme. */
+export interface KitPalette {
+  /** Grid tile canvas: cell colour, thin cell lines, bright 3×3 tile border. */
+  gridBase: string;
+  gridLine: string;
+  gridMajor: string;
+  borderTop: number;
+  outerTop: number;
+  earthSide: number;
+  waterDeep: number;
+  waterShallow: number;
+  waterGlint: number;
+  cornerGlow: number;
+  capGlow: number;
+  goldGlow: number;
+  /** Spores: raw shader colours, brightness, alpha and blending. */
+  sporeA: [number, number, number];
+  sporeB: [number, number, number];
+  sporeBoost: number;
+  sporeAlpha: number;
+  sporeAdditive: boolean;
+  /** Coordinate tick labels on the slab border. */
+  tick: string;
+  /** Major ticks; unset = the site's --merah-text (KitOptions.tickMajorColor). */
+  tickMajor?: string;
+  /** Floating symbol badge over objects. */
+  symbolDisc: string;
+  symbolGlyph: string;
+}
+
+export const KIT_PALETTES: Record<Theme, KitPalette> = {
+  // Night: the original look (keep these values as they are).
+  dark: {
+    gridBase: '#2c6b3f',
+    gridLine: 'rgba(6, 26, 14, 0.5)',
+    gridMajor: 'rgba(176, 240, 196, 0.62)',
+    borderTop: 0x4b5a3c,
+    outerTop: 0x1d4a2c,
+    earthSide: 0x5a4630,
+    waterDeep: 0x06302e,
+    waterShallow: 0x1c7f6d,
+    waterGlint: 0xbff7e0,
+    cornerGlow: 1.1,
+    capGlow: 1.25,
+    goldGlow: 2.2,
+    sporeA: [0.78, 1.0, 0.35],
+    sporeB: [1.0, 0.5, 0.85],
+    sporeBoost: 1.6,
+    sporeAlpha: 0.9,
+    sporeAdditive: true,
+    tick: '#b9d8c4',
+    symbolDisc: 'rgba(7, 23, 15, 0.86)',
+    symbolGlyph: '#ffffff',
+  },
+  // Daytime: sunlit grass and a pale stone border, so the coordinate ticks
+  // switch to dark ink. Glow is toned down and spores use normal blending
+  // (additive light vanishes on a bright scene).
+  light: {
+    gridBase: '#3f8f45',
+    gridLine: 'rgba(6, 26, 14, 0.38)',
+    gridMajor: 'rgba(240, 255, 244, 0.72)',
+    borderTop: 0x8a8f6a,
+    outerTop: 0x528a46,
+    earthSide: 0x7a5a3a,
+    waterDeep: 0x1b6b80,
+    waterShallow: 0x4bb0b8,
+    waterGlint: 0xffffff,
+    cornerGlow: 0.45,
+    capGlow: 0.35,
+    goldGlow: 0.7,
+    sporeA: [0.45, 0.62, 0.12],
+    sporeB: [0.85, 0.3, 0.62],
+    sporeBoost: 1,
+    sporeAlpha: 0.6,
+    sporeAdditive: false,
+    tick: '#173a26',
+    tickMajor: '#a50e18',
+    symbolDisc: 'rgba(255, 255, 255, 0.92)',
+    symbolGlyph: '#0b1f14',
+  },
+};
 
 /** Footprint centre of a size×size item anchored at grid cell (gx, gy). */
 export function footprintCenter(spec: GroundSpec, gx: number, gy: number, size: number, out = new THREE.Vector3()) {
@@ -182,29 +269,36 @@ function merge(parts: THREE.BufferGeometry[]): THREE.BufferGeometry {
 /* Canvas textures                                                     */
 /* ------------------------------------------------------------------ */
 
+const GRID_TILE_PX = 384;
+
 /**
  * One repeating tile = 3×3 cells. Thin dark lines on every cell border and a
  * brighter line on the tile border, i.e. every third cell counted from the
- * bottom-left origin (the plane's UV origin).
+ * bottom-left origin (the plane's UV origin). The base fill is opaque, so a
+ * repaint (theme change) fully replaces the previous tile.
  */
-function gridTileTexture(anisotropy: number) {
-  const S = 384;
+function paintGridTile(c: HTMLCanvasElement, pal: KitPalette) {
+  const S = GRID_TILE_PX;
   const cell = S / 3;
-  const c = document.createElement('canvas');
-  c.width = c.height = S;
   const g = c.getContext('2d')!;
-  g.fillStyle = '#2c6b3f';
+  g.fillStyle = pal.gridBase;
   g.fillRect(0, 0, S, S);
-  g.fillStyle = 'rgba(6, 26, 14, 0.5)';
+  g.fillStyle = pal.gridLine;
   for (let i = 0; i <= 3; i++) {
     g.fillRect(i * cell - 2.5, 0, 5, S);
     g.fillRect(0, i * cell - 2.5, S, 5);
   }
-  g.fillStyle = 'rgba(176, 240, 196, 0.62)';
+  g.fillStyle = pal.gridMajor;
   for (const edge of [0, S]) {
     g.fillRect(edge - 4, 0, 8, S);
     g.fillRect(0, edge - 4, S, 8);
   }
+}
+
+function gridTileTexture(anisotropy: number, pal: KitPalette) {
+  const c = document.createElement('canvas');
+  c.width = c.height = GRID_TILE_PX;
+  paintGridTile(c, pal);
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
@@ -212,14 +306,15 @@ function gridTileTexture(anisotropy: number) {
   return tex;
 }
 
-function symbolTexture(symbol: string, color: string) {
-  const S = 160;
-  const c = document.createElement('canvas');
-  c.width = c.height = S;
+const SYMBOL_PX = 160;
+
+function paintSymbol(c: HTMLCanvasElement, symbol: string, color: string, pal: KitPalette) {
+  const S = SYMBOL_PX;
   const g = c.getContext('2d')!;
+  g.clearRect(0, 0, S, S); // the disc is translucent: clear before a repaint
   g.beginPath();
   g.arc(S / 2, S / 2, S * 0.43, 0, Math.PI * 2);
-  g.fillStyle = 'rgba(7, 23, 15, 0.86)';
+  g.fillStyle = pal.symbolDisc;
   g.fill();
   g.lineWidth = 8;
   g.strokeStyle = color;
@@ -240,10 +335,16 @@ function symbolTexture(symbol: string, color: string) {
   g.textBaseline = 'middle';
   g.shadowColor = color;
   g.shadowBlur = 18;
-  g.fillStyle = '#ffffff';
+  g.fillStyle = pal.symbolGlyph;
   g.fillText(glyph, S / 2, S / 2 + px * 0.04); // canvas text only: no HTML involved
   g.shadowBlur = 0;
   g.fillText(glyph, S / 2, S / 2 + px * 0.04);
+}
+
+function symbolTexture(symbol: string, color: string, pal: KitPalette) {
+  const c = document.createElement('canvas');
+  c.width = c.height = SYMBOL_PX;
+  paintSymbol(c, symbol, color, pal);
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
   return tex;
@@ -302,8 +403,18 @@ function waterMaterial() {
   });
 }
 
-function sporeMaterial(pixelRatio: number, height: number) {
-  return new THREE.ShaderMaterial({
+/** Point the spore material at the palette: colours, brightness, alpha and blending. */
+function paintSpores(mat: THREE.ShaderMaterial, pal: KitPalette) {
+  const u = mat.uniforms;
+  u.uColorA.value.fromArray(pal.sporeA);
+  u.uColorB.value.fromArray(pal.sporeB);
+  u.uBoost.value = pal.sporeBoost;
+  u.uAlpha.value = pal.sporeAlpha;
+  mat.blending = pal.sporeAdditive ? THREE.AdditiveBlending : THREE.NormalBlending;
+}
+
+function sporeMaterial(pixelRatio: number, height: number, pal: KitPalette) {
+  const mat = new THREE.ShaderMaterial({
     transparent: true,
     depthWrite: false,
     blending: THREE.AdditiveBlending,
@@ -312,6 +423,11 @@ function sporeMaterial(pixelRatio: number, height: number) {
       uPixelRatio: { value: pixelRatio },
       uHeight: { value: height },
       uScale: { value: 1 },
+      // Raw shader colours (no colour management), set per theme
+      uColorA: { value: new THREE.Vector3() },
+      uColorB: { value: new THREE.Vector3() },
+      uBoost: { value: 1 },
+      uAlpha: { value: 1 },
     },
     vertexShader: /* glsl */ `
       attribute float aSeed;
@@ -335,18 +451,22 @@ function sporeMaterial(pixelRatio: number, height: number) {
       }
     `,
     fragmentShader: /* glsl */ `
+      uniform vec3 uColorA;
+      uniform vec3 uColorB;
+      uniform float uBoost;
+      uniform float uAlpha;
       varying float vSeed;
       varying float vFade;
       void main() {
         float d = length(gl_PointCoord - 0.5);
         float a = smoothstep(0.5, 0.0, d);
-        vec3 lime = vec3(0.78, 1.0, 0.35);
-        vec3 pink = vec3(1.0, 0.5, 0.85);
-        vec3 col = mix(lime, pink, step(0.72, vSeed)) * 1.6;
-        gl_FragColor = vec4(col, a * vFade * 0.9);
+        vec3 col = mix(uColorA, uColorB, step(0.72, vSeed)) * uBoost;
+        gl_FragColor = vec4(col, a * vFade * uAlpha);
       }
     `,
   });
+  paintSpores(mat, pal);
+  return mat;
 }
 
 /* ------------------------------------------------------------------ */
@@ -535,15 +655,25 @@ export function createAssetKit(opts: KitOptions): AssetKit {
   const shared: Disposable[] = [];
   const track = <T extends Disposable>(x: T) => (shared.push(x), x);
   const shadows = opts.shadows;
+  let pal = KIT_PALETTES[opts.theme];
+  const tickMajor = () => pal.tickMajor ?? opts.tickMajorColor();
+  /** Repaint hooks of the live ground builds (tick labels, spores). */
+  const groundPainters = new Set<() => void>();
 
   /* Shared materials ---------------------------------------------- */
-  const gridTex = track(gridTileTexture(opts.maxAnisotropy));
+  const gridTex = track(gridTileTexture(opts.maxAnisotropy, pal));
   const gridMat = track(new THREE.MeshStandardMaterial({ color: 0xffffff, map: gridTex, roughness: 0.95, flatShading: true }));
-  const borderTop = track(new THREE.MeshStandardMaterial({ color: 0x4b5a3c, roughness: 0.95, flatShading: true }));
-  const outerTop = track(new THREE.MeshStandardMaterial({ color: 0x1d4a2c, roughness: 1, flatShading: true }));
-  const earthSide = track(new THREE.MeshStandardMaterial({ color: 0x5a4630, roughness: 1, flatShading: true }));
-  const cornerMat = track(new THREE.MeshStandardMaterial({ color: 0xe11d2a, emissive: 0xe11d2a, emissiveIntensity: 1.1, roughness: 0.5, flatShading: true }));
+  const borderTop = track(new THREE.MeshStandardMaterial({ color: pal.borderTop, roughness: 0.95, flatShading: true }));
+  const outerTop = track(new THREE.MeshStandardMaterial({ color: pal.outerTop, roughness: 1, flatShading: true }));
+  const earthSide = track(new THREE.MeshStandardMaterial({ color: pal.earthSide, roughness: 1, flatShading: true }));
+  const cornerMat = track(new THREE.MeshStandardMaterial({ color: 0xe11d2a, emissive: 0xe11d2a, emissiveIntensity: pal.cornerGlow, roughness: 0.5, flatShading: true }));
   const water = track(waterMaterial());
+  {
+    const wu = water.uniforms;
+    wu.uDeep.value.setHex(pal.waterDeep);
+    wu.uShallow.value.setHex(pal.waterShallow);
+    wu.uGlint.value.setHex(pal.waterGlint);
+  }
 
   const trunkGeo = track(new THREE.CylinderGeometry(0.1, 0.17, 1, 5));
   trunkGeo.translate(0, 0.5, 0);
@@ -557,7 +687,7 @@ export function createAssetKit(opts: KitOptions): AssetKit {
   const capGeo = track(new THREE.SphereGeometry(0.62, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2));
   const stemMat = track(new THREE.MeshStandardMaterial({ color: 0xe9e2cf, roughness: 0.7 }));
   const capMats = [0xff4fa0, 0xb36bff, 0x4fe3ff].map((c) =>
-    track(new THREE.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: 1.25, roughness: 0.4 })),
+    track(new THREE.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: pal.capGlow, roughness: 0.4 })),
   );
 
   /** Lit, flat-shaded material for every building; colour = vertex colour × instance colour. */
@@ -565,7 +695,7 @@ export function createAssetKit(opts: KitOptions): AssetKit {
   /** Unlit accents (windows, beacons, crystal tips) that read as emissive and feed the bloom pass. */
   const glowMat = track(new THREE.MeshBasicMaterial({ color: 0xffffff, vertexColors: true, toneMapped: false }));
   const goldMat = track(
-    new THREE.MeshStandardMaterial({ color: 0xffc24d, emissive: 0xffa31a, emissiveIntensity: 2.2, metalness: 0.6, roughness: 0.3, flatShading: true }),
+    new THREE.MeshStandardMaterial({ color: 0xffc24d, emissive: 0xffa31a, emissiveIntensity: pal.goldGlow, metalness: 0.6, roughness: 0.3, flatShading: true }),
   );
   const gemGeo = track(new THREE.OctahedronGeometry(0.3));
 
@@ -618,13 +748,14 @@ export function createAssetKit(opts: KitOptions): AssetKit {
   };
 
   /** Symbol billboards, cached by glyph + colour and pruned on every rebuild. */
-  const symbolCache = new Map<string, { tex: THREE.CanvasTexture; mat: THREE.SpriteMaterial; used: boolean }>();
+  type SymbolEntry = { symbol: string; color: string; tex: THREE.CanvasTexture; mat: THREE.SpriteMaterial; used: boolean };
+  const symbolCache = new Map<string, SymbolEntry>();
   const symbolMaterial = (symbol: string, color: string) => {
     const key = symbol + '|' + color;
     let entry = symbolCache.get(key);
     if (!entry) {
-      const tex = symbolTexture(symbol, color);
-      entry = { tex, mat: new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }), used: true };
+      const tex = symbolTexture(symbol, color, pal);
+      entry = { symbol, color, tex, mat: new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }), used: true };
       symbolCache.set(key, entry);
     }
     entry.used = true;
@@ -640,6 +771,7 @@ export function createAssetKit(opts: KitOptions): AssetKit {
   const Y_AXIS = new THREE.Vector3(0, 1, 0);
 
   /* Ground --------------------------------------------------------- */
+  /** Coordinate tick strip along one edge; `paint` redraws it with the current palette. */
   function tickStrip(
     own: <T extends Disposable>(x: T) => T,
     axis: 'x' | 'y',
@@ -656,18 +788,23 @@ export function createAssetKit(opts: KitOptions): AssetKit {
     c.width = axis === 'x' ? long : short;
     c.height = axis === 'x' ? short : long;
     const g = c.getContext('2d')!;
-    g.textBaseline = 'middle';
-    g.textAlign = axis === 'x' ? 'center' : 'right';
-    for (let i = 0; i < count; i++) {
-      // X runs left→right; Y is flipped so that 0:0 is the bottom-left corner.
-      const value = axis === 'x' ? spec.startX + i : spec.startY + (spec.rows - 1 - i);
-      const major = (axis === 'x' ? i : value - spec.startY) % 3 === 0;
-      if (step > 1 && !major) continue;
-      g.font = `${major ? 700 : 500} ${fontPx}px ${opts.monoFont}`;
-      g.fillStyle = major ? opts.tickMajorColor : opts.tickColor;
-      if (axis === 'x') g.fillText(String(value), (i + 0.5) * ppc, short / 2 + 1);
-      else g.fillText(String(value), short - ppc * 0.12, (i + 0.5) * ppc + 1);
-    }
+    const draw = () => {
+      g.clearRect(0, 0, c.width, c.height);
+      g.textBaseline = 'middle';
+      g.textAlign = axis === 'x' ? 'center' : 'right';
+      const majorColor = tickMajor();
+      for (let i = 0; i < count; i++) {
+        // X runs left→right; Y is flipped so that 0:0 is the bottom-left corner.
+        const value = axis === 'x' ? spec.startX + i : spec.startY + (spec.rows - 1 - i);
+        const major = (axis === 'x' ? i : value - spec.startY) % 3 === 0;
+        if (step > 1 && !major) continue;
+        g.font = `${major ? 700 : 500} ${fontPx}px ${opts.monoFont}`;
+        g.fillStyle = major ? majorColor : pal.tick;
+        if (axis === 'x') g.fillText(String(value), (i + 0.5) * ppc, short / 2 + 1);
+        else g.fillText(String(value), short - ppc * 0.12, (i + 0.5) * ppc + 1);
+      }
+    };
+    draw();
     const tex = own(new THREE.CanvasTexture(c));
     tex.colorSpace = THREE.SRGBColorSpace;
     tex.anisotropy = opts.maxAnisotropy;
@@ -681,7 +818,11 @@ export function createAssetKit(opts: KitOptions): AssetKit {
     if (axis === 'x') mesh.position.set(0, 0, H / 2 + gap + thickness / 2);
     else mesh.position.set(-W / 2 - gap - thickness / 2, 0, 0);
     mesh.renderOrder = 1;
-    return mesh;
+    const paint = () => {
+      draw();
+      tex.needsUpdate = true;
+    };
+    return { mesh, paint };
   }
 
   function buildGround(spec: GroundSpec): GroundBuild {
@@ -727,7 +868,9 @@ export function createAssetKit(opts: KitOptions): AssetKit {
     gridMesh.receiveShadow = shadows;
     group.add(gridMesh);
 
-    group.add(tickStrip(own, 'x', spec, ppc, step, fontPx, xDepth), tickStrip(own, 'y', spec, ppc, step, fontPx, yWidth));
+    const ticksX = tickStrip(own, 'x', spec, ppc, step, fontPx, xDepth);
+    const ticksY = tickStrip(own, 'y', spec, ppc, step, fontPx, yWidth);
+    group.add(ticksX.mesh, ticksY.mesh);
 
     // Red corner posts, echoing the corner brackets of the 2D frame.
     const postGeo = own(new THREE.BoxGeometry(0.22, 0.5, 0.22));
@@ -845,7 +988,7 @@ export function createAssetKit(opts: KitOptions): AssetKit {
 
     // Drifting spores over the map.
     const sporeHeight = 12 * Math.pow(treeScale, 0.6);
-    const sporeMat = own(sporeMaterial(opts.pixelRatio, sporeHeight));
+    const sporeMat = own(sporeMaterial(opts.pixelRatio, sporeHeight, pal));
     {
       const count = Math.round(clamp(W * H * 0.9, 220, opts.highQuality ? 1100 : 450));
       const pos = new Float32Array(count * 3);
@@ -866,6 +1009,13 @@ export function createAssetKit(opts: KitOptions): AssetKit {
       group.add(spores);
     }
 
+    const repaint = () => {
+      ticksX.paint();
+      ticksY.paint();
+      paintSpores(sporeMat, pal);
+    };
+    groundPainters.add(repaint);
+
     return {
       group,
       halfX: W / 2,
@@ -883,6 +1033,7 @@ export function createAssetKit(opts: KitOptions): AssetKit {
         sporeMat.uniforms.uScale.value = s;
       },
       dispose() {
+        groundPainters.delete(repaint);
         group.removeFromParent();
         for (const im of instanced) im.dispose();
         for (const d of local) d.dispose();
@@ -1058,7 +1209,30 @@ export function createAssetKit(opts: KitOptions): AssetKit {
     tick(t) {
       flagTime.value = t;
     },
+    setTheme(theme) {
+      const next = KIT_PALETTES[theme];
+      if (next === pal) return;
+      pal = next;
+      paintGridTile(gridTex.image, pal);
+      gridTex.needsUpdate = true;
+      borderTop.color.setHex(pal.borderTop);
+      outerTop.color.setHex(pal.outerTop);
+      earthSide.color.setHex(pal.earthSide);
+      cornerMat.emissiveIntensity = pal.cornerGlow;
+      const wu = water.uniforms;
+      wu.uDeep.value.setHex(pal.waterDeep);
+      wu.uShallow.value.setHex(pal.waterShallow);
+      wu.uGlint.value.setHex(pal.waterGlint);
+      for (const m of capMats) m.emissiveIntensity = pal.capGlow;
+      goldMat.emissiveIntensity = pal.goldGlow;
+      for (const entry of symbolCache.values()) {
+        paintSymbol(entry.tex.image, entry.symbol, entry.color, pal);
+        entry.tex.needsUpdate = true;
+      }
+      for (const repaint of groundPainters) repaint();
+    },
     dispose() {
+      groundPainters.clear();
       for (const entry of symbolCache.values()) {
         entry.mat.dispose();
         entry.tex.dispose();

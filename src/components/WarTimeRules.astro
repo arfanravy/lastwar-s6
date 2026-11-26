@@ -85,6 +85,24 @@ const copy = {
 </section>
 
 <style>
+  .wt {
+    --wt-today-bg: rgb(225 29 42 / 0.16);
+    --wt-open-bg: rgb(255 255 255 / 0.1);
+    --wt-battle-bg: rgb(255 90 120 / 0.2);
+    --wt-battle-text: #ffb3c1;
+    --wt-battle-border: rgb(255 90 120 / 0.55);
+    --wt-none: var(--forest-700);
+  }
+  /* Light: darker red text on a faint red pill, dark-tinted "open" pill,
+     and a dash that stays readable (>= 5:1 on the row and on today's row). */
+  :global(:root[data-theme='light']) .wt {
+    --wt-today-bg: rgb(225 29 42 / 0.09);
+    --wt-open-bg: rgb(16 36 26 / 0.07);
+    --wt-battle-bg: rgb(225 29 42 / 0.1);
+    --wt-battle-text: #a3101b;
+    --wt-battle-border: rgb(225 29 42 / 0.45);
+    --wt-none: var(--muted);
+  }
   .wt h2 {
     margin: 0 0 2px;
     font-size: 1.1rem;
@@ -129,7 +147,7 @@ const copy = {
     border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
   }
   tr.is-today {
-    background: rgb(225 29 42 / 0.16);
+    background: var(--wt-today-bg);
     outline: 2px solid var(--merah);
     outline-offset: -2px;
     border-radius: var(--radius-sm);
@@ -154,22 +172,22 @@ const copy = {
     white-space: nowrap;
   }
   .wt-pill.open {
-    background: rgb(255 255 255 / 0.1);
+    background: var(--wt-open-bg);
     color: var(--forest-200);
   }
   .wt-pill.battle,
   .wt-pill.base {
-    background: rgb(255 90 120 / 0.2);
-    color: #ffb3c1;
-    border: 1px solid rgb(255 90 120 / 0.55);
+    background: var(--wt-battle-bg);
+    color: var(--wt-battle-text);
+    border: 1px solid var(--wt-battle-border);
   }
   .wt-pill.base {
     background: var(--merah);
     border-color: var(--merah);
-    color: var(--putih);
+    color: var(--on-accent);
   }
   .wt-none {
-    color: var(--forest-700);
+    color: var(--wt-none);
   }
   .wt-notes {
     margin: 12px 0 0;

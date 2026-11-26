@@ -6,9 +6,38 @@
   --bm-soft: rgb(255 255 255 / 0.035);
   --bm-soft-2: rgb(255 255 255 / 0.06);
   --bm-dim: #5f7d6c;
+  /* Recessed panels (settings editor, building cards, result buildings) and the sub-tab track */
+  --bm-well: rgb(0 0 0 / 0.18);
+  --bm-well-2: rgb(0 0 0 / 0.22);
+  --bm-track: rgb(0 0 0 / 0.2);
+  --bm-kicker: var(--forest-400);
+  --bm-grad-shadow: rgb(0 0 0 / 0.3);
+  --bm-warn-bg: rgb(250 204 21 / 0.08);
+  --bm-warn-border: rgb(250 204 21 / 0.25);
+  /* Rank accents on the player list (left border of rows #1 and #2) */
+  --bm-gold: #fbbf24;
+  --bm-silver: #cbd5e1;
   font-family: var(--font);
   color: var(--text);
   font-size: 0.95rem;
+}
+
+/* Light theme: white hairlines and washes become ink-tinted, recessed wells
+   become white panels, and dim/kicker text is darkened to meet WCAG AA. */
+:root[data-theme='light'] .bm {
+  --bm-line: rgb(16 36 26 / 0.1);
+  --bm-soft: rgb(16 36 26 / 0.035);
+  --bm-soft-2: rgb(16 36 26 / 0.06);
+  --bm-dim: #52705f;
+  --bm-well: rgb(255 255 255 / 0.7);
+  --bm-well-2: rgb(255 255 255 / 0.72);
+  --bm-track: rgb(16 36 26 / 0.05);
+  --bm-kicker: #3f7356;
+  --bm-grad-shadow: rgb(16 36 26 / 0.16);
+  --bm-warn-bg: var(--warn-bg);
+  --bm-warn-border: var(--warn-border);
+  --bm-gold: #f59e0b;
+  --bm-silver: #94a3b8;
 }
 
 /* ── Event accents (Gurun = amber/red, Ngarai = cyan/indigo) ─────────────── */
@@ -41,6 +70,33 @@
   --tb-bg: rgb(99 102 241 / 0.2);
   --tb-border: rgb(99 102 241 / 0.45);
   --tb-text: #c7d2fe;
+}
+
+/* Light theme: same hues, but text/icon shades are darkened for AA contrast
+   on white and pale tints; gradient fills are deepened so white letters and
+   icons on them stay legible. Washes (--ev-bg, --ev-tint, --ta-bg) keep their
+   dark-theme values, which read as pale tints on white. */
+:root[data-theme='light'] .bm .ev-gurun {
+  --ev: #a34a06;
+  --ev-text: #92400e;
+  --ev-border: rgb(217 119 6 / 0.4);
+  --ev-grad: linear-gradient(135deg, #d97706 0%, #c2410c 35%, #b91c1c 100%);
+  --ev-tgrad: linear-gradient(135deg, #a34a06, #b91c1c);
+  --ta-border: rgb(217 119 6 / 0.45);
+  --ta-text: #854d0e;
+  --tb-bg: rgb(220 38 38 / 0.1);
+  --tb-text: #b91c1c;
+}
+:root[data-theme='light'] .bm .ev-ngarai {
+  --ev: #0e7490;
+  --ev-text: #155e75;
+  --ev-border: rgb(8 145 178 / 0.4);
+  --ev-grad: linear-gradient(135deg, #0891b2 0%, #0e7490 35%, #4338ca 100%);
+  --ev-tgrad: linear-gradient(135deg, #0e7490, #4338ca);
+  --ta-border: rgb(8 145 178 / 0.45);
+  --ta-text: #155e75;
+  --tb-bg: rgb(99 102 241 / 0.12);
+  --tb-text: #3730a3;
 }
 
 /* ── Layout helpers ─────────────────────────────────────────────────────── */
@@ -77,7 +133,7 @@
 .bm .bm-kicker {
   display: inline-flex; align-items: center; gap: 8px;
   font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.2em;
-  text-transform: uppercase; color: var(--forest-400);
+  text-transform: uppercase; color: var(--bm-kicker);
 }
 .bm .bm-stats { display: flex; gap: 8px; flex-wrap: wrap; }
 .bm .bm-stat {
@@ -110,10 +166,25 @@
   transition: background 0.15s ease, color 0.15s ease;
 }
 .bm .bm-tab:hover { color: var(--text); background: var(--surface-2); }
-.bm .bm-tab.active { color: var(--putih); background: var(--merah); }
-.bm .bm-tab.tab-gurun.active { color: #fde047; background: rgb(251 191 36 / 0.12); border-color: rgb(251 191 36 / 0.35); }
-.bm .bm-tab.tab-ngarai.active { color: #67e8f9; background: rgb(34 211 238 / 0.12); border-color: rgb(34 211 238 / 0.35); }
+.bm .bm-tab.active { color: var(--on-accent); background: var(--merah); }
+.bm .bm-tab.tab-gurun {
+  --tab-ev-text: #fde047; --tab-ev-bg: rgb(251 191 36 / 0.12); --tab-ev-border: rgb(251 191 36 / 0.35);
+}
+.bm .bm-tab.tab-ngarai {
+  --tab-ev-text: #67e8f9; --tab-ev-bg: rgb(34 211 238 / 0.12); --tab-ev-border: rgb(34 211 238 / 0.35);
+}
+:root[data-theme='light'] .bm .bm-tab.tab-gurun {
+  --tab-ev-text: #92400e; --tab-ev-bg: rgb(251 191 36 / 0.22); --tab-ev-border: rgb(217 119 6 / 0.5);
+}
+:root[data-theme='light'] .bm .bm-tab.tab-ngarai {
+  --tab-ev-text: #155e75; --tab-ev-bg: rgb(34 211 238 / 0.2); --tab-ev-border: rgb(8 145 178 / 0.5);
+}
+.bm .bm-tab.tab-gurun.active,
+.bm .bm-tab.tab-ngarai.active { color: var(--tab-ev-text); background: var(--tab-ev-bg); border-color: var(--tab-ev-border); }
 .bm .bm-tab-count { font-family: var(--mono); font-size: 0.68rem; opacity: 0.7; }
+/* Faded counts drop below AA on the light track / red pill, so show them solid */
+:root[data-theme='light'] .bm .bm-tab-count,
+:root[data-theme='light'] .bm .bm-subtab-count { opacity: 1; }
 
 /* ── Cards ──────────────────────────────────────────────────────────────── */
 .bm .bm-card {
@@ -136,10 +207,10 @@
 }
 .bm .bm-btn:hover:not(:disabled) { background: var(--forest-700); }
 .bm .bm-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.bm .bm-btn-preset { border-color: var(--merah, #e11d2a); }
-.bm .bm-btn-preset:not(:disabled):hover { background: var(--merah, #e11d2a); color: #fff; }
+.bm .bm-btn-preset { border-color: var(--merah); }
+.bm .bm-btn-preset:not(:disabled):hover { background: var(--merah); color: var(--on-accent); }
 .bm .bm-btn-xs { padding: 6px 12px; font-size: 0.74rem; gap: 6px; }
-.bm .bm-btn-primary { background: var(--merah); border-color: var(--merah); color: var(--putih); }
+.bm .bm-btn-primary { background: var(--merah); border-color: var(--merah); color: var(--on-accent); }
 .bm .bm-btn-primary:hover:not(:disabled) { background: var(--merah-hover); }
 .bm .bm-btn-block { width: 100%; }
 .bm .bm-btn-ev { background: var(--ev-bg); border-color: var(--ev-border); color: var(--ev-text); }
@@ -183,6 +254,11 @@
   appearance: none; -webkit-appearance: none; text-overflow: ellipsis;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%239dbcaa'%3E%3Cpath d='M5 8l5 5 5-5z'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right 6px center; background-size: 15px;
+}
+/* The chevron is drawn in --muted; the data URI cannot read variables, so the
+   light theme swaps in its own copy */
+:root[data-theme='light'] .bm .bm-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%234c6b5a'%3E%3Cpath d='M5 8l5 5 5-5z'/%3E%3C/svg%3E");
 }
 .bm .bm-select:focus { border-color: var(--ev, var(--merah)); }
 .bm .bm-select option { background: var(--forest-900); color: var(--text); }
@@ -234,8 +310,8 @@
   padding: 5px 6px; border-radius: 8px; border-left: 2px solid transparent;
 }
 .bm .bm-prow:not(.bm-prow-head):hover { background: var(--bm-soft); }
-.bm .bm-prow.r1 { background: rgb(251 191 36 / 0.06); border-left-color: #fbbf24; }
-.bm .bm-prow.r2 { background: var(--bm-soft); border-left-color: #cbd5e1; }
+.bm .bm-prow.r1 { background: rgb(251 191 36 / 0.06); border-left-color: var(--bm-gold); }
+.bm .bm-prow.r2 { background: var(--bm-soft); border-left-color: var(--bm-silver); }
 .bm .bm-prow.r3 { background: var(--bm-soft); border-left-color: #b45309; }
 .bm .bm-prow-head {
   position: sticky; top: 0; z-index: 1; margin-bottom: 4px;
@@ -297,8 +373,8 @@
 /* ── Event tab ──────────────────────────────────────────────────────────── */
 .bm .bm-grad-icon, .bm .bm-grad-badge {
   display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
-  background: var(--ev-grad); color: #fff; border-radius: 12px;
-  box-shadow: 0 6px 18px rgb(0 0 0 / 0.3);
+  background: var(--ev-grad); color: var(--on-accent); border-radius: 12px;
+  box-shadow: 0 6px 18px var(--bm-grad-shadow);
 }
 .bm .bm-grad-icon { width: 48px; height: 48px; }
 .bm .bm-grad-badge { width: 44px; height: 44px; font-weight: 800; font-size: 1.3rem; }
@@ -312,7 +388,7 @@
 
 .bm .bm-editor {
   margin-bottom: 16px; padding: 12px; border-radius: 10px;
-  background: rgb(0 0 0 / 0.18); border: 1px solid var(--bm-line);
+  background: var(--bm-well); border: 1px solid var(--bm-line);
 }
 .bm .bm-editor-row {
   display: grid; align-items: center; gap: 8px;
@@ -334,7 +410,7 @@
 
 .bm .bm-subtabs {
   display: inline-flex; flex-wrap: wrap; gap: 3px; padding: 4px;
-  background: rgb(0 0 0 / 0.2); border: 1px solid var(--bm-line); border-radius: 12px;
+  background: var(--bm-track); border: 1px solid var(--bm-line); border-radius: 12px;
 }
 .bm .bm-subtab {
   padding: 7px 16px; border-radius: 8px; cursor: pointer;
@@ -355,7 +431,7 @@
   padding: 6px 10px; border-radius: 8px; font-size: 0.74rem;
   color: var(--muted); background: var(--bm-soft); border: 1px dashed var(--bm-line);
 }
-.bm .bm-note.warn { color: #fde68a; background: rgb(250 204 21 / 0.08); border: 1px solid rgb(250 204 21 / 0.25); }
+.bm .bm-note.warn { color: var(--warn-text); background: var(--bm-warn-bg); border: 1px solid var(--bm-warn-border); }
 
 .bm .bm-chip {
   display: inline-flex; align-items: center; gap: 6px;
@@ -382,7 +458,7 @@
 }
 .bm .bm-building {
   padding: 14px; border-radius: 12px;
-  background: rgb(0 0 0 / 0.18); border: 1px solid var(--bm-line);
+  background: var(--bm-well); border: 1px solid var(--bm-line);
 }
 .bm .bm-building-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
 .bm .bm-bicon {
@@ -430,7 +506,7 @@
 .bm .bm-hasil-team-name { font-weight: 800; font-size: 1.2rem; color: var(--ev-text); text-transform: uppercase; }
 .bm .bm-hasil-building {
   padding: 10px 12px; border-radius: 8px;
-  background: rgb(0 0 0 / 0.22); border: 1px solid var(--bm-line);
+  background: var(--bm-well-2); border: 1px solid var(--bm-line);
 }
 .bm .bm-hasil-building-head { font-weight: 700; font-size: 0.92rem; color: var(--ev-text); margin-bottom: 6px; }
 .bm .bm-hasil-list { list-style: none; margin: 0 0 0 8px; padding: 0; }

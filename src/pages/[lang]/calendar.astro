@@ -259,6 +259,23 @@ const estimatedNote = copy.estimated.replace('{date}', fmtServerDay(dayStart('se
 </Base>
 
 <style>
+  .cal {
+    /* fades for switched-off filter chips and finished days/weeks */
+    --cal-chip-off: 0.45;
+    --cal-chip-bg: var(--surface-2);
+    --cal-past-day: 0.55;
+    --cal-past-week: 0.6;
+  }
+  /* Light: faded dark-on-light text drops below AA quickly, so off chips fade
+     less (>= 4.5:1) and finished days/weeks are not faded at all; they switch
+     to muted text instead (light rules below). Pressed chips are white, i.e.
+     raised above the pale page the way --surface-2 is on dark. */
+  :global(:root[data-theme='light']) .cal {
+    --cal-chip-off: 0.65;
+    --cal-chip-bg: var(--surface);
+    --cal-past-day: 1;
+    --cal-past-week: 1;
+  }
   .small {
     font-size: 0.82rem;
   }
@@ -328,7 +345,7 @@ const estimatedNote = copy.estimated.replace('{date}', fmtServerDay(dayStart('se
     padding: 5px 12px;
     border-radius: 999px;
     border: 1px solid var(--forest-600);
-    background: var(--surface-2);
+    background: var(--cal-chip-bg);
     color: var(--text);
     font: inherit;
     font-size: 0.82rem;
@@ -336,7 +353,7 @@ const estimatedNote = copy.estimated.replace('{date}', fmtServerDay(dayStart('se
     cursor: pointer;
   }
   .chip[aria-pressed='false'] {
-    opacity: 0.45;
+    opacity: var(--cal-chip-off);
     background: transparent;
   }
   .cal.hide-war :global([data-cat='war']:not(.chip)),
@@ -387,7 +404,7 @@ const estimatedNote = copy.estimated.replace('{date}', fmtServerDay(dayStart('se
     box-shadow: 0 0 0 1px var(--merah);
   }
   .wk.is-past summary {
-    opacity: 0.6;
+    opacity: var(--cal-past-week);
   }
   .wk-body {
     display: grid;
@@ -416,10 +433,22 @@ const estimatedNote = copy.estimated.replace('{date}', fmtServerDay(dayStart('se
   .badge.today {
     background: var(--merah);
     border-color: var(--merah);
-    color: var(--putih);
+    color: var(--on-accent);
   }
   .day.is-past {
-    opacity: 0.55;
+    opacity: var(--cal-past-day);
+  }
+  /* Light: finished weeks/days read as muted text (5.9:1 on the card) instead
+     of an opacity fade; only the decorative category dots are faded. */
+  :global(:root[data-theme='light']) .wk.is-past .wk-label,
+  :global(:root[data-theme='light']) .day.is-past .day-label,
+  :global(:root[data-theme='light']) .day.is-past .it-title,
+  :global(:root[data-theme='light']) .day.is-past .up-note,
+  :global(:root[data-theme='light']) .day.is-past .it-time .mono {
+    color: var(--muted);
+  }
+  :global(:root[data-theme='light']) .day.is-past .cat-dot {
+    opacity: 0.5;
   }
   .items {
     list-style: none;
