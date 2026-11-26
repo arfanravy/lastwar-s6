@@ -28,6 +28,23 @@
   --text: #f2f7f4;
   --muted: #9dbcaa;
 
+  /* Semantic tokens: use these instead of raw colours so both themes work */
+  --text-strong: #ffffff; /* emphasised text (white on dark, near-black on light) */
+  --on-accent: #ffffff; /* text on --merah, always white */
+  --flag-white: #ffffff; /* the white half of the merah-putih flag, always white */
+  --header-bg: rgb(7 23 15 / 0.85);
+  --overlay-bg: rgb(10 30 20 / 0.95); /* popups and floating panels */
+  --deepwood-text: #8ff0b1;
+  --wetland-text: #9bd7ff;
+  --warn-bg: rgb(250 204 21 / 0.12);
+  --warn-border: rgb(250 204 21 / 0.4);
+  --warn-text: #fde68a;
+  --tint-green: rgb(63 191 106 / 0.12);
+  --tint-red: rgb(225 29 42 / 0.08);
+  --curtain-top: rgb(7 23 15 / 0.5); /* veil over the 3D backdrop */
+  --curtain-mid: rgb(7 23 15 / 0.74);
+  --curtain-bottom: rgb(7 23 15 / 0.86);
+
   --radius: 14px;
   --radius-sm: 8px;
   --shadow: 0 10px 30px rgb(0 0 0 / 0.35);
@@ -35,6 +52,47 @@
   --mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
 
   color-scheme: dark;
+}
+
+/* ---------- Light theme ----------
+   The forest scale and --putih are inverted, so components that pair
+   "dark surface + light text" keep working. Text on red uses --on-accent. */
+:root[data-theme='light'] {
+  --forest-950: #f2f7f3;
+  --forest-900: #e4eee7;
+  --forest-850: #ffffff;
+  --forest-800: #edf4ef;
+  --forest-700: #d2e2d7;
+  --forest-600: #a8c6b2;
+  --forest-400: #5b8f70;
+  --forest-200: #2b5a3f;
+
+  --merah-text: #c4121e;
+  --putih: #0b1f14;
+
+  --deepwood: #2e9e55;
+  --deepwood-bg: #def3e5;
+  --wetland: #1f86c7;
+  --wetland-bg: #dcecf9;
+
+  --text: #10241a;
+  --muted: #4c6b5a;
+  --text-strong: #0b1f14;
+  --header-bg: rgb(247 251 248 / 0.88);
+  --overlay-bg: rgb(255 255 255 / 0.97);
+  --deepwood-text: #146b35;
+  --wetland-text: #0d5687;
+  --warn-bg: #fff6d1;
+  --warn-border: #e2b93b;
+  --warn-text: #7a5400;
+  --tint-green: rgb(63 191 106 / 0.1);
+  --tint-red: rgb(225 29 42 / 0.05);
+  --curtain-top: rgb(242 247 243 / 0.55);
+  --curtain-mid: rgb(242 247 243 / 0.78);
+  --curtain-bottom: rgb(242 247 243 / 0.9);
+  --shadow: 0 10px 30px rgb(16 36 26 / 0.12);
+
+  color-scheme: light;
 }
 
 *,
@@ -57,8 +115,8 @@ body {
   display: flex;
   flex-direction: column;
   background:
-    radial-gradient(1200px 600px at 10% -10%, rgb(63 191 106 / 0.12), transparent 60%),
-    radial-gradient(900px 500px at 110% 10%, rgb(225 29 42 / 0.08), transparent 60%),
+    radial-gradient(1200px 600px at 10% -10%, var(--tint-green), transparent 60%),
+    radial-gradient(900px 500px at 110% 10%, var(--tint-red), transparent 60%),
     var(--bg);
   color: var(--text);
   font-family: var(--font);
@@ -98,14 +156,14 @@ img {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: rgb(7 23 15 / 0.85);
+  background: var(--header-bg);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
 }
 .site-header .container {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   min-height: 60px;
   flex-wrap: wrap;
 }
@@ -131,7 +189,7 @@ img {
   background: var(--merah);
 }
 .brand-mark span:last-child {
-  background: var(--putih);
+  background: var(--flag-white);
 }
 .brand small {
   display: block;
@@ -152,7 +210,7 @@ img {
   color: var(--muted);
   font-weight: 600;
   font-size: 0.88rem;
-  padding: 6px 10px;
+  padding: 6px 9px;
   border-radius: 999px;
   white-space: nowrap;
 }
@@ -161,7 +219,7 @@ img {
   background: var(--surface-2);
 }
 .main-nav a[aria-current='page'] {
-  color: var(--putih);
+  color: var(--on-accent);
   background: var(--merah);
 }
 
@@ -194,9 +252,47 @@ img {
     overflow-x: auto;
     flex-wrap: nowrap;
   }
-  .lang-switch {
+  .header-tools {
     margin-left: auto;
   }
+}
+
+.header-tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.theme-toggle {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  padding: 0;
+}
+.theme-toggle:hover {
+  background: var(--surface-2);
+}
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--merah);
+  outline-offset: 2px;
+}
+.theme-toggle svg {
+  width: 18px;
+  height: 18px;
+}
+/* show the icon of the theme you would switch TO */
+.theme-toggle .ic-sun,
+:root[data-theme='light'] .theme-toggle .ic-moon {
+  display: block;
+}
+.theme-toggle .ic-moon,
+:root[data-theme='light'] .theme-toggle .ic-sun {
+  display: none;
 }
 
 /* ---------- Layout ---------- */
@@ -274,7 +370,7 @@ main {
   border-radius: 999px;
   border: 0;
   background: var(--merah);
-  color: var(--putih);
+  color: var(--on-accent);
   font: inherit;
   font-weight: 700;
   text-decoration: none;
@@ -282,14 +378,16 @@ main {
 }
 .btn:hover {
   background: var(--merah-hover);
-  color: var(--putih);
+  color: var(--on-accent);
 }
 .btn.ghost {
   background: transparent;
   border: 1px solid var(--forest-600);
+  color: var(--text-strong);
 }
 .btn.ghost:hover {
   background: var(--surface-2);
+  color: var(--text-strong);
 }
 
 .badge {
@@ -307,12 +405,12 @@ main {
 .badge.red {
   background: var(--merah);
   border-color: var(--merah);
-  color: var(--putih);
+  color: var(--on-accent);
 }
 .badge.warn {
-  background: rgb(250 204 21 / 0.12);
-  border-color: rgb(250 204 21 / 0.4);
-  color: #fde68a;
+  background: var(--warn-bg);
+  border-color: var(--warn-border);
+  color: var(--warn-text);
 }
 
 .faction-chip {
@@ -326,12 +424,12 @@ main {
 }
 .faction-chip.deepwood {
   background: var(--deepwood-bg);
-  color: #8ff0b1;
+  color: var(--deepwood-text);
   border: 1px solid var(--deepwood);
 }
 .faction-chip.wetland {
   background: var(--wetland-bg);
-  color: #9bd7ff;
+  color: var(--wetland-text);
   border: 1px solid var(--wetland);
 }
 
@@ -445,6 +543,13 @@ main {
   --cat-hero: #5fb4ff;
   --cat-event: #3fbf6a;
   --cat-season: #c4dccd;
+}
+:root[data-theme='light'] {
+  --cat-war: #d4202e;
+  --cat-altar: #a87200;
+  --cat-hero: #1f74c4;
+  --cat-event: #1d8f47;
+  --cat-season: #5f806d;
 }
 [data-cat='war'] { --cat: var(--cat-war); }
 [data-cat='altar'] { --cat: var(--cat-altar); }

@@ -20,6 +20,10 @@ const backdropCopy = {
   id: { on: 'Latar 3D: nyala', off: 'Latar 3D: mati' },
   en: { on: '3D background: on', off: '3D background: off' },
 }[lang];
+const themeCopy = {
+  id: { light: 'Ganti ke tema terang', dark: 'Ganti ke tema gelap' },
+  en: { light: 'Switch to light theme', dark: 'Switch to dark theme' },
+}[lang];
 ---
 
 <!doctype html>
@@ -32,6 +36,19 @@ const backdropCopy = {
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={desc} />
     <meta name="theme-color" content="#07170f" />
+    <script is:inline>
+      // Set the theme before the first paint (no dark→light flash).
+      // Explicit choice in localStorage wins; otherwise follow the OS.
+      (function () {
+        var pref = null;
+        try {
+          pref = localStorage.getItem('rimba.theme');
+        } catch (e) {}
+        var light = pref === 'light' || (pref !== 'dark' && window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches);
+        document.documentElement.dataset.theme = light ? 'light' : 'dark';
+        if (light) document.querySelector('meta[name="theme-color"]').setAttribute('content', '#f2f7f3');
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     {LANGS.map((l) => <link rel="alternate" hreflang={l} href={new URL(localePath(l, route), Astro.site)} />)}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -59,14 +76,33 @@ const backdropCopy = {
             ))
           }
         </nav>
-        <div class="lang-switch" role="group" aria-label={t('lang.label')}>
-          {
-            LANGS.map((l) => (
-              <a href={localePath(l, route)} hreflang={l} aria-current={l === lang ? 'true' : undefined}>
-                {l.toUpperCase()}
-              </a>
-            ))
-          }
+        <div class="header-tools">
+          <div class="lang-switch" role="group" aria-label={t('lang.label')}>
+            {
+              LANGS.map((l) => (
+                <a href={localePath(l, route)} hreflang={l} aria-current={l === lang ? 'true' : undefined}>
+                  {l.toUpperCase()}
+                </a>
+              ))
+            }
+          </div>
+          <button
+            type="button"
+            class="theme-toggle"
+            data-theme-toggle
+            data-label-light={themeCopy.light}
+            data-label-dark={themeCopy.dark}
+            aria-label={themeCopy.light}
+            title={themeCopy.light}
+          >
+            <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="4.2"></circle>
+              <path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"></path>
+            </svg>
+            <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7Z"></path>
+            </svg>
+          </button>
         </div>
       </div>
     </header>
@@ -97,7 +133,9 @@ const backdropCopy = {
 
     <script>
       import { startTimers } from '../lib/timers';
+      import { initThemeControls } from '../lib/theme';
       startTimers();
+      initThemeControls();
     </script>
   </body>
 </html>
