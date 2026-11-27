@@ -3,7 +3,7 @@ import type { AreaType, Buff } from '../../lib/territory/layout';
 
 const id = {
   estimateNote:
-    'Layout peta ini PERKIRAAN (belum dari data in-game): posisi, jumlah, level, dan buff area bisa berbeda. Hanya warzone #1196 (pojok kanan atas peta S6).',
+    'Layout warzone #1196 (Wetland) sesuai peta in-game. Level, buff, dan Influence per area diambil dari peta interaktif cpt-hedge.com dan belum terkonfirmasi in-game.',
   plans: 'Rencana',
   newPlan: 'Baru',
   duplicate: 'Duplikat',
@@ -27,9 +27,9 @@ const id = {
   hintView: 'Mode lihat: klik area untuk melihat detailnya.',
   settings: 'Tampilan',
   showLabels: 'Label tipe & level',
-  buffColors: 'Warna buff (coin/food/iron/gathering)',
+  buffColors: 'Warna per buff',
   colorBlind: 'Mode buta warna (bentuk per aliansi)',
-  buffTotals: 'Total buff per aliansi',
+  buffTotals: 'Total buff (%) per aliansi',
   pathMode: 'Mode jalur (aliansi terpilih)',
   legend: 'Legenda',
   areas: 'Area',
@@ -44,15 +44,16 @@ const id = {
   owner: 'Pemilik',
   none: 'Belum ada',
   level: 'Lv',
-  notAssignable: 'Sanctuary milik seluruh faksi, tidak bisa ditandai.',
+  notAssignable: 'Sanctuary (WS) milik seluruh faksi, tidak bisa ditandai.',
   pathStep: 'Langkah',
+  influence: 'Influence',
 };
 
 type Strings = typeof id;
 
 const en: Strings = {
   estimateNote:
-    'This map layout is an ESTIMATE (not in-game data yet): area positions, counts, levels and buffs may differ. Warzone #1196 only (top-right of the S6 map).',
+    'Warzone #1196 (Wetland) layout follows the in-game map. Per-area levels, buffs and Influence come from the cpt-hedge.com interactive map and are not yet verified in-game.',
   plans: 'Plans',
   newPlan: 'New',
   duplicate: 'Duplicate',
@@ -76,9 +77,9 @@ const en: Strings = {
   hintView: 'View mode: click an area to see its details.',
   settings: 'Display',
   showLabels: 'Type & level labels',
-  buffColors: 'Buff colours (coin/food/iron/gathering)',
+  buffColors: 'Colour by buff',
   colorBlind: 'Colour-blind mode (shape per alliance)',
-  buffTotals: 'Buff totals per alliance',
+  buffTotals: 'Buff totals (%) per alliance',
   pathMode: 'Path mode (selected alliance)',
   legend: 'Legend',
   areas: 'Areas',
@@ -93,8 +94,9 @@ const en: Strings = {
   owner: 'Owner',
   none: 'None',
   level: 'Lv',
-  notAssignable: 'The Sanctuary belongs to the whole faction and cannot be assigned.',
+  notAssignable: 'The Sanctuary (WS) belongs to the whole faction and cannot be assigned.',
   pathStep: 'Step',
+  influence: 'Influence',
 };
 
 export const strings: Record<Lang, Strings> = { id, en };
@@ -102,7 +104,7 @@ export type TerritoryStrings = Strings;
 
 export const typeNames: Record<Lang, Record<AreaType, string>> = {
   id: {
-    SAN: 'Sanctuary (ibu kota)',
+    WS: 'Wetland Sanctuary (ibu kota)',
     WA: 'Wetland Assembly',
     WB: 'Wetland Barracks',
     WV: 'Wetland Village',
@@ -112,7 +114,7 @@ export const typeNames: Record<Lang, Record<AreaType, string>> = {
     FG: 'Fishing Ground',
   },
   en: {
-    SAN: 'Sanctuary (capital)',
+    WS: 'Wetland Sanctuary (capital)',
     WA: 'Wetland Assembly',
     WB: 'Wetland Barracks',
     WV: 'Wetland Village',
@@ -124,6 +126,6 @@ export const typeNames: Record<Lang, Record<AreaType, string>> = {
 };
 
 export const buffNames: Record<Lang, Record<Buff, string>> = {
-  id: { coin: 'Coin', food: 'Food', iron: 'Iron', gather: 'Gathering' },
-  en: { coin: 'Coin', food: 'Food', iron: 'Iron', gather: 'Gathering' },
+  id: { coin: 'Coin', food: 'Food', iron: 'Iron', research: 'Riset', construction: 'Konstruksi', march: 'March speed' },
+  en: { coin: 'Coin', food: 'Food', iron: 'Iron', research: 'Research', construction: 'Construction', march: 'March speed' },
 };

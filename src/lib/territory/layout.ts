@@ -1,118 +1,82 @@
-// Approximate area layout for warzone #1196 (top-right of the 3×3 S6 map).
-// NOT the real in-game map: counts and positions are estimates generated
-// deterministically, so a saved plan always lines up with the same grid.
-// Replace with real data (same AreaType ids) once in-game screenshots exist.
+// Area layout for warzone #1196 (Wetland), taken from the in-game warzone map.
+// Coordinates are in map units (warzone = 1000×1000). Fishing Grounds are the
+// cells between the road lines; cities sit on the line intersections.
+// Levels, buffs and influence come from src/data/territory-1196.json.
 
-export const GRID = 16;
-export const LAYOUT_ESTIMATED = true;
+import data from '../../data/territory-1196.json';
 
-export type AreaType = 'SAN' | 'WA' | 'WB' | 'WV' | 'TP' | 'CON' | 'WO' | 'FG';
-export type Buff = 'coin' | 'food' | 'iron' | 'gather';
+export const SIZE = data.size;
+export const LAYOUT_SOURCE = data.source;
+
+export type AreaType = 'WS' | 'WA' | 'WB' | 'WV' | 'TP' | 'CON' | 'WO' | 'FG';
+export type Buff = 'coin' | 'food' | 'iron' | 'research' | 'construction' | 'march';
 
 export interface Area {
   idx: number;
-  x: number;
-  y: number;
   type: AreaType;
   level: number;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  /** centre */
+  cx: number;
+  cy: number;
   buff?: Buff;
+  pct?: number;
+  influence?: number;
+  city: boolean;
 }
 
-export const AREA_TYPES: AreaType[] = ['SAN', 'WA', 'WB', 'WV', 'TP', 'CON', 'WO', 'FG'];
-export const BUFFS: Buff[] = ['coin', 'food', 'iron', 'gather'];
+export const AREA_TYPES: AreaType[] = ['WS', 'WO', 'WA', 'WB', 'WV', 'TP', 'CON', 'FG'];
+export const BUFFS: Buff[] = ['coin', 'food', 'iron', 'research', 'construction', 'march'];
 
-/** Areas an alliance can take (Sanctuary belongs to the whole faction). */
-export const assignable = (a: Area) => a.type !== 'SAN';
+export const AREAS: Area[] = data.areas.map((a, idx) => ({
+  idx,
+  type: a.t as AreaType,
+  level: a.lv,
+  x: a.x,
+  y: a.y,
+  w: a.w,
+  h: a.h,
+  cx: a.x + a.w / 2,
+  cy: a.y + a.h / 2,
+  buff: 'b' in a ? (a.b as Buff) : undefined,
+  pct: 'p' in a ? (a.p as number) : undefined,
+  influence: 'inf' in a ? (a.inf as number) : undefined,
+  city: a.t !== 'FG' && a.t !== 'WS',
+}));
 
-function rng(seed: number) {
-  let s = seed >>> 0;
-  return () => {
-    s = (s + 0x6d2b79f5) >>> 0;
-    let t = s;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+/** Areas an alliance can take (the Sanctuary belongs to the whole faction). */
+export const assignable = (a: Area) => a.type !== 'WS';
+
+// Adjacency: Fishing Grounds sharing an edge, a city and the (up to) 4 Fishing
+// Grounds around its intersection, and cities joined by a road segment.
+const NEIGHBOURS: number[][] = AREAS.map(() => []);
+{
+  const fgs = AREAS.filter((a) => !a.city);
+  const cities = AREAS.filter((a) => a.city);
+  const link = (a: Area, b: Area) => {
+    NEIGHBOURS[a.idx].push(b.idx);
+    NEIGHBOURS[b.idx].push(a.idx);
   };
-}
-
-function build(): Area[] {
-  const r = rng(1196);
-  const types: (AreaType | null)[] = Array(GRID * GRID).fill(null);
-  const at = (x: number, y: number) => y * GRID + x;
-  const sx = 8;
-  const sy = 7;
-  types[at(sx, sy)] = 'SAN';
-
-  // Fixed spots: consoles toward the Central Area (bottom-left corner),
-  // outposts on the borders shared with neighbouring warzones.
-  for (const [x, y] of [[0, 15], [2, 13], [0, 11], [4, 15]]) types[at(x, y)] = 'CON';
-  for (const [x, y] of [[0, 4], [0, 8], [8, 15], [12, 15]]) types[at(x, y)] = 'WO';
-
-  const dist = (i: number) => Math.hypot((i % GRID) - sx, Math.floor(i / GRID) - sy);
-  const jitter = Array.from({ length: GRID * GRID }, () => r());
-  const cityNear = (i: number) => {
-    const x = i % GRID;
-    const y = Math.floor(i / GRID);
-    for (let dy = -1; dy <= 1; dy++)
-      for (let dx = -1; dx <= 1; dx++) {
-        const nx = x + dx;
-        const ny = y + dy;
-        if ((dx || dy) && nx >= 0 && ny >= 0 && nx < GRID && ny < GRID && types[at(nx, ny)]) return true;
-      }
-    return false;
-  };
-
-  const place = (type: AreaType, count: number, target: number, spread: boolean) => {
-    const order = types
-      .map((_, i) => i)
-      .filter((i) => !types[i])
-      .sort((a, b) => Math.abs(dist(a) - target) + jitter[a] * 2.5 - (Math.abs(dist(b) - target) + jitter[b] * 2.5));
-    let left = count;
-    for (const pass of spread ? [true, false] : [false]) {
-      for (const i of order) {
-        if (!left) return;
-        if (types[i] || (pass && cityNear(i))) continue;
-        types[i] = type;
-        left--;
-      }
+  for (let i = 0; i < fgs.length; i++)
+    for (let j = i + 1; j < fgs.length; j++) {
+      const a = fgs[i];
+      const b = fgs[j];
+      const ox = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
+      const oy = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+      if ((ox === 0 && oy > 0) || (oy === 0 && ox > 0)) link(a, b);
     }
-  };
-
-  place('WA', 12, 2, false);
-  place('WB', 20, 4.5, true);
-  place('TP', 10, 9.5, true);
-  place('WV', 50, 7, true);
-
-  return types.map((t, idx) => {
-    const type = t ?? 'FG';
-    const a: Area = { idx, x: idx % GRID, y: Math.floor(idx / GRID), type, level: 1 };
-    switch (type) {
-      case 'SAN': a.level = 6; break;
-      case 'WA': a.level = 5; break;
-      case 'WB': a.level = r() < 0.5 ? 3 : 4; break;
-      case 'TP': a.level = 2; break;
-      case 'CON': a.level = 6; break;
-      case 'WO': a.level = 4; break;
-      case 'WV': a.level = r() < 0.5 ? 1 : 2; break;
-      case 'FG': a.level = 1 + Math.floor(r() * 3); break;
-    }
-    if (type === 'WV' || type === 'TP') a.buff = BUFFS[Math.floor(r() * 4)];
-    return a;
-  });
+  for (const c of cities) {
+    for (const f of fgs)
+      if (c.cx >= f.x && c.cx <= f.x + f.w && c.cy >= f.y && c.cy <= f.y + f.h) link(c, f);
+    for (const o of cities)
+      if (o.idx > c.idx && Math.abs(o.cx - c.cx) + Math.abs(o.cy - c.cy) === 100) link(c, o);
+  }
 }
 
-export const AREAS: Area[] = build();
-
-export function neighbours(idx: number): number[] {
-  const x = idx % GRID;
-  const y = Math.floor(idx / GRID);
-  const out: number[] = [];
-  if (x > 0) out.push(idx - 1);
-  if (x < GRID - 1) out.push(idx + 1);
-  if (y > 0) out.push(idx - GRID);
-  if (y < GRID - 1) out.push(idx + GRID);
-  return out;
-}
+export const neighbours = (idx: number) => NEIGHBOURS[idx];
 
 /** Number of separate territory blocks (in-game territory must be connected). */
 export function components(cells: number[]): number {
@@ -126,7 +90,7 @@ export function components(cells: number[]): number {
     seen.add(c);
     while (stack.length) {
       const cur = stack.pop()!;
-      for (const nb of neighbours(cur))
+      for (const nb of NEIGHBOURS[cur])
         if (set.has(nb) && !seen.has(nb)) {
           seen.add(nb);
           stack.push(nb);

@@ -1,41 +1,37 @@
 /* Territory map island — every selector scoped under .tm. */
 
 .tm {
-  /* Area base colours (dark default) */
-  --tm-fg: #1d4f63;
-  --tm-wv: #2f6b45;
-  --tm-tp: #6b5a2a;
-  --tm-wb: #3f5f8a;
-  --tm-wa: #6a4a8a;
-  --tm-con: #8a3f4f;
-  --tm-wo: #5a5f66;
-  --tm-san: #b8892a;
-  --tm-cell-stroke: rgb(0 0 0 / 0.35);
-  --tm-lbl: rgb(255 255 255 / 0.85);
-  --tm-lbl-fg: rgb(255 255 255 / 0.4);
+  /* In-game map look (dark default): green ground, darker toward the centre */
+  --tm-map-bg: #0b1a12;
+  --tm-fg1: #4f7f5e;
+  --tm-fg2: #48775a;
+  --tm-fg3: #426f53;
+  --tm-fg4: #3c674d;
+  --tm-ws: #3a6249;
+  --tm-road: #0c1410;
+  --tm-city: #36694a;
+  --tm-city-stroke: #0c1410;
+  --tm-lbl: #ffffff;
+  --tm-sel: #ffd54a;
   --tm-coin: #e9b824;
-  --tm-food: #59b65f;
+  --tm-food: #6cc070;
   --tm-iron: #9aa6b4;
-  --tm-gather: #c47a3a;
-  --tm-sel: #ffffff;
-  --tm-map-bg: #08140e;
+  --tm-research: #5fb4ff;
+  --tm-construction: #c47a3a;
+  --tm-march: #d46be0;
   color: var(--text);
   font-size: 0.92rem;
 }
 :root[data-theme='light'] .tm {
-  --tm-fg: #a9d3e3;
-  --tm-wv: #9fd1ae;
-  --tm-tp: #e6d39a;
-  --tm-wb: #a9c0e3;
-  --tm-wa: #cdb2e6;
-  --tm-con: #e9a9b6;
-  --tm-wo: #c3c8ce;
-  --tm-san: #f0c860;
-  --tm-cell-stroke: rgb(16 36 26 / 0.25);
-  --tm-lbl: #10241a;
-  --tm-lbl-fg: rgb(16 36 26 / 0.45);
-  --tm-sel: #10241a;
-  --tm-map-bg: #f2f7f3;
+  --tm-map-bg: #e4eee7;
+  --tm-fg1: #7fae8c;
+  --tm-fg2: #77a684;
+  --tm-fg3: #6f9e7c;
+  --tm-fg4: #679674;
+  --tm-ws: #5f8d6b;
+  --tm-road: #1c2b22;
+  --tm-city: #4f8a63;
+  --tm-sel: #e11d2a;
 }
 
 .tm .card h3 {
@@ -165,60 +161,71 @@
   cursor: crosshair;
 }
 
-.tm-cell {
-  stroke: var(--tm-cell-stroke);
-  stroke-width: 0.03;
+.tm-bg {
+  fill: var(--tm-fg1);
 }
-.tm-c-FG { fill: var(--tm-fg); background: var(--tm-fg); }
-.tm-c-WV { fill: var(--tm-wv); background: var(--tm-wv); }
-.tm-c-TP { fill: var(--tm-tp); background: var(--tm-tp); }
-.tm-c-WB { fill: var(--tm-wb); background: var(--tm-wb); }
-.tm-c-WA { fill: var(--tm-wa); background: var(--tm-wa); }
-.tm-c-CON { fill: var(--tm-con); background: var(--tm-con); }
-.tm-c-WO { fill: var(--tm-wo); background: var(--tm-wo); }
-.tm-c-SAN { fill: var(--tm-san); background: var(--tm-san); }
+.tm-fg {
+  stroke: var(--tm-road);
+  stroke-width: 2.5;
+}
+.tm-fg-1 { fill: var(--tm-fg1); }
+.tm-fg-2 { fill: var(--tm-fg2); }
+.tm-fg-3 { fill: var(--tm-fg3); }
+.tm-fg-4 { fill: var(--tm-fg4); }
+.tm-fg-ws { fill: var(--tm-ws); }
+.tm-city {
+  fill: var(--tm-city);
+  stroke: var(--tm-city-stroke);
+  stroke-width: 2.5;
+}
+/* Legend swatches */
+.tm-c-FG { background: var(--tm-fg1); }
+.tm-c-WS { background: var(--tm-ws); }
+.tm-c-WO, .tm-c-WA, .tm-c-WB, .tm-c-WV, .tm-c-TP, .tm-c-CON { background: var(--tm-city); }
 .tm-b-coin { fill: var(--tm-coin); background: var(--tm-coin); }
 .tm-b-food { fill: var(--tm-food); background: var(--tm-food); }
 .tm-b-iron { fill: var(--tm-iron); background: var(--tm-iron); }
-.tm-b-gather { fill: var(--tm-gather); background: var(--tm-gather); }
-.tm-dot {
-  stroke: #000;
-  stroke-width: 0.03;
-}
-.tm-sel {
+.tm-b-research { fill: var(--tm-research); background: var(--tm-research); }
+.tm-b-construction { fill: var(--tm-construction); background: var(--tm-construction); }
+.tm-b-march { fill: var(--tm-march); background: var(--tm-march); }
+.tm .tm-sel {
   stroke: var(--tm-sel);
-  stroke-width: 0.09;
+  stroke-width: 5;
 }
 
 .tm-lbl {
-  font-size: 0.26px;
+  font-size: 11px;
   font-weight: 700;
   text-anchor: middle;
   fill: var(--tm-lbl);
   pointer-events: none;
 }
-.tm-lbl-fg {
-  fill: var(--tm-lbl-fg);
-  font-size: 0.22px;
-}
-.tm-lbl-own {
-  fill: #fff;
+.tm-lbl-own,
+.tm-b-coin + .tm-lbl,
+.tm-b-food + .tm-lbl,
+.tm-b-iron + .tm-lbl,
+.tm-b-research + .tm-lbl,
+.tm-b-construction + .tm-lbl,
+.tm-b-march + .tm-lbl {
   paint-order: stroke;
-  stroke: rgb(0 0 0 / 0.55);
-  stroke-width: 0.05px;
+  stroke: rgb(0 0 0 / 0.7);
+  stroke-width: 2.5px;
+}
+.tm-lbl-ws {
+  font-size: 12px;
 }
 .tm-lv {
-  font-size: 0.2px;
+  font-size: 9px;
   font-weight: 600;
 }
 .tm-pathnum {
-  font-size: 0.24px;
+  font-size: 14px;
   font-weight: 800;
   text-anchor: middle;
   fill: #fff;
   paint-order: stroke;
   stroke: #000;
-  stroke-width: 0.04px;
+  stroke-width: 2.5px;
 }
 
 .tm-info {
@@ -315,7 +322,7 @@
   width: 12px;
   height: 12px;
   border-radius: 3px;
-  border: 1px solid var(--tm-cell-stroke);
+  border: 1px solid var(--tm-road);
   vertical-align: -1px;
   margin-right: 6px;
 }

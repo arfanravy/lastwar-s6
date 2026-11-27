@@ -3,7 +3,7 @@ import type { ChangeEvent, PointerEvent as RPointerEvent } from 'react';
 import { Copy, Download, Eraser, Eye, Minus, Pencil, Plus, Trash2, Upload, Users } from 'lucide-react';
 import type { Lang } from '../../config';
 import topAlliances from '../../data/top-alliances.json';
-import { AREAS, AREA_TYPES, BUFFS, GRID, assignable, components } from '../../lib/territory/layout';
+import { AREAS, AREA_TYPES, BUFFS, SIZE, assignable, components } from '../../lib/territory/layout';
 import type { AreaType, Buff } from '../../lib/territory/layout';
 import { buffNames, strings, typeNames } from './i18n';
 import './territory.css';
@@ -42,11 +42,14 @@ interface Store {
   settings: Settings;
 }
 
-const STORAGE_KEY = 'rimba.territory';
+// v2: real warzone layout (area indexes differ from the v1 estimate)
+const STORAGE_KEY = 'rimba.territory.v2';
 const PALETTE = ['#e6194b', '#3cb44b', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabed4', '#ffe119'];
 const SHAPES = ['circle', 'square', 'triangle', 'diamond', 'cross', 'star', 'ring', 'bar'] as const;
-const ABBR: Record<AreaType, string> = { SAN: 'S', WA: 'WA', WB: 'WB', WV: 'WV', TP: 'TP', CON: 'CON', WO: 'WO', FG: 'FG' };
+const ABBR: Record<AreaType, string> = { WS: 'WS', WA: 'WA', WB: 'WB', WV: 'WV', TP: 'TP', CON: 'CON', WO: 'WO', FG: 'FG' };
 const ZOOMS = [1, 1.5, 2, 3];
+/** Fishing Grounds and the Sanctuary first, cities on top. */
+const DRAW_ORDER = [...AREAS.filter((a) => !a.city), ...AREAS.filter((a) => a.city)];
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -166,8 +169,11 @@ export default function TerritoryMap({ lang }: { lang: Lang }) {
 
   // ── Stats ──
   const stats = useMemo(() => {
-    const per = new Map<string, { cells: number[]; types: Partial<Record<AreaType, number>>; buffs: Partial<Record<Buff, number>> }>();
-    for (const a of plan.alliances) per.set(a.id, { cells: [], types: {}, buffs: {} });
+    const per = new Map<
+      string,
+      { cells: number[]; types: Partial<Record<AreaType, number>>; buffs: Partial<Record<Buff, number>>; influence: number }
+    >();
+    for (const a of plan.alliances) per.set(a.id, { cells: [], types: {}, buffs: {}, influence: 0 });
     const ownedByType: Partial<Record<AreaType, number>> = {};
     for (const [k, aid] of Object.entries(plan.owner)) {
       const area = AREAS[Number(k)];
@@ -175,7 +181,8 @@ export default function TerritoryMap({ lang }: { lang: Lang }) {
       if (!st) continue;
       st.cells.push(area.idx);
       st.types[area.type] = (st.types[area.type] ?? 0) + 1;
-      if (area.buff) st.buffs[area.buff] = (st.buffs[area.buff] ?? 0) + 1;
+      if (area.buff) st.buffs[area.buff] = (st.buffs[area.buff] ?? 0) + (area.pct ?? 0);
+      st.influence += area.influence ?? 0;
       ownedByType[area.type] = (ownedByType[area.type] ?? 0) + 1;
     }
     return { per, ownedByType };
@@ -298,7 +305,7 @@ export default function TerritoryMap({ lang }: { lang: Lang }) {
     });
   };
   const exportPlan = () => {
-    const blob = new Blob([JSON.stringify({ kind: 'rimba-territory', grid: GRID, plan }, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify({ kind: 'rimba-territory', size: SIZE, plan }, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = `wilayah-1196-${plan.name.replace(/[^\w-]+/g, '_')}.json`;
@@ -394,7 +401,7 @@ export default function TerritoryMap({ lang }: { lang: Lang }) {
               ref={svgRef}
               className={`tm-svg${selAlliance ? ' tm-painting' : ''}`}
               style={{ width: `${s.zoom * 100}%` }}
-              viewBox={`-0.1 -0.1 ${GRID + 0.2} ${GRID + 0.2}`}
+              viewBox={`-4 -4 ${SIZE + 8} ${SIZE + 8}`}
               onPointerDown={onPointerDown}
               onPointerMove={onPointerMove}
               onPointerUp={endDrag}
@@ -402,51 +409,82 @@ export default function TerritoryMap({ lang }: { lang: Lang }) {
               role="img"
               aria-label="Territory map #1196"
             >
-              {AREAS.map((a) => {
+              <rect x={0} y={0} width={SIZE} height={SIZE} className="tm-bg" />
+              {DRAW_ORDER.map((a) => {
                 const own = allianceById.get(plan.owner[a.idx]);
-                const buffCls = s.buffs && a.buff ? ` tm-b-${a.buff}` : '';
+                const fillCls = s.buffs && a.buff && !own ? ` tm-b-${a.buff}` : '';
+                const title = `${tn[a.type]} · Lv. ${a.level}${a.buff ? ` · ${bn[a.buff]} +${a.pct}%` : ''}${own ? ` · ${own.name}` : ''}`;
+                const ownStyle = own ? { fill: own.color, fillOpacity: a.city ? 0.95 : 0.62 } : undefined;
+                const shape = own && s.colorBlind && (
+                  <Shape
+                    kind={SHAPES[own.i % SHAPES.length]}
+                    x={a.city ? a.cx + 15 : a.cx}
+                    y={a.city ? a.cy - 15 : a.cy}
+                    s={a.city ? 14 : 22}
+                    color={a.city ? '#fff' : own.color}
+                  />
+                );
+                if (!a.city)
+                  return (
+                    <g key={a.idx} data-idx={a.idx}>
+                      <title>{title}</title>
+                      <rect
+                        x={a.x}
+                        y={a.y}
+                        width={a.w}
+                        height={a.h}
+                        className={`tm-fg tm-fg-${a.type === 'WS' ? 'ws' : a.level}${fillCls}${selArea === a.idx ? ' tm-sel' : ''}`}
+                        style={ownStyle}
+                      />
+                      {a.type === 'WS' && (
+                        <text x={a.cx} y={a.cy} className="tm-lbl tm-lbl-ws">
+                          <tspan x={a.cx} dy={-2}>
+                            WS
+                          </tspan>
+                          <tspan x={a.cx} dy={12} className="tm-lv">
+                            Lv. {a.level}
+                          </tspan>
+                        </text>
+                      )}
+                      {shape}
+                    </g>
+                  );
                 return (
                   <g key={a.idx} data-idx={a.idx}>
+                    <title>{title}</title>
                     <rect
-                      x={a.x + 0.04}
-                      y={a.y + 0.04}
-                      width={0.92}
-                      height={0.92}
-                      rx={0.12}
-                      className={`tm-cell tm-c-${a.type}${buffCls}${selArea === a.idx ? ' tm-sel' : ''}`}
-                      style={own ? { fill: own.color, fillOpacity: 0.82 } : undefined}
+                      x={a.cx - 18}
+                      y={a.cy - 18}
+                      width={36}
+                      height={36}
+                      className={`tm-city${fillCls}${selArea === a.idx ? ' tm-sel' : ''}`}
+                      style={ownStyle}
                     />
-                    {own && s.buffs && a.buff && <circle cx={a.x + 0.84} cy={a.y + 0.16} r={0.1} className={`tm-dot tm-b-${a.buff}`} />}
-                    {own && s.colorBlind && (
-                      <Shape kind={SHAPES[own.i % SHAPES.length]} x={a.x + 0.2} y={a.y + 0.2} s={0.26} color="#fff" />
-                    )}
                     {s.labels && (
-                      <text x={a.x + 0.5} y={a.y + 0.5} className={`tm-lbl${own ? ' tm-lbl-own' : ''}${a.type === 'FG' ? ' tm-lbl-fg' : ''}`}>
-                        <tspan x={a.x + 0.5} dy={a.type === 'FG' ? 0.1 : -0.02}>
+                      <text x={a.cx} y={a.cy} className={`tm-lbl${own ? ' tm-lbl-own' : ''}`}>
+                        <tspan x={a.cx} dy={-2}>
                           {ABBR[a.type]}
                         </tspan>
-                        {a.type !== 'FG' && (
-                          <tspan x={a.x + 0.5} dy={0.3} className="tm-lv">
-                            {t.level}
-                            {a.level}
-                          </tspan>
-                        )}
+                        <tspan x={a.cx} dy={11} className="tm-lv">
+                          Lv. {a.level}
+                        </tspan>
                       </text>
                     )}
+                    {shape}
                   </g>
                 );
               })}
               {plan.alliances.map((al) => {
                 const path = plan.paths[al.id];
                 if (!path?.length) return null;
-                const pts = path.map((i) => `${AREAS[i].x + 0.5},${AREAS[i].y + 0.5}`).join(' ');
+                const pts = path.map((i) => `${AREAS[i].cx},${AREAS[i].cy}`).join(' ');
                 return (
                   <g key={al.id} className="tm-path" pointerEvents="none">
-                    <polyline points={pts} fill="none" stroke={al.color} strokeWidth={0.09} strokeLinejoin="round" />
+                    <polyline points={pts} fill="none" stroke={al.color} strokeWidth={6} strokeLinejoin="round" />
                     {path.map((i, n) => (
                       <g key={n}>
-                        <circle cx={AREAS[i].x + 0.5} cy={AREAS[i].y + 0.5} r={0.22} fill={al.color} stroke="#000" strokeWidth={0.03} />
-                        <text x={AREAS[i].x + 0.5} y={AREAS[i].y + 0.58} className="tm-pathnum">
+                        <circle cx={AREAS[i].cx} cy={AREAS[i].cy} r={13} fill={al.color} stroke="#000" strokeWidth={2} />
+                        <text x={AREAS[i].cx} y={AREAS[i].cy + 5} className="tm-pathnum">
                           {n + 1}
                         </text>
                       </g>
@@ -460,9 +498,10 @@ export default function TerritoryMap({ lang }: { lang: Lang }) {
             <strong>{t.selected}:</strong>{' '}
             {sel ? (
               <>
-                {tn[sel.type]} · {t.level}
-                {sel.level}
-                {sel.buff ? ` · ${bn[sel.buff]}` : ''} · ({sel.x}, {sel.y}) · {t.owner}: {selOwner ? selOwner.name : t.none}
+                {tn[sel.type]} · Lv. {sel.level}
+                {sel.buff ? ` · ${bn[sel.buff]} +${sel.pct}%` : ''}
+                {sel.influence ? ` · ${t.influence} ${sel.influence.toLocaleString(lang)}` : ''} · {t.owner}:{' '}
+                {selOwner ? selOwner.name : t.none}
                 {!assignable(sel) && <em> · {t.notAssignable}</em>}
               </>
             ) : (
@@ -601,12 +640,13 @@ export default function TerritoryMap({ lang }: { lang: Lang }) {
                 <tr>
                   <th>{t.alliances}</th>
                   <th>{t.total}</th>
-                  {AREA_TYPES.filter((ty) => ty !== 'SAN').map((ty) => (
+                  {AREA_TYPES.filter((ty) => ty !== 'WS').map((ty) => (
                     <th key={ty} title={tn[ty]}>
                       {ABBR[ty]}
                     </th>
                   ))}
                   {s.buffTotals && BUFFS.map((b) => <th key={b}>{bn[b]}</th>)}
+                  <th>{t.influence}</th>
                   <th>{t.blocks}</th>
                   <th>{t.pathLen}</th>
                 </tr>
@@ -623,10 +663,11 @@ export default function TerritoryMap({ lang }: { lang: Lang }) {
                       <td>
                         <b>{st.cells.length}</b>
                       </td>
-                      {AREA_TYPES.filter((ty) => ty !== 'SAN').map((ty) => (
+                      {AREA_TYPES.filter((ty) => ty !== 'WS').map((ty) => (
                         <td key={ty}>{st.types[ty] ?? 0}</td>
                       ))}
-                      {s.buffTotals && BUFFS.map((b) => <td key={b}>{st.buffs[b] ?? 0}</td>)}
+                      {s.buffTotals && BUFFS.map((b) => <td key={b}>{st.buffs[b] ? `+${+st.buffs[b]!.toFixed(1)}%` : '–'}</td>)}
+                      <td>{st.influence.toLocaleString(lang)}</td>
                       <td className={blocks > 1 ? 'tm-warn' : ''} title={blocks > 1 ? t.blocksWarn : undefined}>
                         {blocks}
                         {blocks > 1 ? ' ⚠' : ''}
