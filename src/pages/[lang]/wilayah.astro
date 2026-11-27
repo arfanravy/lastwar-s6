@@ -1,0 +1,33 @@
+---
+import Base from '../../layouts/Base.astro';
+import TerritoryMap from '../../components/territory/TerritoryMap.tsx';
+import type { Lang } from '../../config';
+import { langPaths } from '../../i18n/ui';
+
+export const getStaticPaths = langPaths;
+
+const lang = Astro.params.lang as Lang;
+const copy = {
+  id: {
+    title: 'Peta Wilayah Aliansi #1196',
+    lead: 'Rencanakan wilayah tiap aliansi di warzone #1196: tandai area, buat jalur ekspansi bernomor, dan lihat total area serta buff per aliansi. Data tersimpan di browser kamu.',
+    loading: 'Memuat peta wilayah…',
+  },
+  en: {
+    title: 'Alliance Territory Map #1196',
+    lead: 'Plan each alliance’s territory in warzone #1196: assign areas, draw numbered expansion paths and see area and buff totals per alliance. Data stays in your browser.',
+    loading: 'Loading territory map…',
+  },
+}[lang];
+---
+
+<Base lang={lang} route="wilayah/" title={copy.title} description={copy.lead}>
+  <header class="page-head">
+    <span class="eyebrow">Season 6 · Alliance Tools</span>
+    <h1>{copy.title}</h1>
+    <p>{copy.lead}</p>
+  </header>
+  <TerritoryMap client:only="react" lang={lang}>
+    <p slot="fallback" class="card" style="color: var(--muted)">{copy.loading}</p>
+  </TerritoryMap>
+</Base>
